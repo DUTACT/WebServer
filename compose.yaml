@@ -1,7 +1,41 @@
 services:
+  webapp:
+    image: 'dutact/webapp:latest'
+    build:
+      context: .
+      dockerfile: 'Dockerfile'
+    environment:
+      - 'PORT=8080'
+      - 'DB_HOST=postgres'
+    env_file:
+      - 'app.env'
+    ports:
+      - '8080:8080'
+    depends_on:
+      - 'postgres'
+    networks:
+      dutact-network:
+        aliases:
+          - 'webapp'
+
   postgres:
     image: 'postgres:latest'
     env_file:
       - 'db.env'
     ports:
       - '5432:5432'
+    networks:
+      dutact-network:
+        aliases:
+          - 'postgres'
+    volumes:
+      - 'postgres-data:/var/lib/postgresql/data'
+
+networks:
+  dutact-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
+    driver: local
+    name: 'dutact-postgres-data'
