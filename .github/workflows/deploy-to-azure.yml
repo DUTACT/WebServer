@@ -1,0 +1,77 @@
+name: Deploy To Azure
+
+on:
+  workflow_dispatch:
+
+env:
+  WEBAPP_ARTIFACT_NAME: webapp
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout project source
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: Make Gradlew executable
+        run: chmod +x gradlew
+
+      - name: Run build
+        run: ./gradlew clean bootJar
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{env.WEBAPP_ARTIFACT_NAME}}
+          if-no-files-found: error
+          path: build/libs/*.jar
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: ${{env.WEBAPP_ARTIFACT_NAME}}
+
+      - name: Rename jar file
+        run: mv *.jar app.jar
+
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          creds: ${{secrets.AZURE_CREDENTIALS}}
+
+      - name: Deploy to Azure Container App
+        uses: azure/cli@v2
+        with:
+          inlineScript: |
+            az extension add --name containerapp --upgrade
+            az containerapp secret set \
+              --resource-group ${{vars.AZURE_RESOURCE_GROUP}} \
+              --name ${{vars.AZURE_CONTAINER_APP_NAME}} \
+              --secrets \
+                'db-host=${{secrets.DB_HOST}}' \
+                'db-port=${{secrets.DB_PORT}}' \
+                'db-name=${{secrets.DB_NAME}}' \
+                'db-user=${{secrets.DB_USER}}' \
+                'db-password=${{secrets.DB_PASSWORD}}'
+            az containerapp up \
+              --name ${{vars.AZURE_CONTAINER_APP_NAME}} \
+              --artifact app.jar \
+              --env-vars \
+                'DB_HOST=secretref:db-host' \
+                'DB_PORT=secretref:db-port' \
+                'DB_NAME=secretref:db-name' \
+                'DB_USER=secretref:db-user' \
+                'DB_PASSWORD=secretref:db-password'
