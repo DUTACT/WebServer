@@ -65,7 +65,11 @@ jobs:
                 'db-port=${{secrets.DB_PORT}}' \
                 'db-name=${{secrets.DB_NAME}}' \
                 'db-user=${{secrets.DB_USER}}' \
-                'db-password=${{secrets.DB_PASSWORD}}'
+                'db-password=${{secrets.DB_PASSWORD}}' \
+                'azure-client-id=${{secrets.AZURE_CLIENT_ID}}' \
+                'azure-client-secret=${{secrets.AZURE_CLIENT_SECRET}}' \
+                'azure-tenant-id=${{secrets.AZURE_TENANT_ID}}'
+            
             az containerapp up \
               --name ${{vars.AZURE_CONTAINER_APP_NAME}} \
               --artifact app.jar \
@@ -74,4 +78,10 @@ jobs:
                 'DB_PORT=secretref:db-port' \
                 'DB_NAME=secretref:db-name' \
                 'DB_USER=secretref:db-user' \
-                'DB_PASSWORD=secretref:db-password'
+                'DB_PASSWORD=secretref:db-password' \
+                'AZURE_CLIENT_ID=secretref:azure-client-id' \
+                'AZURE_CLIENT_SECRET=secretref:azure-client-secret' \
+                'AZURE_TENANT_ID=secretref:azure-tenant-id' \
+                'AZURE_STORAGE_ACCOUNT_NAME=${{vars.AZURE_STORAGE_ACCOUNT_NAME}}' \
+                'AZURE_STORAGE_BLOB_CONTAINER_NAME=${{vars.AZURE_STORAGE_BLOB_CONTAINER_NAME}}'
+              
