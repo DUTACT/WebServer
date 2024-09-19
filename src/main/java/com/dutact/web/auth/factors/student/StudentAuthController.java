@@ -27,7 +27,7 @@ import java.util.Map;
 public class StudentAuthController {
     private final StudentAuthService studentAuthService;
 
-    public StudentAuthController(StudentAuthService studentAuthService, StudentRepository studentRepository) {
+    public StudentAuthController(StudentAuthService studentAuthService) {
         this.studentAuthService = studentAuthService;
     }
     @Operation(summary = "Login for students", description = "Authenticate a student and return a JWT token")

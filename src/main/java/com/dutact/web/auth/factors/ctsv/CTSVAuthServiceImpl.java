@@ -6,7 +6,6 @@ import com.dutact.web.auth.dto.ResponseToken;
 import com.dutact.web.auth.exception.InvalidLoginCredentialsException;
 import com.dutact.web.auth.token.jwt.JWTProcessor;
 import com.dutact.web.core.repositories.CTSVRepository;
-import com.dutact.web.core.repositories.OrganizationRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;

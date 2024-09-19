@@ -1,7 +1,8 @@
 package com.dutact.web.auth;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
 @Table(name = "usercredential")
