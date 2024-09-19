@@ -37,6 +37,8 @@ dependencies {
     implementation("com.azure.spring:spring-cloud-azure-starter")
     implementation("com.azure.spring:spring-cloud-azure-starter-storage")
     implementation("commons-io:commons-io:2.16.1")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-api:2.6.0")
     compileOnly("org.projectlombok:lombok")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     runtimeOnly("org.postgresql:postgresql")
