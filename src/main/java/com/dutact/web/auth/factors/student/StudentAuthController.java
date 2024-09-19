@@ -30,10 +30,6 @@ public class StudentAuthController {
     public StudentAuthController(StudentAuthService studentAuthService, StudentRepository studentRepository) {
         this.studentAuthService = studentAuthService;
     }
-    @GetMapping("/api/student/test-access-resource")
-    public ResponseEntity<Object> testAccess() {
-        return ResponseEntity.ok("You have access to this resource");
-    }
     @Operation(summary = "Login for students", description = "Authenticate a student and return a JWT token")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Login successful, token returned",
