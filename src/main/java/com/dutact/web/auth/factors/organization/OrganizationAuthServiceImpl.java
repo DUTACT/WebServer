@@ -20,20 +20,20 @@ public class OrganizationAuthServiceImpl implements OrganizationAuthService {
 
     private final PasswordEncoder passwordEncoder;
 
-    private final long verificationDuration;
+    private final long jwtLifespan;
 
-    public OrganizationAuthServiceImpl(@Value("${auth.jwt.verification-duration}") long verificationDuration,
+    public OrganizationAuthServiceImpl(@Value("${auth.jwt.lifespan}") long jwtLifespan,
                                        JWTProcessor jwtProcessor,
                                        OrganizationRepository organizationRepository,
                                        PasswordEncoder passwordEncoder) {
-        this.verificationDuration = verificationDuration;
+        this.jwtLifespan = jwtLifespan;
         this.organizationRepository = organizationRepository;
         this.jwtProcessor = jwtProcessor;
         this.passwordEncoder = passwordEncoder;
     }
 
     @Override
-    public ResponseToken login(LoginDto loginDto) {
+    public ResponseToken login(LoginDto loginDto) throws InvalidLoginCredentialsException {
         String username = loginDto.getUsername();
         String password = loginDto.getPassword();
 
@@ -46,7 +46,7 @@ public class OrganizationAuthServiceImpl implements OrganizationAuthService {
 
         String token = jwtProcessor.getBuilder()
                 .withSubject(username)
-                .withClaim("expiredAt", System.currentTimeMillis() + verificationDuration)
+                .withClaim("expiredAt", System.currentTimeMillis() + jwtLifespan)
                 .withScopes(List.of("ROLE_"+ userCredential.getRole()))
                 .build();
 

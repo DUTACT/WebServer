@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Xác thực OTP</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 600px;
+      margin: 20px auto;
+      background-color: #ffffff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    h2 {
+      color: #333333;
+    }
+    .otp-code {
+      font-size: 24px;
+      font-weight: bold;
+      color: #ff6f61;
+      margin: 20px 0;
+    }
+    p {
+      color: #555555;
+    }
+    .footer {
+      font-size: 12px;
+      color: #aaaaaa;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h2>Xác thực OTP</h2>
+  <p>Xin chào,</p>
+  <p>Chúng tôi đã nhận được yêu cầu xác minh tài khoản của bạn. Vui lòng sử dụng mã OTP dưới đây để hoàn tất quá trình xác minh:</p>
+  <div class="otp-code" th:text="@{${otp}}"></div>
+  <p th:text="'Mã OTP này có hiệu lực trong vòng ' + ${expiredMin} + ' phút. Nếu bạn không yêu cầu, xin vui lòng bỏ qua email này.'"></p>
+  <p>Xin cảm ơn!</p>
+</div>
+</body>
+</html>

@@ -19,21 +19,19 @@ public class AdminAuthServiceImpl implements AdminAuthService {
     private final JWTProcessor jwtProcessor;
 
     private final PasswordEncoder passwordEncoder;
-
-    private final long verificationDuration;
-
-    public AdminAuthServiceImpl(@Value("${auth.jwt.verification-duration}") long verificationDuration,
+    private final long jwtLifespan;
+    public AdminAuthServiceImpl(@Value("${auth.jwt.lifespan}") long jwtLifespan,
                                 JWTProcessor jwtProcessor,
                                 AdminRepository adminRepository,
                                 PasswordEncoder passwordEncoder) {
-        this.verificationDuration = verificationDuration;
+        this.jwtLifespan = jwtLifespan;
         this.adminRepository = adminRepository;
         this.jwtProcessor = jwtProcessor;
         this.passwordEncoder = passwordEncoder;
     }
 
     @Override
-    public ResponseToken login(LoginDto loginDto) {
+    public ResponseToken login(LoginDto loginDto) throws InvalidLoginCredentialsException {
         String username = loginDto.getUsername();
         String password = loginDto.getPassword();
 
@@ -46,7 +44,7 @@ public class AdminAuthServiceImpl implements AdminAuthService {
 
         String token = jwtProcessor.getBuilder()
                 .withSubject(username)
-                .withClaim("expiredAt", System.currentTimeMillis() + verificationDuration)
+                .withClaim("expiredAt", System.currentTimeMillis() + jwtLifespan)
                 .withScopes(List.of("ROLE_"+ userCredential.getRole()))
                 .build();
 

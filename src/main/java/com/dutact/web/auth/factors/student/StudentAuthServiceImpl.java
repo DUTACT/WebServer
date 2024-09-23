@@ -1,29 +1,26 @@
 package com.dutact.web.auth.factors.student;
 
 import com.dutact.web.auth.UserCredential;
-import com.dutact.web.auth.dto.ConfirmTokenDto;
+import com.dutact.web.auth.dto.ConfirmDto;
 import com.dutact.web.auth.dto.LoginDto;
 import com.dutact.web.auth.dto.ResponseToken;
 import com.dutact.web.auth.dto.student.StudentConfirmResetPasswordDto;
 import com.dutact.web.auth.dto.student.StudentRegisterDto;
 import com.dutact.web.auth.dto.student.StudentResetPasswordDto;
 import com.dutact.web.auth.exception.InvalidLoginCredentialsException;
+import com.dutact.web.auth.exception.OtpException;
 import com.dutact.web.auth.exception.UsernameOrEmailAlreadyExistException;
 import com.dutact.web.auth.exception.UsernameOrEmailNotExistException;
-import com.dutact.web.auth.token.jwt.InvalidJWTException;
+import com.dutact.web.auth.otp.OtpService;
 import com.dutact.web.auth.token.jwt.JWTProcessor;
-import com.dutact.web.auth.token.jwt.VerifiedJWT;
-import com.dutact.web.common.email.EmailSenderService;
-import com.dutact.web.common.email.EmailTemplateService;
 import com.dutact.web.core.entities.Student;
 import com.dutact.web.core.repositories.StudentRepository;
+import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 @Service
 public class StudentAuthServiceImpl implements StudentAuthService {
@@ -33,32 +30,23 @@ public class StudentAuthServiceImpl implements StudentAuthService {
 
     private final PasswordEncoder passwordEncoder;
 
-    private final EmailTemplateService emailTemplateService;
+    private final OtpService otpService;
+    private final long jwtLifespan;
 
-    private final EmailSenderService emailSenderService;
-
-    private final long verificationDuration;
-
-    private String appUrl;
-
-    public StudentAuthServiceImpl(@Value("${auth.jwt.verification-duration}") long verificationDuration,
+    public StudentAuthServiceImpl(@Value("${auth.jwt.lifespan}") long jwtLifespan,
                                   JWTProcessor jwtProcessor,
                                   StudentRepository studentRepository,
                                   PasswordEncoder passwordEncoder,
-                                  EmailTemplateService emailTemplateService,
-                                  EmailSenderService emailSenderService,
-                                  @Value("${app.url}") String appUrl) {
-        this.verificationDuration = verificationDuration;
+                                  OtpService otpService) {
+        this.jwtLifespan = jwtLifespan;
         this.studentRepository = studentRepository;
         this.jwtProcessor = jwtProcessor;
         this.passwordEncoder = passwordEncoder;
-        this.emailTemplateService = emailTemplateService;
-        this.emailSenderService = emailSenderService;
-        this.appUrl = appUrl;
+        this.otpService = otpService;
     }
 
     @Override
-    public ResponseToken login(LoginDto loginDto) {
+    public ResponseToken login(LoginDto loginDto) throws InvalidLoginCredentialsException {
         String email = loginDto.getUsername();
         String password = loginDto.getPassword();
 
@@ -71,6 +59,7 @@ public class StudentAuthServiceImpl implements StudentAuthService {
 
         String token = jwtProcessor.getBuilder()
                 .withSubject(email)
+                .withClaim("expiredAt", System.currentTimeMillis() + jwtLifespan)
                 .withScopes(List.of("ROLE_"+ userCredential.getRole()))
                 .build();
 
@@ -81,92 +70,51 @@ public class StudentAuthServiceImpl implements StudentAuthService {
     }
 
     @Override
-    public void register(StudentRegisterDto registerDTO) {
-        String token = jwtProcessor.getBuilder()
-                .withSubject(registerDTO.getEmail())
-                .withClaim("expiredAt", System.currentTimeMillis() + verificationDuration)
-                .withClaim("hashedPassword", passwordEncoder.encode(registerDTO.getPassword()))
-                .withClaim("fullName", registerDTO.getFullName())
-                .withClaim("faculty", registerDTO.getFaculty())
-                .build();
-
+    public void register(StudentRegisterDto registerDTO) throws UsernameOrEmailAlreadyExistException, MessagingException {
         if (studentRepository.existsByUsername(registerDTO.getEmail())) {
             throw new UsernameOrEmailAlreadyExistException();
         }
 
-        String emailContent = emailTemplateService.generateEmailContent("student-confirmation", Map.of(
-                "appUrl", appUrl,
-                "token", token
-        ));
-        emailSenderService.sendEmail(registerDTO.getEmail(), "Kích hoạt tài khoản DUTACT của bạn", emailContent);
+        Student student = new Student();
+        student.setUsername(registerDTO.getEmail());
+        student.setPassword(passwordEncoder.encode(registerDTO.getPassword()));
+        student.setName(registerDTO.getFullName());
+        student.setMajor(registerDTO.getFaculty());
+        student.setEnabled(false);
+        studentRepository.save(student);
+
+        otpService.sendOtp(student.getUsername());
     }
 
     @Override
-    public void confirmRegistration(ConfirmTokenDto verificationTokenDto) {
-        VerifiedJWT verifiedJWT = jwtProcessor.getVerifiedJWT(verificationTokenDto.getToken());
-
-        Optional<Long> expiredAt = verifiedJWT.getClaim("expiredAt", Long.class);
-        if (expiredAt.isEmpty() || expiredAt.get() < System.currentTimeMillis()) {
-            throw new InvalidJWTException("Token expired");
+    public void confirmRegistration(ConfirmDto verificationTokenDto) throws OtpException {
+        boolean isOtpValid = otpService.verifyOtp(verificationTokenDto.getEmail(), verificationTokenDto.getOtp());
+        if (!isOtpValid) {
+            throw new OtpException();
         }
-
-        String email = verifiedJWT.getUsername();
-        if (studentRepository.existsByUsername(email)) {
-            throw new UsernameOrEmailAlreadyExistException();
-        }
-        String hashedPassword = verifiedJWT.getClaim("hashedPassword", String.class)
-                .orElseThrow(() -> new InvalidJWTException("Hashed password not found"));
-        String fullName = verifiedJWT.getClaim("fullName", String.class)
-                .orElseThrow(() -> new InvalidJWTException("Full name not found"));
-        String faculty = verifiedJWT.getClaim("faculty", String.class)
-                .orElseThrow(() -> new InvalidJWTException("Faculty not found"));
-
-        Student student = new Student();
-        student.setName(fullName);
-        student.setUsername(email);
-        student.setPassword(hashedPassword);
-        student.setMajor(faculty);
+        Student student = studentRepository.findByUsername(verificationTokenDto.getEmail()).get();
 
         student.setEnabled(true);
         studentRepository.save(student);
     }
 
     @Override
-    public void resetPassword(StudentResetPasswordDto resetPasswordDto) {
+    public void resetPassword(StudentResetPasswordDto resetPasswordDto) throws UsernameOrEmailNotExistException, MessagingException {
         Student student = studentRepository.findByUsername(resetPasswordDto.getEmail())
                 .orElseThrow(UsernameOrEmailNotExistException::new);
 
-        String token = jwtProcessor.getBuilder()
-                .withSubject(student.getUsername())
-                .withClaim("expiredAt", System.currentTimeMillis() + verificationDuration)
-                .build();
-
-        String emailContent = emailTemplateService.generateEmailContent("reset-password-email", Map.of(
-                "appUrl", appUrl,
-                "email", resetPasswordDto.getEmail(),
-                "token", token
-        ));
-
-        emailSenderService.sendEmail(resetPasswordDto.getEmail(), "Reset mật khẩu", emailContent);
+        otpService.sendOtp(student.getUsername());
     }
 
     @Override
-    public void resetNewPassword(StudentConfirmResetPasswordDto tokenDto) {
-        VerifiedJWT verifiedJWT = jwtProcessor.getVerifiedJWT(tokenDto.getToken());
-
-        Optional<Long> expiredAt = verifiedJWT.getClaim("expiredAt", Long.class);
-        if (expiredAt.isEmpty() || expiredAt.get() < System.currentTimeMillis()) {
-            throw new InvalidJWTException("Token expired");
+    public void resetNewPassword(StudentConfirmResetPasswordDto resetPasswordDto) throws OtpException {
+        boolean isOtpValid = otpService.verifyOtp(resetPasswordDto.getEmail(), resetPasswordDto.getOtp());
+        if (!isOtpValid) {
+            throw new OtpException();
         }
+        Student student = studentRepository.findByUsername(resetPasswordDto.getEmail()).get();
 
-        Student student = studentRepository.findByUsername(tokenDto.getEmail())
-                .orElseThrow(UsernameOrEmailNotExistException::new);
-
-        if (!verifiedJWT.getUsername().equals(tokenDto.getEmail())) {
-            throw new InvalidJWTException("Invalid token");
-        }
-
-        student.setPassword(passwordEncoder.encode(tokenDto.getNewPassword()));
+        student.setPassword(passwordEncoder.encode(resetPasswordDto.getNewPassword()));
         studentRepository.save(student);
     }
 }

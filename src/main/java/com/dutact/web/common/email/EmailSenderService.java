@@ -17,8 +17,7 @@ public class EmailSenderService {
         this.emailSender = emailSender;
         this.fromEmail = fromEmail;
     }
-    public void sendEmail(String toEmail, String subject, String emailContent) {
-        try {
+    public void sendEmail(String toEmail, String subject, String emailContent) throws MessagingException {
             MimeMessage message = emailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
@@ -29,9 +28,5 @@ public class EmailSenderService {
             helper.setText(emailContent, true);
 
             emailSender.send(message);
-
-        } catch (MessagingException e) {
-            throw new RuntimeException(e);
-        }
     }
 }

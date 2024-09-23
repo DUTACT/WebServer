@@ -20,20 +20,20 @@ public class CTSVAuthServiceImpl implements CTSVAuthService {
 
     private final PasswordEncoder passwordEncoder;
 
-    private final long verificationDuration;
+    private final long jwtLifespan;
 
-    public CTSVAuthServiceImpl(@Value("${auth.jwt.verification-duration}") long verificationDuration,
+    public CTSVAuthServiceImpl(@Value("${auth.jwt.lifespan}") long jwtLifespan,
                                JWTProcessor jwtProcessor,
                                CTSVRepository ctsvRepository,
                                PasswordEncoder passwordEncoder) {
-        this.verificationDuration = verificationDuration;
+        this.jwtLifespan = jwtLifespan;
         this.ctsvRepository = ctsvRepository;
         this.jwtProcessor = jwtProcessor;
         this.passwordEncoder = passwordEncoder;
     }
 
     @Override
-    public ResponseToken login(LoginDto loginDto) {
+    public ResponseToken login(LoginDto loginDto) throws InvalidLoginCredentialsException {
         String username = loginDto.getUsername();
         String password = loginDto.getPassword();
 
@@ -46,7 +46,7 @@ public class CTSVAuthServiceImpl implements CTSVAuthService {
 
         String token = jwtProcessor.getBuilder()
                 .withSubject(username)
-                .withClaim("expiredAt", System.currentTimeMillis() + verificationDuration)
+                .withClaim("expiredAt", System.currentTimeMillis() + jwtLifespan)
                 .withScopes(List.of("ROLE_"+ userCredential.getRole()))
                 .build();
 

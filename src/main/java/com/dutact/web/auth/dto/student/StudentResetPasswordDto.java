@@ -1,12 +1,12 @@
 package com.dutact.web.auth.dto.student;
 
-import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
 public class StudentResetPasswordDto {
-    @NotEmpty(message = "Student email is required")
+    @NotBlank
     private String email;
 }
