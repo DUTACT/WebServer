@@ -13,6 +13,13 @@ jobs:
       - name: Checkout project source
         uses: actions/checkout@v4
 
+      - name: Exit if the branch is not main
+        run: |
+          if [ ${{ github.ref }} != 'refs/heads/main' ]; then
+            echo "This action is allowed only on the main branch"
+            exit 1
+          fi
+
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
