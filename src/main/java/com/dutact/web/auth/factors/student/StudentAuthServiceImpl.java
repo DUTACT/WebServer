@@ -9,9 +9,11 @@ import com.dutact.web.auth.exception.UsernameOrEmailAlreadyExistException;
 import com.dutact.web.auth.exception.UsernameOrEmailNotExistException;
 import com.dutact.web.auth.factors.Role;
 import com.dutact.web.auth.otp.OtpService;
+import com.dutact.web.auth.token.jwt.JWTProcessor;
 import com.dutact.web.core.entities.Student;
 import com.dutact.web.core.repositories.StudentRepository;
 import jakarta.mail.MessagingException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
