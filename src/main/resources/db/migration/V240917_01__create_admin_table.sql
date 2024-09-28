@@ -1,0 +1,4 @@
+CREATE TABLE "admin" (
+   id INTEGER PRIMARY KEY,
+   FOREIGN KEY (id) REFERENCES account(id) ON DELETE CASCADE
+);
