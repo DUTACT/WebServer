@@ -1,4 +1,4 @@
-package com.dutact.web.common.message;
+package com.dutact.web.common.api;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

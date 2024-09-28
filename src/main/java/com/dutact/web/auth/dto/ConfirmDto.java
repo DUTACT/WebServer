@@ -13,5 +13,5 @@ public class ConfirmDto {
     @NotBlank
     private String email;
     @NotNull
-    private Integer otp;
+    private Long otp;
 }

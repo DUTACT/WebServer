@@ -1,6 +1,6 @@
 package com.dutact.web.configuration;
 
-import com.dutact.web.auth.Role;
+import com.dutact.web.auth.factors.Role;
 import com.dutact.web.auth.filter.BearerTokenAuthenticationFilter;
 import com.dutact.web.auth.token.jwt.JWTAuthenticationProvider;
 import com.dutact.web.auth.token.jwt.JWTProcessor;
@@ -51,7 +51,7 @@ public class SecurityConfiguration {
 
     @Bean
     @Order(2)
-    public SecurityFilterChain organizationSecurityFilterChain(HttpSecurity http,
+    public SecurityFilterChain eventOrganizerSecurityFilterChain(HttpSecurity http,
                                                         JWTProcessor jwtProcessor) throws Exception {
         AuthenticationManager authenticationManager = authManager(http, jwtProcessor);
 
@@ -61,10 +61,10 @@ public class SecurityConfiguration {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterAfter(new BearerTokenAuthenticationFilter(authenticationManager), SecurityContextHolderFilter.class);
 
-        http.securityMatcher("/organization/**")
+        http.securityMatcher("/event-organizer/**")
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/organization/api/login").permitAll()
-                        .anyRequest().hasRole(Role.ORGANIZATION.name())
+                        .requestMatchers("/event-organizer/api/login").permitAll()
+                        .anyRequest().hasRole(Role.EVENT_ORGANIZER.name())
                 ).cors(cors -> cors.configurationSource(corsConfigurationSource()));
 
         return http.build();
@@ -72,7 +72,7 @@ public class SecurityConfiguration {
 
     @Bean
     @Order(3)
-    public SecurityFilterChain ctsvSecurityFilterChain(HttpSecurity http,
+    public SecurityFilterChain studentAffairsOfficeSecurityFilterChain(HttpSecurity http,
                                                                JWTProcessor jwtProcessor) throws Exception {
         AuthenticationManager authenticationManager = authManager(http, jwtProcessor);
 
@@ -82,10 +82,10 @@ public class SecurityConfiguration {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterAfter(new BearerTokenAuthenticationFilter(authenticationManager), SecurityContextHolderFilter.class);
 
-        http.securityMatcher("/ctsv/**")
+        http.securityMatcher("/student-affairs-office/**")
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/ctsv/api/login").permitAll()
-                        .anyRequest().hasRole(Role.ORGANIZATION.name())
+                        .requestMatchers("/student-affairs-office/api/login").permitAll()
+                        .anyRequest().hasRole(Role.STUDENT_AFFAIRS_OFFICE.name())
                 ).cors(cors -> cors.configurationSource(corsConfigurationSource()));
 
         return http.build();

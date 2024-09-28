@@ -1,11 +1,10 @@
-package com.dutact.web.auth.factors.organization;
+package com.dutact.web.auth.factors;
 
-import com.dutact.web.auth.UserCredential;
 import com.dutact.web.auth.dto.LoginDto;
 import com.dutact.web.auth.dto.ResponseToken;
+import com.dutact.web.auth.exception.AccountNotEnabledException;
 import com.dutact.web.auth.exception.InvalidLoginCredentialsException;
 import com.dutact.web.auth.token.jwt.JWTProcessor;
-import com.dutact.web.core.repositories.OrganizationRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -13,8 +12,8 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class OrganizationAuthServiceImpl implements OrganizationAuthService {
-    private final OrganizationRepository organizationRepository;
+public class AccountServiceImpl implements AccountService {
+    private final AccountRepository accountRepository;
 
     private final JWTProcessor jwtProcessor;
 
@@ -22,32 +21,36 @@ public class OrganizationAuthServiceImpl implements OrganizationAuthService {
 
     private final long jwtLifespan;
 
-    public OrganizationAuthServiceImpl(@Value("${auth.jwt.lifespan}") long jwtLifespan,
-                                       JWTProcessor jwtProcessor,
-                                       OrganizationRepository organizationRepository,
-                                       PasswordEncoder passwordEncoder) {
+    public AccountServiceImpl(@Value("${auth.jwt.lifespan}") long jwtLifespan,
+                              JWTProcessor jwtProcessor,
+                              AccountRepository accountRepository,
+                              PasswordEncoder passwordEncoder) {
         this.jwtLifespan = jwtLifespan;
-        this.organizationRepository = organizationRepository;
+        this.accountRepository = accountRepository;
         this.jwtProcessor = jwtProcessor;
         this.passwordEncoder = passwordEncoder;
     }
 
     @Override
-    public ResponseToken login(LoginDto loginDto) throws InvalidLoginCredentialsException {
+    public ResponseToken login(LoginDto loginDto) throws InvalidLoginCredentialsException, AccountNotEnabledException {
         String username = loginDto.getUsername();
         String password = loginDto.getPassword();
 
-        UserCredential userCredential = organizationRepository.findByUsername(username)
+        Account account = accountRepository.findByUsername(username)
                 .orElseThrow(InvalidLoginCredentialsException::new);
 
-        if (!passwordEncoder.matches(password, userCredential.getPassword())) {
+        if (!passwordEncoder.matches(password, account.getPassword())) {
             throw new InvalidLoginCredentialsException();
+        }
+
+        if (!account.isEnabled()){
+            throw new AccountNotEnabledException();
         }
 
         String token = jwtProcessor.getBuilder()
                 .withSubject(username)
                 .withClaim("expiredAt", System.currentTimeMillis() + jwtLifespan)
-                .withScopes(List.of("ROLE_"+ userCredential.getRole()))
+                .withScopes(List.of("ROLE_"+ account.getRole()))
                 .build();
 
         ResponseToken responseToken = new ResponseToken();

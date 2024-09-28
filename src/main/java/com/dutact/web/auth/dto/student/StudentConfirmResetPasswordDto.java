@@ -15,5 +15,5 @@ public class StudentConfirmResetPasswordDto {
     private String newPassword;
 
     @NotNull
-    private Integer otp;
+    private Long otp;
 }

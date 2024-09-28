@@ -1,37 +1,34 @@
 package com.dutact.web.auth.otp;
 
+import com.dutact.web.auth.exception.OtpException;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Random;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Class for generating OTP.
  */
 @Service
-public class OtpGenerator {
-
-
-    private final Integer EXPIRE_MS;
-    private LoadingCache<String, Integer> otpCache;
+public class OtpRepository {
+    private LoadingCache<String, Long> otpCache;
+    private ConcurrentHashMap<String, Long> expiryTimes;
 
     /**
      * Constructor configuration.
      */
-    public OtpGenerator(@Value("${auth.otp.lifespan}") Integer expireMs)
+    public OtpRepository()
     {
         super();
-        EXPIRE_MS = expireMs;
+        expiryTimes = new ConcurrentHashMap<>();
         otpCache = CacheBuilder.newBuilder()
-                .expireAfterWrite(EXPIRE_MS, TimeUnit.MILLISECONDS)
-                .build(new CacheLoader<String, Integer>() {
+                .build(new CacheLoader<String, Long>() {
                     @Override
-                    public Integer load(String s) throws Exception {
-                        return 0;
+                    public Long load(String s) throws Exception {
+                        return 0L;
                     }
                 });
     }
@@ -42,24 +39,27 @@ public class OtpGenerator {
      * @param key - cache key
      * @return cache value (generated OTP number)
      */
-    public Integer generateOTP(String key)
-    {
+    public Long generateOTP(String key, Long expireMs) {
         Random random = new Random();
-        int OTP = 100000 + random.nextInt(900000);
+        Long OTP = 100000L + random.nextLong(900000);
         otpCache.put(key, OTP);
+        expiryTimes.put(key, System.currentTimeMillis() + expireMs);
 
         return OTP;
     }
-
     /**
      * Method for getting OTP value by key.
      *
      * @param key - target key
      * @return OTP value
      */
-    public Integer getOPTByKey(String key)
-    {
-        return otpCache.getIfPresent(key);
+    public Long getOPTByKey(String key) throws OtpException {
+        Long expiryTime = expiryTimes.get(key);
+        if (System.currentTimeMillis() > expiryTime) {
+            clearOTPFromCache(key);
+            throw new OtpException();
+        }
+        return otpCache.getUnchecked(key);
     }
 
     /**
@@ -69,5 +69,6 @@ public class OtpGenerator {
      */
     public void clearOTPFromCache(String key) {
         otpCache.invalidate(key);
+        expiryTimes.remove(key);
     }
 }

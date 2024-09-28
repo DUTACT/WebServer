@@ -8,15 +8,12 @@ import lombok.Setter;
 @Getter
 @Setter
 public class StudentRegisterDto {
-    @NotEmpty(message = "Full name is required")
+    @NotBlank
     private String fullName;
 
-    @NotEmpty(message = "faculty is required")
-    private String faculty;
-
-    @NotEmpty(message = "Student email is required")
+    @NotBlank
     private String email;
 
-    @NotBlank(message = "Password is required")
+    @NotBlank
     private String password;
 }
