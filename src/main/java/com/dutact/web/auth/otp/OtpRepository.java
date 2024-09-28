@@ -15,6 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Service
 public class OtpRepository {
     private LoadingCache<String, Long> otpCache;
+    private Random random = new Random();
     private ConcurrentHashMap<String, Long> expiryTimes;
 
     /**
@@ -40,7 +41,6 @@ public class OtpRepository {
      * @return cache value (generated OTP number)
      */
     public Long generateOTP(String key, Long expireMs) {
-        Random random = new Random();
         Long OTP = 100000L + random.nextLong(900000);
         otpCache.put(key, OTP);
         expiryTimes.put(key, System.currentTimeMillis() + expireMs);
