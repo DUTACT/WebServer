@@ -1,14 +1,16 @@
 package com.dutact.web.core.entities.event;
 
+import com.dutact.web.core.entities.EventOrganizer;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.ColumnTransformer;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "admin")
+@Table(name = "event")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -16,7 +18,7 @@ public class Event {
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private String id;
+    private Integer id;
 
     @Column(name = "name")
     private String name;
@@ -39,7 +41,12 @@ public class Event {
     @Column(name = "cover_photo_url")
     private String coverPhotoUrl;
 
-    @Column(name = "status")
+    @Column(name = "status", columnDefinition = "jsonb")
+    @ColumnTransformer(write = "?::jsonb")
     @Convert(converter = EventStatusConverter.class)
     private EventStatus status;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "organizer_id")
+    private EventOrganizer organizer;
 }
