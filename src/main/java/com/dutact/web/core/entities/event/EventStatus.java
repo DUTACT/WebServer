@@ -2,7 +2,9 @@ package com.dutact.web.core.entities.event;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
@@ -22,13 +24,11 @@ public abstract class EventStatus {
 
     @Getter
     @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class Rejected extends EventStatus {
         public static final String TYPE_NAME = "rejected";
 
         private String reason;
-
-        public Rejected(String reason) {
-            this.reason = reason;
-        }
     }
 }

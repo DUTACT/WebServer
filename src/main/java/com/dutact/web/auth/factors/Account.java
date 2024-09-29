@@ -2,6 +2,7 @@ package com.dutact.web.auth.factors;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
@@ -9,6 +10,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Inheritance(strategy = InheritanceType.JOINED)
+@NoArgsConstructor
 public class Account {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,4 +21,8 @@ public class Account {
 
     @Enumerated(EnumType.STRING)
     private Role role;
+
+    public Account(Integer id) {
+        this.id = id;
+    }
 }
