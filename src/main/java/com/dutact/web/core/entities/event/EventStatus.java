@@ -12,20 +12,6 @@ import lombok.Setter;
         @JsonSubTypes.Type(value = EventStatus.Rejected.class, name = EventStatus.Rejected.TYPE_NAME)
 })
 public abstract class EventStatus {
-    public static Approved approved() {
-        return new Approved();
-    }
-
-    public static Pending pending() {
-        return new Pending();
-    }
-
-    public static Rejected rejected(String reason) {
-        Rejected rejected = new Rejected();
-        rejected.setReason(reason);
-        return rejected;
-    }
-
     public static class Approved extends EventStatus {
         public static final String TYPE_NAME = "approved";
     }
@@ -40,5 +26,9 @@ public abstract class EventStatus {
         public static final String TYPE_NAME = "rejected";
 
         private String reason;
+
+        public Rejected(String reason) {
+            this.reason = reason;
+        }
     }
 }
