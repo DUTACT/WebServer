@@ -2,6 +2,7 @@ package com.dutact.web.core.entities;
 
 import com.dutact.web.auth.factors.Account;
 import com.dutact.web.core.entities.event.Event;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
@@ -19,7 +20,9 @@ import java.util.List;
 @AllArgsConstructor
 public class EventOrganizer extends Account {
     private String name;
-    private String avatar_url;
+
+    @Column(name = "avatar_url")
+    private String avatarUrl;
 
     @Builder.Default
     @OneToMany(mappedBy = "organizer")
