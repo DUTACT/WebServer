@@ -21,6 +21,11 @@ public class EventOrganizer extends Account {
     private String name;
     private String avatar_url;
 
+    @Builder.Default
     @OneToMany(mappedBy = "organizer")
     private List<Event> events = new ArrayList<>();
+
+    public EventOrganizer(Integer id) {
+        super(id);
+    }
 }
