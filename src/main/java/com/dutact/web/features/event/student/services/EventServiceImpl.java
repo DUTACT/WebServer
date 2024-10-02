@@ -1,5 +1,6 @@
 package com.dutact.web.features.event.student.services;
 
+import com.dutact.web.core.entities.event.Event;
 import com.dutact.web.core.entities.event.EventStatus;
 import com.dutact.web.core.repositories.EventRepository;
 import com.dutact.web.features.event.student.dtos.EventDto;
@@ -23,7 +24,12 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public Optional<EventDto> getEvent(Integer id) {
-        return eventRepository.findById(id).map(eventMapper::toDto);
+        Optional<Event> event = eventRepository.findById(id);
+        if (event.isPresent() && event.get().getStatus() instanceof EventStatus.Approved) {
+            return event.map(eventMapper::toDto);
+        }
+
+        return Optional.empty();
     }
 
     @Override
