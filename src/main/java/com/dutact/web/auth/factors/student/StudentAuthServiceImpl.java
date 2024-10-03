@@ -32,9 +32,9 @@ public class StudentAuthServiceImpl implements StudentAuthService {
     }
 
     @Override
-    public void register(StudentRegisterDto registerDTO) throws UsernameOrEmailAlreadyExistException, MessagingException {
+    public void register(StudentRegisterDto registerDTO) throws MessagingException {
         if (studentRepository.existsByUsername(registerDTO.getEmail())) {
-            throw new UsernameOrEmailAlreadyExistException();
+            otpService.sendOtp(registerDTO.getEmail());
         }
 
         Student student = new Student();
