@@ -35,6 +35,7 @@ public class StudentAuthServiceImpl implements StudentAuthService {
     public void register(StudentRegisterDto registerDTO) throws MessagingException {
         if (studentRepository.existsByUsername(registerDTO.getEmail())) {
             otpService.sendOtp(registerDTO.getEmail());
+            return;
         }
 
         Student student = new Student();
