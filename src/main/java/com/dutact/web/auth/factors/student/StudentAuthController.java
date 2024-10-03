@@ -46,8 +46,6 @@ public class StudentAuthController {
     public ResponseEntity<Object> postRegister(@RequestBody @Valid StudentRegisterDto registerDto) {
         try {
             studentAuthService.register(registerDto);
-        } catch (UsernameOrEmailAlreadyExistException e) {
-            return new ResponseEntity<>(new ErrorMessage(e.getMessage()), HttpStatus.BAD_REQUEST);
         }
         catch (MessagingException e) {
             return new ResponseEntity<>(new ErrorMessage(e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
