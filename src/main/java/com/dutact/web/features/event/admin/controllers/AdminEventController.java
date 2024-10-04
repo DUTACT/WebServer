@@ -6,6 +6,7 @@ import com.dutact.web.auth.factors.Role;
 import com.dutact.web.core.entities.event.EventStatus;
 import com.dutact.web.features.event.admin.dtos.EventCreateDto;
 import com.dutact.web.features.event.admin.dtos.EventDto;
+import com.dutact.web.features.event.admin.dtos.EventUpdateDto;
 import com.dutact.web.features.event.admin.services.EventService;
 import lombok.SneakyThrows;
 import org.springframework.http.HttpStatus;
@@ -65,6 +66,17 @@ public class AdminEventController {
         return eventService.getEvent(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateEvent(@PathVariable Integer id,
+                                         @RequestBody EventUpdateDto eventDto) {
+        if (!SecurityContextUtils.hasRole(Role.EVENT_ORGANIZER)
+                || !isEventOwner(id)) {
+            return ResponseEntity.status(403).build();
+        }
+        
+        return ResponseEntity.ok(eventService.updateEvent(id, eventDto));
     }
 
     @PutMapping("/{id}/status")
