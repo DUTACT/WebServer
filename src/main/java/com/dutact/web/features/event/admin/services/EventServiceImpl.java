@@ -2,12 +2,14 @@ package com.dutact.web.features.event.admin.services;
 
 import com.dutact.web.core.entities.EventOrganizer;
 import com.dutact.web.core.entities.event.Event;
+import com.dutact.web.core.entities.event.EventStatus;
 import com.dutact.web.core.repositories.EventRepository;
 import com.dutact.web.features.event.admin.dtos.EventCreateUpdateDto;
 import com.dutact.web.features.event.admin.dtos.EventDto;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
+import java.util.Optional;
 
 @Service("organizerEventService")
 public class EventServiceImpl implements EventService {
@@ -29,14 +31,19 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    public Collection<EventDto> getEvents() {
+        return eventRepository.findAll().stream().map(eventMapper::toEventDto).toList();
+    }
+
+    @Override
     public Collection<EventDto> getEvents(Integer orgId) {
         return eventRepository.findAllByOrganizerId(orgId)
                 .stream().map(eventMapper::toEventDto).toList();
     }
 
     @Override
-    public EventDto getEvent(Integer eventId) {
-        return eventMapper.toEventDto(eventRepository.findById(eventId).orElseThrow());
+    public Optional<EventDto> getEvent(Integer eventId) {
+        return eventRepository.findById(eventId).map(eventMapper::toEventDto);
     }
 
     @Override
@@ -46,6 +53,15 @@ public class EventServiceImpl implements EventService {
         eventRepository.save(event);
 
         return eventMapper.toEventDto(event);
+    }
+
+    @Override
+    public EventStatus updateEventStatus(Integer eventId, EventStatus eventStatus) {
+        Event event = eventRepository.findById(eventId).orElseThrow();
+        event.setStatus(eventStatus);
+        eventRepository.save(event);
+
+        return event.getStatus();
     }
 
     @Override

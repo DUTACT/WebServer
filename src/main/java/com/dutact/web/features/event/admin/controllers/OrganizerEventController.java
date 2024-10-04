@@ -40,7 +40,7 @@ public class OrganizerEventController {
             return ResponseEntity.notFound().build();
         }
 
-        return ResponseEntity.ok(eventService.getEvent(eventId));
+        return ResponseEntity.ok(eventService.getEvent(eventId).orElseThrow());
     }
 
     @PutMapping("/{eventId}")
