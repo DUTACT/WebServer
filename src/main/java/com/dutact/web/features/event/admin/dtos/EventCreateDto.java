@@ -1,15 +1,14 @@
 package com.dutact.web.features.event.admin.dtos;
 
-import com.dutact.web.core.entities.event.EventStatus;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 import java.time.LocalDateTime;
 
 @Data
-public class EventDto {
-    @JsonProperty("id")
-    private Integer id;
+public class EventCreateDto {
+    @JsonProperty("organizerId")
+    private Integer organizerId;
 
     @JsonProperty("name")
     private String name;
@@ -31,10 +30,4 @@ public class EventDto {
 
     @JsonProperty("coverPhotoUrl")
     private String coverPhotoUrl;
-
-    @JsonProperty("status")
-    private EventStatus status;
-
-    @JsonProperty("organizerId")
-    private Integer organizerId;
 }

@@ -10,6 +10,7 @@ import java.util.Collection;
 
 public class SecurityContextUtils {
 
+    @SuppressWarnings("unchecked")
     public static boolean hasRole(Role role) {
         Collection<SimpleGrantedAuthority> authorities =
                 (Collection<SimpleGrantedAuthority>) getAuthentication()

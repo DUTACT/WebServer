@@ -6,7 +6,10 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +18,6 @@ import java.util.List;
 @Table(name = "event_organizer")
 @Getter
 @Setter
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class EventOrganizer extends Account {
@@ -24,7 +26,6 @@ public class EventOrganizer extends Account {
     @Column(name = "avatar_url")
     private String avatarUrl;
 
-    @Builder.Default
     @OneToMany(mappedBy = "organizer")
     private List<Event> events = new ArrayList<>();
 
