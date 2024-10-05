@@ -1,14 +1,15 @@
 package com.dutact.web.features.event.admin.services;
 
 import com.dutact.web.core.entities.event.EventStatus;
-import com.dutact.web.features.event.admin.dtos.EventCreateUpdateDto;
+import com.dutact.web.features.event.admin.dtos.EventCreateDto;
 import com.dutact.web.features.event.admin.dtos.EventDto;
+import com.dutact.web.features.event.admin.dtos.EventUpdateDto;
 
 import java.util.Collection;
 import java.util.Optional;
 
 public interface EventService {
-    EventDto createEvent(Integer orgId, EventCreateUpdateDto eventDto);
+    EventDto createEvent(EventCreateDto eventDto);
 
     Collection<EventDto> getEvents();
 
@@ -16,7 +17,7 @@ public interface EventService {
 
     Optional<EventDto> getEvent(Integer eventId);
 
-    EventDto updateEvent(Integer eventId, EventCreateUpdateDto eventDto);
+    EventDto updateEvent(Integer eventId, EventUpdateDto eventDto);
 
     EventStatus updateEventStatus(Integer eventId, EventStatus eventStatus);
 

@@ -5,7 +5,7 @@ import org.springframework.security.core.GrantedAuthority;
 
 import java.util.Collection;
 
-public class JWTAuthenticationToken extends AbstractAuthenticationToken{
+public class JWTAuthenticationToken extends AbstractAuthenticationToken {
     private final VerifiedJWT token;
 
     public JWTAuthenticationToken(VerifiedJWT token, Collection<? extends GrantedAuthority> authorities) {
@@ -21,6 +21,6 @@ public class JWTAuthenticationToken extends AbstractAuthenticationToken{
 
     @Override
     public Object getPrincipal() {
-        return token.getUsername();
+        return token;
     }
 }
