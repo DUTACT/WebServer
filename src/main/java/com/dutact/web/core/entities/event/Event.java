@@ -1,19 +1,22 @@
 package com.dutact.web.core.entities.event;
 
 import com.dutact.web.core.entities.EventOrganizer;
+import com.dutact.web.core.entities.post.Post;
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnTransformer;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "event")
 @Getter
 @Setter
-@NoArgsConstructor
 public class Event {
     @Id
     @Column(name = "id")
@@ -49,4 +52,8 @@ public class Event {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "organizer_id")
     private EventOrganizer organizer;
+
+    @Builder.Default
+    @OneToMany(mappedBy = "event")
+    private List<Post> posts = new ArrayList<>();
 }
