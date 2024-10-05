@@ -32,11 +32,12 @@ public class AdminEventController {
     @SneakyThrows
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<EventDto> createEvent(@RequestBody EventCreateDto eventDto) {
-        if (!SecurityContextUtils.hasRole(Role.EVENT_ORGANIZER)) {
+        if (!canManageOwnEvents()) {
             return ResponseEntity.status(403).build();
         }
 
-        int requestOrgId = organizerService.getOrganizerId(SecurityContextUtils.getUsername()).orElseThrow();
+        int requestOrgId = organizerService.getOrganizerId(SecurityContextUtils.getUsername())
+                .orElseThrow();
         if (eventDto.getOrganizerId() != requestOrgId) {
             return ResponseEntity.status(403).build();
         }
@@ -71,11 +72,10 @@ public class AdminEventController {
     @PutMapping("/{id}")
     public ResponseEntity<?> updateEvent(@PathVariable Integer id,
                                          @RequestBody EventUpdateDto eventDto) {
-        if (!SecurityContextUtils.hasRole(Role.EVENT_ORGANIZER)
-                || !isEventOwner(id)) {
+        if (!(canManageOwnEvents() && isEventOwner(id))) {
             return ResponseEntity.status(403).build();
         }
-        
+
         return ResponseEntity.ok(eventService.updateEvent(id, eventDto));
     }
 
@@ -91,8 +91,7 @@ public class AdminEventController {
 
     @DeleteMapping("/{eventId}")
     public ResponseEntity<?> deleteEvent(@PathVariable Integer eventId) {
-        if (!SecurityContextUtils.hasRole(Role.EVENT_ORGANIZER)
-                || !isEventOwner(eventId)) {
+        if (!(canManageOwnEvents() && isEventOwner(eventId))) {
             return ResponseEntity.status(403).build();
         }
 
@@ -100,11 +99,12 @@ public class AdminEventController {
         return ResponseEntity.ok().build();
     }
 
-    private boolean isEventOwner(Integer eventId) {
-        if (!SecurityContextUtils.hasRole(Role.EVENT_ORGANIZER)) {
-            return false;
-        }
+    private boolean canManageOwnEvents() {
+        return SecurityContextUtils.hasRole(Role.EVENT_ORGANIZER)
+                || SecurityContextUtils.hasRole(Role.STUDENT_AFFAIRS_OFFICE);
+    }
 
+    private boolean isEventOwner(Integer eventId) {
         String username = SecurityContextUtils.getUsername();
         return organizerService.getOrganizerId(username)
                 .map(orgId -> eventService.eventExists(orgId, eventId))

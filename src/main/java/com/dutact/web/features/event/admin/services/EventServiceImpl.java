@@ -1,5 +1,7 @@
 package com.dutact.web.features.event.admin.services;
 
+import com.dutact.web.auth.context.SecurityContextUtils;
+import com.dutact.web.auth.factors.Role;
 import com.dutact.web.core.entities.event.Event;
 import com.dutact.web.core.entities.event.EventStatus;
 import com.dutact.web.core.repositories.EventRepository;
@@ -24,6 +26,13 @@ public class EventServiceImpl implements EventService {
     @Override
     public EventDto createEvent(EventCreateDto eventDto) {
         Event event = eventMapper.toEvent(eventDto);
+
+        if (SecurityContextUtils.hasRole(Role.STUDENT_AFFAIRS_OFFICE)) {
+            event.setStatus(new EventStatus.Approved());
+        } else {
+            event.setStatus(new EventStatus.Pending());
+        }
+
         eventRepository.save(event);
 
         return eventMapper.toEventDto(event);
