@@ -10,6 +10,7 @@ import com.dutact.web.features.event.admin.dtos.EventUpdateDto;
 import com.dutact.web.features.event.admin.services.EventService;
 import lombok.SneakyThrows;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,10 +29,10 @@ public class AdminEventController {
         this.organizerService = organizerService;
     }
 
-    @PostMapping
+    @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     @SneakyThrows
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<EventDto> createEvent(@RequestBody EventCreateDto eventDto) {
+    public ResponseEntity<EventDto> createEvent(@ModelAttribute EventCreateDto eventDto) {
         if (!canManageOwnEvents()) {
             return ResponseEntity.status(403).build();
         }
@@ -71,7 +72,7 @@ public class AdminEventController {
 
     @PutMapping("/{id}")
     public ResponseEntity<?> updateEvent(@PathVariable Integer id,
-                                         @RequestBody EventUpdateDto eventDto) {
+                                         @ModelAttribute EventUpdateDto eventDto) {
         if (!(canManageOwnEvents() && isEventOwner(id))) {
             return ResponseEntity.status(403).build();
         }

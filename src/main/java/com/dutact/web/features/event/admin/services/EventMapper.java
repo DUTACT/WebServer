@@ -12,12 +12,16 @@ import org.mapstruct.MappingTarget;
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface EventMapper {
     @Mapping(target = "organizerId", source = "organizer.id")
+    @Mapping(target = "coverPhotoUrl", source = "coverPhoto.fileUrl")
     EventDto toEventDto(Event event);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "status", ignore = true)
+    @Mapping(target = "coverPhoto", ignore = true)
+    @Mapping(target = "posts", ignore = true)
     @Mapping(target = "organizer.id", source = "organizerId")
     Event toEvent(EventCreateDto eventDto);
 
+    @Mapping(target = "coverPhotoUrl", source = "coverPhoto.fileUrl")
     void updateEvent(@MappingTarget EventUpdateDto eventDto, Event event);
 }

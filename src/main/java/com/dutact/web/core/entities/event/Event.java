@@ -1,11 +1,11 @@
 package com.dutact.web.core.entities.event;
 
 import com.dutact.web.core.entities.EventOrganizer;
+import com.dutact.web.core.entities.common.UploadFileConverter;
+import com.dutact.web.core.entities.common.UploadedFile;
 import com.dutact.web.core.entities.post.Post;
 import jakarta.persistence.*;
-import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnTransformer;
 
@@ -41,8 +41,10 @@ public class Event {
     @Column(name = "end_registration_at")
     private LocalDateTime endRegistrationAt;
 
-    @Column(name = "cover_photo_url")
-    private String coverPhotoUrl;
+    @Column(name = "cover_photo")
+    @ColumnTransformer(write = "?::jsonb")
+    @Convert(converter = UploadFileConverter.class)
+    private UploadedFile coverPhoto;
 
     @Column(name = "status", columnDefinition = "jsonb")
     @ColumnTransformer(write = "?::jsonb")
@@ -53,7 +55,6 @@ public class Event {
     @JoinColumn(name = "organizer_id")
     private EventOrganizer organizer;
 
-    @Builder.Default
     @OneToMany(mappedBy = "event")
     private List<Post> posts = new ArrayList<>();
 }

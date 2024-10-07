@@ -2,12 +2,17 @@ package com.dutact.web.features.event.admin.services;
 
 import com.dutact.web.auth.context.SecurityContextUtils;
 import com.dutact.web.auth.factors.Role;
+import com.dutact.web.common.mapper.UploadedFileMapper;
 import com.dutact.web.core.entities.event.Event;
 import com.dutact.web.core.entities.event.EventStatus;
 import com.dutact.web.core.repositories.EventRepository;
 import com.dutact.web.features.event.admin.dtos.EventCreateDto;
 import com.dutact.web.features.event.admin.dtos.EventDto;
 import com.dutact.web.features.event.admin.dtos.EventUpdateDto;
+import com.dutact.web.storage.StorageService;
+import com.dutact.web.storage.UploadFileResult;
+import lombok.SneakyThrows;
+import org.apache.commons.io.FilenameUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
@@ -16,16 +21,28 @@ import java.util.Optional;
 @Service("organizerEventService")
 public class EventServiceImpl implements EventService {
     private final EventMapper eventMapper;
+    private final UploadedFileMapper uploadedFileMapper;
     private final EventRepository eventRepository;
+    private final StorageService storageService;
 
-    public EventServiceImpl(EventMapper eventMapper, EventRepository eventRepository) {
+    public EventServiceImpl(EventMapper eventMapper,
+                            UploadedFileMapper uploadedFileMapper,
+                            EventRepository eventRepository,
+                            StorageService storageService) {
         this.eventMapper = eventMapper;
+        this.uploadedFileMapper = uploadedFileMapper;
         this.eventRepository = eventRepository;
+        this.storageService = storageService;
     }
 
     @Override
+    @SneakyThrows
     public EventDto createEvent(EventCreateDto eventDto) {
         Event event = eventMapper.toEvent(eventDto);
+        UploadFileResult uploadFileResult = storageService.uploadFile(
+                eventDto.getCoverPhoto().getInputStream(), FilenameUtils.getExtension(
+                        eventDto.getCoverPhoto().getOriginalFilename()));
+        event.setCoverPhoto(uploadedFileMapper.toUploadedFile(uploadFileResult));
 
         if (SecurityContextUtils.hasRole(Role.STUDENT_AFFAIRS_OFFICE)) {
             event.setStatus(new EventStatus.Approved());
