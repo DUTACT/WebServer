@@ -14,6 +14,7 @@ import com.dutact.web.storage.UploadFileResult;
 import lombok.SneakyThrows;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -39,9 +40,7 @@ public class EventServiceImpl implements EventService {
     @SneakyThrows
     public EventDto createEvent(EventCreateDto eventDto) {
         Event event = eventMapper.toEvent(eventDto);
-        UploadFileResult uploadFileResult = storageService.uploadFile(
-                eventDto.getCoverPhoto().getInputStream(), FilenameUtils.getExtension(
-                        eventDto.getCoverPhoto().getOriginalFilename()));
+        UploadFileResult uploadFileResult = writeFile(eventDto.getCoverPhoto());
         event.setCoverPhoto(uploadedFileMapper.toUploadedFile(uploadFileResult));
 
         if (SecurityContextUtils.hasRole(Role.STUDENT_AFFAIRS_OFFICE)) {
@@ -72,9 +71,20 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @SneakyThrows
     public EventDto updateEvent(Integer eventId, EventUpdateDto eventDto) {
         Event event = eventRepository.findById(eventId).orElseThrow();
-        eventMapper.updateEvent(eventDto, event);
+        eventMapper.updateEvent(event, eventDto);
+
+        if (eventDto.getCoverPhoto() != null) {
+            if (event.getCoverPhoto() != null) {
+                updateFile(eventDto.getCoverPhoto(), event.getCoverPhoto().getFileId());
+            } else {
+                UploadFileResult uploadFileResult = writeFile(eventDto.getCoverPhoto());
+                event.setCoverPhoto(uploadedFileMapper.toUploadedFile(uploadFileResult));
+            }
+        }
+
         eventRepository.save(event);
 
         return eventMapper.toEventDto(event);
@@ -97,5 +107,22 @@ public class EventServiceImpl implements EventService {
     @Override
     public boolean eventExists(Integer orgId, Integer eventId) {
         return eventRepository.existsByIdAndOrganizerId(eventId, orgId);
+    }
+
+    private void updateFile(MultipartFile file, String fileId) {
+        try (var inputStream = file.getInputStream()) {
+            storageService.updateFile(fileId, inputStream);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private UploadFileResult writeFile(MultipartFile file) {
+        try (var inputStream = file.getInputStream()) {
+            return storageService.uploadFile(inputStream,
+                    FilenameUtils.getExtension(file.getOriginalFilename()));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

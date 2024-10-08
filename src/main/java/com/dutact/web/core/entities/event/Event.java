@@ -41,7 +41,7 @@ public class Event {
     @Column(name = "end_registration_at")
     private LocalDateTime endRegistrationAt;
 
-    @Column(name = "cover_photo")
+    @Column(name = "cover_photo", columnDefinition = "jsonb")
     @ColumnTransformer(write = "?::jsonb")
     @Convert(converter = UploadFileConverter.class)
     private UploadedFile coverPhoto;

@@ -69,8 +69,8 @@ public class AdminEventController {
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
-
-    @PutMapping("/{id}")
+    
+    @PatchMapping(path = "/{id}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<?> updateEvent(@PathVariable Integer id,
                                          @ModelAttribute EventUpdateDto eventDto) {
         if (!(canManageOwnEvents() && isEventOwner(id))) {
