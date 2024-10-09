@@ -60,7 +60,7 @@ public class AdminEventController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getEvent(@PathVariable Integer id) {
+    public ResponseEntity<EventDto> getEvent(@PathVariable Integer id) {
         if (SecurityContextUtils.hasRole(Role.EVENT_ORGANIZER) && !isEventOwner(id)) {
             return ResponseEntity.status(403).build();
         }
@@ -69,10 +69,10 @@ public class AdminEventController {
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
-    
+
     @PatchMapping(path = "/{id}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<?> updateEvent(@PathVariable Integer id,
-                                         @ModelAttribute EventUpdateDto eventDto) {
+    public ResponseEntity<EventDto> updateEvent(@PathVariable Integer id,
+                                                @ModelAttribute EventUpdateDto eventDto) {
         if (!(canManageOwnEvents() && isEventOwner(id))) {
             return ResponseEntity.status(403).build();
         }
