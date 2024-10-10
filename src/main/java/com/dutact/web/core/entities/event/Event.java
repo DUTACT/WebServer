@@ -1,6 +1,7 @@
 package com.dutact.web.core.entities.event;
 
 import com.dutact.web.core.entities.EventOrganizer;
+import com.dutact.web.core.entities.EventRegistration;
 import com.dutact.web.core.entities.common.UploadFileConverter;
 import com.dutact.web.core.entities.common.UploadedFile;
 import com.dutact.web.core.entities.post.Post;
@@ -57,4 +58,7 @@ public class Event {
 
     @OneToMany(mappedBy = "event")
     private List<Post> posts = new ArrayList<>();
+
+    @OneToMany(mappedBy = "event")
+    private List<EventRegistration> eventRegistrations = new ArrayList<>();
 }
