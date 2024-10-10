@@ -24,4 +24,8 @@ public class Student extends Account {
 
     @OneToMany(mappedBy = "student")
     private List<EventRegistration> eventRegistrations = new ArrayList<>();
+
+    public Student(Integer id) {
+        super(id);
+    }
 }
