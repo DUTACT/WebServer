@@ -1,30 +1,31 @@
 package com.dutact.web.features.event.admin.dtos;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.annotation.Nullable;
 import lombok.Data;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 
 @Data
 public class EventUpdateDto {
-    @JsonProperty("name")
+    @Nullable
     private String name;
 
-    @JsonProperty("content")
+    @Nullable
     private String content;
 
-    @JsonProperty("startAt")
+    @Nullable
     private LocalDateTime startAt;
 
-    @JsonProperty("endAt")
+    @Nullable
     private LocalDateTime endAt;
 
-    @JsonProperty("startRegistrationAt")
+    @Nullable
     private LocalDateTime startRegistrationAt;
 
-    @JsonProperty("endRegistrationAt")
+    @Nullable
     private LocalDateTime endRegistrationAt;
 
-    @JsonProperty("coverPhotoUrl")
-    private String coverPhotoUrl;
+    @Nullable
+    private MultipartFile coverPhoto;
 }

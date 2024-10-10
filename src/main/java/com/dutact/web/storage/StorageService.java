@@ -11,5 +11,7 @@ public interface StorageService {
      */
     UploadFileResult uploadFile(InputStream file, @Nullable String extension);
 
+    void updateFile(String fileId, InputStream file);
+
     URL getFileUrl(String fileId);
 }

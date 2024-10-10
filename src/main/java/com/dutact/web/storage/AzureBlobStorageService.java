@@ -39,6 +39,16 @@ public class AzureBlobStorageService implements StorageService {
         return new UploadFileResult(resourceLocation, resource.getURL());
     }
 
+    @Override
+    @SneakyThrows
+    public void updateFile(String fileId, InputStream file) {
+        WritableResource resource = (WritableResource) resourceLoader.getResource(fileId);
+
+        try (OutputStream outputStream = resource.getOutputStream()) {
+            file.transferTo(outputStream);
+        }
+    }
+
 
     @Override
     @SneakyThrows
