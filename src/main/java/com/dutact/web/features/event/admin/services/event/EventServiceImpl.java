@@ -1,4 +1,4 @@
-package com.dutact.web.features.event.admin.services;
+package com.dutact.web.features.event.admin.services.event;
 
 import com.dutact.web.auth.context.SecurityContextUtils;
 import com.dutact.web.auth.factors.Role;
@@ -6,9 +6,9 @@ import com.dutact.web.common.mapper.UploadedFileMapper;
 import com.dutact.web.core.entities.event.Event;
 import com.dutact.web.core.entities.event.EventStatus;
 import com.dutact.web.core.repositories.EventRepository;
-import com.dutact.web.features.event.admin.dtos.EventCreateDto;
-import com.dutact.web.features.event.admin.dtos.EventDto;
-import com.dutact.web.features.event.admin.dtos.EventUpdateDto;
+import com.dutact.web.features.event.admin.dtos.event.EventCreateDto;
+import com.dutact.web.features.event.admin.dtos.event.EventDto;
+import com.dutact.web.features.event.admin.dtos.event.EventUpdateDto;
 import com.dutact.web.storage.StorageService;
 import com.dutact.web.storage.UploadFileResult;
 import lombok.SneakyThrows;

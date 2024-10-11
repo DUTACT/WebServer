@@ -1,34 +1,31 @@
-package com.dutact.web.features.event.admin.dtos;
+package com.dutact.web.features.event.admin.dtos.event;
 
-import jakarta.validation.constraints.NotNull;
+import jakarta.annotation.Nullable;
 import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 
 @Data
-public class EventCreateDto {
-    @NotNull
-    private Integer organizerId;
-
-    @NotNull
+public class EventUpdateDto {
+    @Nullable
     private String name;
 
-    @NotNull
+    @Nullable
     private String content;
 
-    @NotNull
+    @Nullable
     private LocalDateTime startAt;
 
-    @NotNull
+    @Nullable
     private LocalDateTime endAt;
 
-    @NotNull
+    @Nullable
     private LocalDateTime startRegistrationAt;
 
-    @NotNull
+    @Nullable
     private LocalDateTime endRegistrationAt;
 
-    @NotNull
+    @Nullable
     private MultipartFile coverPhoto;
 }

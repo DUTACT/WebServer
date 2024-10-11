@@ -37,4 +37,9 @@ public class Post {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "event_id")
     private Event event;
+
+    @PrePersist
+    public void prePersist() {
+        postedAt = LocalDateTime.now();
+    }
 }
