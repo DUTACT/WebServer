@@ -1,5 +1,6 @@
 package com.dutact.web.features.event.admin.controllers;
 
+import com.azure.core.annotation.QueryParam;
 import com.dutact.web.auth.context.SecurityContextUtils;
 import com.dutact.web.auth.factors.OrganizerService;
 import com.dutact.web.auth.factors.Role;
@@ -51,8 +52,8 @@ public class AdminPostController {
                 .body(createdPost);
     }
 
-    @GetMapping("/event-id={eventId}")
-    public ResponseEntity<Collection<PostDto>> getPosts(@PathVariable Integer eventId) {
+    @GetMapping()
+    public ResponseEntity<Collection<PostDto>> getPosts(@RequestParam("event_id") Integer eventId) {
         if (SecurityContextUtils.hasRole(Role.EVENT_ORGANIZER) && isEventOwner(eventId)) {
             return ResponseEntity.ok(postService.getPosts(eventId));
         } else if (SecurityContextUtils.hasRole(Role.STUDENT_AFFAIRS_OFFICE)) {
