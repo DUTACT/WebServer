@@ -1,5 +1,6 @@
 package com.dutact.web.features.event.student.services;
 
+import com.dutact.web.common.api.exceptions.NotExistsException;
 import com.dutact.web.core.entities.EventRegistration;
 import com.dutact.web.core.entities.Student;
 import com.dutact.web.core.entities.event.Event;
@@ -9,6 +10,7 @@ import com.dutact.web.core.repositories.EventRepository;
 import com.dutact.web.features.event.student.dtos.EventDto;
 import com.dutact.web.features.event.student.dtos.EventRegisteredDto;
 import com.dutact.web.features.event.student.services.exceptions.AlreadyRegisteredException;
+import com.dutact.web.features.event.student.services.exceptions.NotRegisteredException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -51,9 +53,14 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public EventRegisteredDto register(Integer eventId, Integer studentId) throws AlreadyRegisteredException {
+    public EventRegisteredDto register(Integer eventId, Integer studentId)
+            throws AlreadyRegisteredException, NotExistsException {
         if (eventRegistrationRepository.existsByEventIdAndStudentId(eventId, studentId)) {
             throw new AlreadyRegisteredException();
+        }
+
+        if (!eventRepository.existsById(eventId)) {
+            throw new NotExistsException();
         }
 
         EventRegistration eventRegistration = new EventRegistration();
@@ -61,5 +68,19 @@ public class EventServiceImpl implements EventService {
         eventRegistration.setStudent(new Student(studentId));
 
         return eventRegistrationMapper.toDto(eventRegistrationRepository.save(eventRegistration));
+    }
+
+    @Override
+    public void unregister(Integer eventId, Integer studentId)
+            throws NotRegisteredException, NotExistsException {
+        if (!eventRegistrationRepository.existsByEventIdAndStudentId(eventId, studentId)) {
+            throw new NotRegisteredException();
+        }
+
+        if (!eventRepository.existsById(eventId)) {
+            throw new NotExistsException();
+        }
+
+        eventRegistrationRepository.deleteByEventIdAndStudentId(eventId, studentId);
     }
 }

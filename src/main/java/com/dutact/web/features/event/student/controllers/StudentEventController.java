@@ -2,11 +2,14 @@ package com.dutact.web.features.event.student.controllers;
 
 import com.dutact.web.auth.context.SecurityContextUtils;
 import com.dutact.web.auth.factors.StudentAccountService;
+import com.dutact.web.common.api.ErrorMessage;
+import com.dutact.web.common.api.exceptions.NotExistsException;
 import com.dutact.web.features.event.student.dtos.EventDto;
 import com.dutact.web.features.event.student.dtos.EventRegisteredDto;
 import com.dutact.web.features.event.student.dtos.EventRegistrationDto;
 import com.dutact.web.features.event.student.services.EventService;
 import com.dutact.web.features.event.student.services.exceptions.AlreadyRegisteredException;
+import com.dutact.web.features.event.student.services.exceptions.NotRegisteredException;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -44,20 +47,25 @@ public class StudentEventController {
         return eventService.getEvents();
     }
 
-    @PostMapping("/{id}/registrations")
+    @PostMapping("/{id}/register")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Student successfully registered",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = EventRegisteredDto.class))),
             @ApiResponse(responseCode = "409", description = "Already registered")
     })
-    public ResponseEntity<?> register(@PathVariable Integer id, @RequestBody EventRegistrationDto eventRegistrationDto) {
+    public ResponseEntity<?> register(@PathVariable Integer id,
+                                      @RequestBody EventRegistrationDto eventRegistrationDto)
+            throws NotExistsException {
         Integer requestStudentId = studentAccountService
                 .getStudentId(SecurityContextUtils.getUsername())
-                .orElseThrow(() -> new RuntimeException("The account is not associated with any student profile"));
+                .orElseThrow(() ->
+                        new RuntimeException("The account is not associated with any student profile"));
+
         Integer studentId = eventRegistrationDto.getStudentId();
         if (!requestStudentId.equals(studentId)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You can only register for yourself");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(new ErrorMessage("You can only register for yourself"));
         }
 
         try {
@@ -65,6 +73,34 @@ public class StudentEventController {
         } catch (AlreadyRegisteredException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body(Map.of("error", "Student already registered for this event"));
+        }
+    }
+
+    @PostMapping("/{id}/unregister")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Student successfully unregistered"),
+            @ApiResponse(responseCode = "409", description = "Student not registered")
+    })
+    public ResponseEntity<?> unregister(@PathVariable Integer id,
+                                        @RequestBody EventRegistrationDto eventRegistrationDto)
+            throws NotExistsException {
+        Integer requestStudentId = studentAccountService
+                .getStudentId(SecurityContextUtils.getUsername())
+                .orElseThrow(() ->
+                        new RuntimeException("The account is not associated with any student profile"));
+
+        Integer studentId = eventRegistrationDto.getStudentId();
+        if (!requestStudentId.equals(studentId)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(new ErrorMessage("You can only unregister for yourself"));
+        }
+
+        try {
+            eventService.unregister(id, studentId);
+            return ResponseEntity.noContent().build();
+        } catch (NotRegisteredException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(Map.of("error", "Student not registered for this event"));
         }
     }
 }

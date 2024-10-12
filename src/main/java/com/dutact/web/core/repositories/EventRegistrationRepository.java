@@ -7,4 +7,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface EventRegistrationRepository extends JpaRepository<EventRegistration, Integer> {
     boolean existsByEventIdAndStudentId(Integer eventId, Integer studentId);
+
+    void deleteByEventIdAndStudentId(Integer eventId, Integer studentId);
 }

@@ -1,6 +1,11 @@
 package com.dutact.web.configuration.handler;
 
 import com.dutact.web.common.api.ErrorMessage;
+import com.dutact.web.common.api.exceptions.NotExistsException;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -17,5 +22,15 @@ public class GlobalExceptionHandler {
         if (ex.getBindingResult().getFieldError() == null)
             return new ResponseEntity<>(new ErrorMessage("Validation failed"), HttpStatus.BAD_REQUEST);
         return new ResponseEntity<>(new ErrorMessage(ex.getBindingResult().getFieldError().getDefaultMessage()), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(NotExistsException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "404", description = "Not found", content =
+            @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class)))
+    })
+    public ResponseEntity<Object> handleNotExistsException(NotExistsException ex) {
+        return new ResponseEntity<>(new ErrorMessage("Not found"), HttpStatus.NOT_FOUND);
     }
 }
