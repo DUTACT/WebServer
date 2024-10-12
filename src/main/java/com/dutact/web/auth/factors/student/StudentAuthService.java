@@ -11,6 +11,7 @@ import jakarta.mail.MessagingException;
 
 public interface StudentAuthService {
     void register(StudentRegisterDto registerDTO) throws MessagingException;
+    void resendOtp(String email) throws MessagingException;
     void confirmRegistration(ConfirmDto verificationTokenDto) throws OtpException;
     void resetPassword(StudentResetPasswordDto resetPasswordDto) throws UsernameOrEmailNotExistException, MessagingException;
     void resetNewPassword(StudentConfirmResetPasswordDto confirmNewPasswordTokenDto) throws OtpException;

@@ -43,7 +43,7 @@ public class AccountServiceImpl implements AccountService {
             throw new InvalidLoginCredentialsException();
         }
 
-        if (!account.isEnabled()){
+        if (!account.isEnabled()) {
             throw new AccountNotEnabledException();
         }
 

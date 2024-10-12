@@ -41,8 +41,9 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/api/login").permitAll()
                         .requestMatchers("/api/student/register").permitAll()
-                        .requestMatchers("/api/student/confirm-registration/**").permitAll()
+                        .requestMatchers("/api/student/confirm-registration").permitAll()
                         .requestMatchers("/api/student/reset-password").permitAll()
+                        .requestMatchers("/api/student/resend-otp").permitAll()
                         .anyRequest().authenticated()
                 ).cors(cors -> cors.configurationSource(corsConfigurationSource()));
 
