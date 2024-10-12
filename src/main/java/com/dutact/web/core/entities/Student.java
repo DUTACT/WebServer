@@ -23,6 +23,7 @@ public class Student extends Account {
     private String avatar_url;
 
     @OneToMany(mappedBy = "student")
+    @Builder.Default
     private List<EventRegistration> eventRegistrations = new ArrayList<>();
 
     public Student(Integer id) {

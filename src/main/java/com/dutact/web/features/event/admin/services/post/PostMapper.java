@@ -10,10 +10,13 @@ import org.mapstruct.MappingConstants;
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface PostMapper {
     @Mapping(target = "eventId", source = "event.id")
+    @Mapping(target = "coverPhotoUrl", source = "coverPhoto.fileUrl")
     PostDto toPostDto(Post post);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "status", ignore = true)
+    @Mapping(target = "coverPhoto", ignore = true)
+    @Mapping(target = "postedAt", ignore = true)
     @Mapping(target = "event.id", source = "eventId")
     Post toPost(PostCreateDto eventDto);
 }

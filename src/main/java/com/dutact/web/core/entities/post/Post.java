@@ -1,5 +1,7 @@
 package com.dutact.web.core.entities.post;
 
+import com.dutact.web.core.entities.common.UploadFileConverter;
+import com.dutact.web.core.entities.common.UploadedFile;
 import com.dutact.web.core.entities.event.Event;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -26,8 +28,10 @@ public class Post {
     @Column(name = "posted_at")
     private LocalDateTime postedAt;
 
-    @Column(name = "cover_photo_url")
-    private String coverPhotoUrl;
+    @Column(name = "cover_photo", columnDefinition = "jsonb")
+    @ColumnTransformer(write = "?::jsonb")
+    @Convert(converter = UploadFileConverter.class)
+    private UploadedFile coverPhoto;
 
     @Column(name = "status", columnDefinition = "jsonb")
     @ColumnTransformer(write = "?::jsonb")
