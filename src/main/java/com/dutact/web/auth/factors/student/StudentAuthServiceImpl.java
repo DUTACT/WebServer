@@ -49,6 +49,11 @@ public class StudentAuthServiceImpl implements StudentAuthService {
     }
 
     @Override
+    public void resendOtp(String email) throws MessagingException {
+        otpService.sendOtp(email);
+    }
+
+    @Override
     public void confirmRegistration(ConfirmDto verificationTokenDto) throws OtpException {
         boolean isOtpValid = otpService.verifyOtp(verificationTokenDto.getEmail(), verificationTokenDto.getOtp());
         if (!isOtpValid) {

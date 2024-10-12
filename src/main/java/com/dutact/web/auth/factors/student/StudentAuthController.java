@@ -1,5 +1,6 @@
 package com.dutact.web.auth.factors.student;
 
+import com.azure.core.annotation.QueryParam;
 import com.dutact.web.auth.dto.ConfirmDto;
 import com.dutact.web.auth.dto.student.StudentConfirmResetPasswordDto;
 import com.dutact.web.auth.dto.student.StudentRegisterDto;
@@ -14,12 +15,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Pattern;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class StudentAuthController {
@@ -51,6 +50,25 @@ public class StudentAuthController {
         }
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @GetMapping("/api/student/resend-otp")
+    @Operation(summary = "Resend OTP", description = "Resend the OTP to the student's email")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "OTP resent successfully",
+                    content = @Content),
+            @ApiResponse(responseCode = "400", description = "Invalid email",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorMessage.class)))
+    })
+    public ResponseEntity<Object> resendOtp(@RequestParam("email") @Valid @Pattern(regexp = "^[0-9]{9}@sv1\\.dut\\.udn\\.vn$", message = "Email must be 9 digits followed by '@sv1.dut.udn.vn'") String email) {
+        try {
+            studentAuthService.resendOtp(email);
+        }
+        catch (MessagingException e) {
+            return new ResponseEntity<>(new ErrorMessage(e.getMessage()), HttpStatus.BAD_REQUEST);
+        }
+        return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/api/student/confirm-registration")
