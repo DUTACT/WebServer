@@ -7,6 +7,7 @@ import com.dutact.web.core.entities.common.UploadedFile;
 import com.dutact.web.core.entities.post.Post;
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnTransformer;
 
@@ -18,6 +19,7 @@ import java.util.List;
 @Table(name = "event")
 @Getter
 @Setter
+@NoArgsConstructor
 public class Event {
     @Id
     @Column(name = "id")
@@ -61,4 +63,8 @@ public class Event {
 
     @OneToMany(mappedBy = "event")
     private List<EventRegistration> eventRegistrations = new ArrayList<>();
+
+    public Event(Integer id) {
+        this.id = id;
+    }
 }
