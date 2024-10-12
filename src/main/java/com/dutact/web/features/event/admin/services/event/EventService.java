@@ -1,9 +1,9 @@
-package com.dutact.web.features.event.admin.services;
+package com.dutact.web.features.event.admin.services.event;
 
 import com.dutact.web.core.entities.event.EventStatus;
-import com.dutact.web.features.event.admin.dtos.EventCreateDto;
-import com.dutact.web.features.event.admin.dtos.EventDto;
-import com.dutact.web.features.event.admin.dtos.EventUpdateDto;
+import com.dutact.web.features.event.admin.dtos.event.EventCreateDto;
+import com.dutact.web.features.event.admin.dtos.event.EventDto;
+import com.dutact.web.features.event.admin.dtos.event.EventUpdateDto;
 
 import java.util.Collection;
 import java.util.Optional;

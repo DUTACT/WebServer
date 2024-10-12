@@ -5,7 +5,6 @@ import com.dutact.web.auth.dto.student.StudentConfirmResetPasswordDto;
 import com.dutact.web.auth.dto.student.StudentRegisterDto;
 import com.dutact.web.auth.dto.student.StudentResetPasswordDto;
 import com.dutact.web.auth.exception.OtpException;
-import com.dutact.web.auth.exception.UsernameOrEmailAlreadyExistException;
 import com.dutact.web.auth.exception.UsernameOrEmailNotExistException;
 import com.dutact.web.common.api.ErrorMessage;
 import io.swagger.v3.oas.annotations.Operation;

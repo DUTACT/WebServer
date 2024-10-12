@@ -1,4 +1,4 @@
-package com.dutact.web.features.event.admin.dtos;
+package com.dutact.web.features.event.admin.dtos.event;
 
 import com.dutact.web.core.entities.event.EventStatus;
 import com.fasterxml.jackson.annotation.JsonProperty;
