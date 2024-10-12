@@ -6,6 +6,7 @@ import com.dutact.web.auth.dto.student.StudentConfirmResetPasswordDto;
 import com.dutact.web.auth.dto.student.StudentRegisterDto;
 import com.dutact.web.auth.dto.student.StudentResetPasswordDto;
 import com.dutact.web.auth.exception.OtpException;
+import com.dutact.web.auth.exception.UsernameOrEmailAlreadyExistException;
 import com.dutact.web.auth.exception.UsernameOrEmailNotExistException;
 import com.dutact.web.common.api.ErrorMessage;
 import io.swagger.v3.oas.annotations.Operation;
@@ -47,6 +48,9 @@ public class StudentAuthController {
         }
         catch (MessagingException e) {
             return new ResponseEntity<>(new ErrorMessage(e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        catch (UsernameOrEmailAlreadyExistException e) {
+            return new ResponseEntity<>(new ErrorMessage(e.getMessage()), HttpStatus.BAD_REQUEST);
         }
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
