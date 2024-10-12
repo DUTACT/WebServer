@@ -5,6 +5,7 @@ import com.dutact.web.auth.dto.student.StudentConfirmResetPasswordDto;
 import com.dutact.web.auth.dto.student.StudentRegisterDto;
 import com.dutact.web.auth.dto.student.StudentResetPasswordDto;
 import com.dutact.web.auth.exception.OtpException;
+import com.dutact.web.auth.exception.UsernameOrEmailAlreadyExistException;
 import com.dutact.web.auth.exception.UsernameOrEmailNotExistException;
 import com.dutact.web.auth.factors.Role;
 import com.dutact.web.auth.otp.OtpService;
@@ -31,8 +32,11 @@ public class StudentAuthServiceImpl implements StudentAuthService {
     }
 
     @Override
-    public void register(StudentRegisterDto registerDTO) throws MessagingException {
+    public void register(StudentRegisterDto registerDTO) throws MessagingException, UsernameOrEmailAlreadyExistException {
         if (studentRepository.existsByUsername(registerDTO.getEmail())) {
+            if (studentRepository.findByUsername(registerDTO.getEmail()).get().isEnabled()) {
+                throw new UsernameOrEmailAlreadyExistException();
+            }
             otpService.sendOtp(registerDTO.getEmail());
             return;
         }

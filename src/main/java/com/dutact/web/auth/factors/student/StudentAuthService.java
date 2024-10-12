@@ -6,11 +6,12 @@ import com.dutact.web.auth.dto.student.StudentConfirmResetPasswordDto;
 import com.dutact.web.auth.dto.student.StudentRegisterDto;
 import com.dutact.web.auth.dto.student.StudentResetPasswordDto;
 import com.dutact.web.auth.exception.OtpException;
+import com.dutact.web.auth.exception.UsernameOrEmailAlreadyExistException;
 import com.dutact.web.auth.exception.UsernameOrEmailNotExistException;
 import jakarta.mail.MessagingException;
 
 public interface StudentAuthService {
-    void register(StudentRegisterDto registerDTO) throws MessagingException;
+    void register(StudentRegisterDto registerDTO) throws MessagingException, UsernameOrEmailAlreadyExistException;
     void resendOtp(String email) throws MessagingException;
     void confirmRegistration(ConfirmDto verificationTokenDto) throws OtpException;
     void resetPassword(StudentResetPasswordDto resetPasswordDto) throws UsernameOrEmailNotExistException, MessagingException;
