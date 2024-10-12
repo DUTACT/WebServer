@@ -1,16 +1,17 @@
 package com.dutact.web.features.event.admin.dtos.post;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import org.springframework.web.multipart.MultipartFile;
 
 @Data
 public class PostCreateDto {
-    @JsonProperty("eventId")
+    @NotNull
     private Integer eventId;
 
-    @JsonProperty("content")
+    @NotNull
     private String content;
 
-    @JsonProperty("coverPhotoUrl")
-    private String coverPhotoUrl;
+    @NotNull
+    private MultipartFile coverPhoto;
 }

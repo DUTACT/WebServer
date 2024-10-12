@@ -1,6 +1,7 @@
 package com.dutact.web.configuration.handler;
 
 import com.dutact.web.common.api.ErrorMessage;
+import com.dutact.web.common.api.exceptions.ForbiddenException;
 import com.dutact.web.common.api.exceptions.NotExistsException;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -32,5 +33,15 @@ public class GlobalExceptionHandler {
     })
     public ResponseEntity<Object> handleNotExistsException(NotExistsException ex) {
         return new ResponseEntity<>(new ErrorMessage("Not found"), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(ForbiddenException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "403", description = "Forbidden", content =
+            @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class)))
+    })
+    public ResponseEntity<Object> handleForbiddenException(ForbiddenException ex) {
+        return new ResponseEntity<>(new ErrorMessage(ex.getMessage()), HttpStatus.FORBIDDEN);
     }
 }
