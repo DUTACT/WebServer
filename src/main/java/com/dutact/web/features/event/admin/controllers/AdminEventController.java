@@ -45,7 +45,7 @@ public class AdminEventController {
 
         EventDto createdEvent = eventService.createEvent(eventDto);
         return ResponseEntity.created(new URI("/api/events/" + createdEvent.getId()))
-                .body(eventService.createEvent(eventDto));
+                .body(createdEvent);
     }
 
     @GetMapping
