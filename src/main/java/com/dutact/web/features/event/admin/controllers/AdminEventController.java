@@ -1,7 +1,7 @@
 package com.dutact.web.features.event.admin.controllers;
 
 import com.dutact.web.auth.context.SecurityContextUtils;
-import com.dutact.web.auth.factors.OrganizerService;
+import com.dutact.web.auth.factors.OrganizerAccountService;
 import com.dutact.web.auth.factors.Role;
 import com.dutact.web.core.entities.event.EventStatus;
 import com.dutact.web.features.event.admin.dtos.event.EventCreateDto;
@@ -22,11 +22,11 @@ import java.util.Collection;
 public class AdminEventController {
 
     private final EventService eventService;
-    private final OrganizerService organizerService;
+    private final OrganizerAccountService organizerAccountService;
 
-    public AdminEventController(EventService eventService, OrganizerService organizerService) {
+    public AdminEventController(EventService eventService, OrganizerAccountService organizerAccountService) {
         this.eventService = eventService;
-        this.organizerService = organizerService;
+        this.organizerAccountService = organizerAccountService;
     }
 
     @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
@@ -37,7 +37,7 @@ public class AdminEventController {
             return ResponseEntity.status(403).build();
         }
 
-        int requestOrgId = organizerService.getOrganizerId(SecurityContextUtils.getUsername())
+        int requestOrgId = organizerAccountService.getOrganizerId(SecurityContextUtils.getUsername())
                 .orElseThrow();
         if (eventDto.getOrganizerId() != requestOrgId) {
             return ResponseEntity.status(403).build();
@@ -53,7 +53,7 @@ public class AdminEventController {
         if (SecurityContextUtils.hasRole(Role.EVENT_ORGANIZER)) {
             String username = SecurityContextUtils.getUsername();
             return ResponseEntity.ok(eventService
-                    .getEvents(organizerService.getOrganizerId(username).orElseThrow()));
+                    .getEvents(organizerAccountService.getOrganizerId(username).orElseThrow()));
         }
 
         return ResponseEntity.ok(eventService.getEvents());
@@ -107,7 +107,7 @@ public class AdminEventController {
 
     private boolean isEventOwner(Integer eventId) {
         String username = SecurityContextUtils.getUsername();
-        return organizerService.getOrganizerId(username)
+        return organizerAccountService.getOrganizerId(username)
                 .map(orgId -> eventService.eventExists(orgId, eventId))
                 .orElse(false);
     }
