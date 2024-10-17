@@ -9,7 +9,6 @@ import org.mapstruct.*;
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING,
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface EventMapper {
-    @Mapping(target = "organizerId", source = "organizer.id")
     @Mapping(target = "coverPhotoUrl", source = "coverPhoto.fileUrl")
     EventDto toEventDto(Event event);
 

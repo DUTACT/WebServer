@@ -46,7 +46,7 @@ public class AdminPostController {
         int requestOrgId = organizerService.getOrganizerId(SecurityContextUtils.getUsername())
                 .orElseThrow();
         EventDto event = eventService.getEvent(postDto.getEventId()).orElseThrow();
-        if (event.getOrganizerId() != requestOrgId) {
+        if (event.getOrganizer().getId() != requestOrgId) {
             throw new ForbiddenException("This account does not have permission to create posts for this event");
         }
 
