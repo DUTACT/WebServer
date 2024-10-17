@@ -6,11 +6,11 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 
 @Service
-public class OrganizerServiceImpl implements OrganizerService {
+public class OrganizerAccountServiceImpl implements OrganizerAccountService {
 
     private final OrganizerRepository organizerRepository;
 
-    public OrganizerServiceImpl(OrganizerRepository organizerRepository) {
+    public OrganizerAccountServiceImpl(OrganizerRepository organizerRepository) {
         this.organizerRepository = organizerRepository;
     }
 

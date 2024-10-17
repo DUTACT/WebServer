@@ -1,7 +1,7 @@
 package com.dutact.web.features.event.admin.controllers;
 
 import com.dutact.web.auth.context.SecurityContextUtils;
-import com.dutact.web.auth.factors.OrganizerService;
+import com.dutact.web.auth.factors.OrganizerAccountService;
 import com.dutact.web.auth.factors.Role;
 import com.dutact.web.common.api.exceptions.ForbiddenException;
 import com.dutact.web.common.api.exceptions.NotExistsException;
@@ -25,14 +25,14 @@ import java.util.Collection;
 public class AdminPostController {
     private final EventService eventService;
     private final PostService postService;
-    private final OrganizerService organizerService;
+    private final OrganizerAccountService organizerAccountService;
 
     public AdminPostController(EventService eventService,
                                PostService postService,
-                               OrganizerService organizerService) {
+                               OrganizerAccountService organizerAccountService) {
         this.eventService = eventService;
         this.postService = postService;
-        this.organizerService = organizerService;
+        this.organizerAccountService = organizerAccountService;
     }
 
     @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
@@ -43,7 +43,7 @@ public class AdminPostController {
             throw new ForbiddenException("This account does not have permission to create posts");
         }
 
-        int requestOrgId = organizerService.getOrganizerId(SecurityContextUtils.getUsername())
+        int requestOrgId = organizerAccountService.getOrganizerId(SecurityContextUtils.getUsername())
                 .orElseThrow();
         EventDto event = eventService.getEvent(postDto.getEventId()).orElseThrow();
         if (event.getOrganizerId() != requestOrgId) {
@@ -107,7 +107,7 @@ public class AdminPostController {
 
     private boolean isEventOwner(Integer eventId) {
         String username = SecurityContextUtils.getUsername();
-        return organizerService.getOrganizerId(username)
+        return organizerAccountService.getOrganizerId(username)
                 .map(orgId -> eventService.eventExists(orgId, eventId))
                 .orElse(false);
     }

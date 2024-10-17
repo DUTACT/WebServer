@@ -4,6 +4,7 @@ import com.dutact.web.auth.dto.LoginDto;
 import com.dutact.web.auth.dto.ResponseToken;
 import com.dutact.web.auth.exception.AccountNotEnabledException;
 import com.dutact.web.auth.exception.InvalidLoginCredentialsException;
+import com.dutact.web.auth.token.jwt.JWTBuilder;
 import com.dutact.web.auth.token.jwt.JWTProcessor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -17,6 +18,8 @@ public class AccountServiceImpl implements AccountService {
 
     private final JWTProcessor jwtProcessor;
 
+    private final StudentAccountService studentAccountService;
+    private final OrganizerAccountService organizerAccountService;
     private final PasswordEncoder passwordEncoder;
 
     private final long jwtLifespan;
@@ -24,10 +27,14 @@ public class AccountServiceImpl implements AccountService {
     public AccountServiceImpl(@Value("${auth.jwt.lifespan}") long jwtLifespan,
                               JWTProcessor jwtProcessor,
                               AccountRepository accountRepository,
+                              StudentAccountService studentAccountService,
+                              OrganizerAccountService organizerAccountService,
                               PasswordEncoder passwordEncoder) {
         this.jwtLifespan = jwtLifespan;
         this.accountRepository = accountRepository;
         this.jwtProcessor = jwtProcessor;
+        this.studentAccountService = studentAccountService;
+        this.organizerAccountService = organizerAccountService;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -46,12 +53,18 @@ public class AccountServiceImpl implements AccountService {
         if (!account.isEnabled()) {
             throw new AccountNotEnabledException();
         }
-
-        String token = jwtProcessor.getBuilder()
+        JWTBuilder tokenBuilder = jwtProcessor.getBuilder()
                 .withSubject(username)
                 .withClaim("expiredAt", System.currentTimeMillis() + jwtLifespan)
-                .withScopes(List.of("ROLE_"+ account.getRole()))
-                .build();
+                .withScopes(List.of("ROLE_" + account.getRole()));
+
+        if (account.getRole().equals(Role.STUDENT)) {
+            tokenBuilder.withClaim("studentId", studentAccountService.getStudentId(username).orElseThrow());
+        } else if (account.getRole().equals(Role.EVENT_ORGANIZER) || account.getRole().equals(Role.STUDENT_AFFAIRS_OFFICE)) {
+            tokenBuilder.withClaim("organizerId", organizerAccountService.getOrganizerId(username).orElseThrow());
+        }
+
+        String token = tokenBuilder.build();
 
         ResponseToken responseToken = new ResponseToken();
         responseToken.setAccessToken(token);
