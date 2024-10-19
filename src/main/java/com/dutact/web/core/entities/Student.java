@@ -1,6 +1,7 @@
 package com.dutact.web.core.entities;
 
 import com.dutact.web.auth.factors.Account;
+import com.dutact.web.core.entities.feedback.Feedback;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
@@ -25,6 +26,10 @@ public class Student extends Account {
     @OneToMany(mappedBy = "student")
     @Builder.Default
     private List<EventRegistration> eventRegistrations = new ArrayList<>();
+
+    @OneToMany(mappedBy = "student")
+    @Builder.Default
+    private List<Feedback> feedbacks = new ArrayList<>();
 
     public Student(Integer id) {
         super(id);
