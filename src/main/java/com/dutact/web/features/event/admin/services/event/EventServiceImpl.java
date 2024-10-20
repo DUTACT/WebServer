@@ -71,9 +71,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public List<EventDto> getEvents(Integer orgId) {
-        Specification<Event> spec = (root, query, criteriaBuilder) -> criteriaBuilder.conjunction();
-
-        spec = spec.and(EventSpecs.hasOrganizerId(orgId));
+        Specification<Event> spec = EventSpecs.hasOrganizerId(orgId);
         spec = spec.and(EventSpecs.orderByCreatedAt(false));
 
         return eventRepository.findAll(spec)
