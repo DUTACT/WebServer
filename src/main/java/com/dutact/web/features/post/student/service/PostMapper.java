@@ -14,6 +14,5 @@ import org.springframework.stereotype.Component;
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface PostMapper {
     @Mapping(target = "coverPhotoUrl", source = "coverPhoto.fileUrl")
-    @Mapping(target = "eventId", source = "event.id")
     PostDto toDto(Post post);
 }

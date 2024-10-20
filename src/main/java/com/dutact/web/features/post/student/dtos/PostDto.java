@@ -21,6 +21,6 @@ public class PostDto {
     @JsonProperty("coverPhotoUrl")
     private String coverPhotoUrl;
 
-    @JsonProperty("eventId")
-    private Integer eventId;
+    @JsonProperty("event")
+    private PostEventDto event;
 }
