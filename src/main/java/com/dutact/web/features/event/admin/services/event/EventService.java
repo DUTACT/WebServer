@@ -18,8 +18,10 @@ public interface EventService {
     Optional<EventDto> getEvent(Integer eventId);
 
     EventDto updateEvent(Integer eventId, EventUpdateDto eventDto);
+    
+    EventStatus approveEvent(Integer eventId);
 
-    EventStatus updateEventStatus(Integer eventId, EventStatus eventStatus);
+    EventStatus rejectEvent(Integer eventId, String reason);
 
     void deleteEvent(Integer eventId);
 

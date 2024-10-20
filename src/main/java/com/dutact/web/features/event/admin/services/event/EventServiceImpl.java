@@ -91,12 +91,13 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public EventStatus updateEventStatus(Integer eventId, EventStatus eventStatus) {
-        Event event = eventRepository.findById(eventId).orElseThrow();
-        event.setStatus(eventStatus);
-        eventRepository.save(event);
+    public EventStatus approveEvent(Integer eventId) {
+        return updateEventStatus(eventId, new EventStatus.Approved());
+    }
 
-        return event.getStatus();
+    @Override
+    public EventStatus rejectEvent(Integer eventId, String reason) {
+        return updateEventStatus(eventId, new EventStatus.Rejected(reason));
     }
 
     @Override
@@ -107,6 +108,14 @@ public class EventServiceImpl implements EventService {
     @Override
     public boolean eventExists(Integer orgId, Integer eventId) {
         return eventRepository.existsByIdAndOrganizerId(eventId, orgId);
+    }
+
+    private EventStatus updateEventStatus(Integer eventId, EventStatus eventStatus) {
+        Event event = eventRepository.findById(eventId).orElseThrow();
+        event.setStatus(eventStatus);
+        eventRepository.save(event);
+
+        return event.getStatus();
     }
 
     private void updateFile(MultipartFile file, String fileId) {
