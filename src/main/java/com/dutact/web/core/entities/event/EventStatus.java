@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = EventStatus.Approved.class, name = EventStatus.Approved.TYPE_NAME),
@@ -16,11 +18,13 @@ import lombok.Setter;
 public abstract class EventStatus {
     @Getter
     @Setter
-    @NoArgsConstructor
-    @AllArgsConstructor
     public static class Approved extends EventStatus {
+        public Approved() {
+            this.moderatedAt = LocalDateTime.now().toString();
+        }
+
         public static final String TYPE_NAME = "approved";
-        private String moderatedAt;
+        public String moderatedAt;
     }
 
     public static class Pending extends EventStatus {
@@ -29,10 +33,13 @@ public abstract class EventStatus {
 
     @Getter
     @Setter
-    @NoArgsConstructor
-    @AllArgsConstructor
     public static class Rejected extends EventStatus {
         public static final String TYPE_NAME = "rejected";
+
+        public Rejected(String reason) {
+            this.reason = reason;
+            this.moderatedAt = LocalDateTime.now().toString();
+        }
         private String reason;
         private String moderatedAt;
     }
