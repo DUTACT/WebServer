@@ -20,7 +20,7 @@ public class EventDto {
     private String content;
 
     @JsonProperty("createdAt")
-    private String createAt;
+    private String createdAt;
 
     @JsonProperty("startAt")
     private LocalDateTime startAt;
