@@ -9,9 +9,6 @@ import java.time.LocalDateTime;
 @Data
 public class EventCreateDto {
     @NotNull
-    private Integer organizerId;
-
-    @NotNull
     private String name;
 
     @NotNull
