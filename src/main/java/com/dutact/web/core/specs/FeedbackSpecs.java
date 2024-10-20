@@ -4,6 +4,9 @@ import com.dutact.web.core.entities.feedback.Feedback;
 import org.springframework.data.jpa.domain.Specification;
 
 public class FeedbackSpecs {
+    private FeedbackSpecs() {
+    }
+
     public static Specification<Feedback> hasStudentId(Integer studentId) {
         return (root, query, criteriaBuilder) ->
                 criteriaBuilder.equal(root.get("student").get("id"), studentId);
