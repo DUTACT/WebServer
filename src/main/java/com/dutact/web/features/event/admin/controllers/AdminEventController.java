@@ -7,6 +7,7 @@ import com.dutact.web.core.entities.event.EventStatus;
 import com.dutact.web.features.event.admin.dtos.event.EventCreateDto;
 import com.dutact.web.features.event.admin.dtos.event.EventDto;
 import com.dutact.web.features.event.admin.dtos.event.EventUpdateDto;
+import com.dutact.web.features.event.admin.dtos.event.RejectEventDto;
 import com.dutact.web.features.event.admin.services.event.EventService;
 import lombok.SneakyThrows;
 import org.springframework.http.HttpStatus;
@@ -80,14 +81,24 @@ public class AdminEventController {
         return ResponseEntity.ok(eventService.updateEvent(id, eventDto));
     }
 
-    @PutMapping("/{id}/status")
-    public ResponseEntity<EventStatus> updateEventStatus(@PathVariable Integer id,
-                                                         @RequestBody EventStatus status) {
+    @PostMapping("/{id}/approve")
+    public ResponseEntity<EventStatus> approveEvent(@PathVariable Integer id) {
         if (!SecurityContextUtils.hasRole(Role.STUDENT_AFFAIRS_OFFICE)) {
             return ResponseEntity.status(403).build();
         }
 
-        return ResponseEntity.ok(eventService.updateEventStatus(id, status));
+        return ResponseEntity.ok(eventService.approveEvent(id));
+    }
+
+    @PostMapping("/{id}/reject")
+    public ResponseEntity<EventStatus> rejectEvent(
+            @PathVariable Integer id,
+            @RequestBody RejectEventDto rejectEventDto) {
+        if (!SecurityContextUtils.hasRole(Role.STUDENT_AFFAIRS_OFFICE)) {
+            return ResponseEntity.status(403).build();
+        }
+
+        return ResponseEntity.ok(eventService.rejectEvent(id, rejectEventDto.getReason()));
     }
 
     @DeleteMapping("/{eventId}")
