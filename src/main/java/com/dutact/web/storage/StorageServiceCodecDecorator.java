@@ -1,6 +1,7 @@
 package com.dutact.web.storage;
 
 import jakarta.annotation.Nullable;
+import org.springframework.core.io.InputStreamSource;
 
 import java.io.InputStream;
 import java.net.URL;
@@ -26,7 +27,21 @@ public class StorageServiceCodecDecorator implements StorageService {
     }
 
     @Override
+    public UploadFileResult uploadFile(InputStreamSource file, @Nullable String extension) {
+        UploadFileResult uploadFileResult = storageService.uploadFile(file, extension);
+        String encodedFileId = encode(uploadFileResult.fileId());
+
+        return new UploadFileResult(encodedFileId, uploadFileResult.fileUrl());
+    }
+
+    @Override
     public void updateFile(String fileId, InputStream file) {
+        String decodedFileId = decode(fileId);
+        storageService.updateFile(decodedFileId, file);
+    }
+
+    @Override
+    public void updateFile(String fileId, InputStreamSource file) {
         String decodedFileId = decode(fileId);
         storageService.updateFile(decodedFileId, file);
     }

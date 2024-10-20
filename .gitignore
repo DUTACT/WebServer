@@ -39,3 +39,7 @@ out/
 ### Environment Variables ###
 *.env
 !*.example.env
+
+# ignore application-*.properties files except for application.properties
+!src/main/resources/application.properties
+src/main/resources/application-*.properties

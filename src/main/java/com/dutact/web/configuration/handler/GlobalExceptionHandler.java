@@ -32,7 +32,7 @@ public class GlobalExceptionHandler {
             @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class)))
     })
     public ResponseEntity<Object> handleNotExistsException(NotExistsException ex) {
-        return new ResponseEntity<>(new ErrorMessage("Not found"), HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(new ErrorMessage(ex.getMessage()), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(ForbiddenException.class)
