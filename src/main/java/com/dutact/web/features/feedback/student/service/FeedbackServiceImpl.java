@@ -2,10 +2,10 @@ package com.dutact.web.features.feedback.student.service;
 
 import com.dutact.web.common.api.exceptions.NotExistsException;
 import com.dutact.web.common.mapper.UploadedFileMapper;
-import com.dutact.web.core.entities.Student;
 import com.dutact.web.core.entities.feedback.Feedback;
 import com.dutact.web.core.repositories.EventRepository;
 import com.dutact.web.core.repositories.FeedbackRepository;
+import com.dutact.web.core.repositories.StudentRepository;
 import com.dutact.web.core.specs.FeedbackSpecs;
 import com.dutact.web.features.feedback.student.dtos.CreateFeedbackDto;
 import com.dutact.web.features.feedback.student.dtos.FeedbackDto;
@@ -24,17 +24,20 @@ import java.util.Optional;
 public class FeedbackServiceImpl implements FeedbackService {
     private final FeedbackRepository feedbackRepository;
     private final EventRepository eventRepository;
+    private final StudentRepository studentRepository;
     private final FeedbackMapper feedbackMapper;
     private final UploadedFileMapper uploadedFileMapper;
     private final StorageService storageService;
 
     public FeedbackServiceImpl(FeedbackRepository feedbackRepository,
                                EventRepository eventRepository,
+                               StudentRepository studentRepository,
                                FeedbackMapper feedbackMapper,
                                UploadedFileMapper uploadedFileMapper,
                                StorageService storageService) {
         this.feedbackRepository = feedbackRepository;
         this.eventRepository = eventRepository;
+        this.studentRepository = studentRepository;
         this.feedbackMapper = feedbackMapper;
         this.uploadedFileMapper = uploadedFileMapper;
         this.storageService = storageService;
@@ -51,7 +54,7 @@ public class FeedbackServiceImpl implements FeedbackService {
                 .uploadFile(createFeedbackDto.getCoverPhoto(),
                         FilenameUtils.getExtension(createFeedbackDto.getCoverPhoto().getOriginalFilename()));
 
-        feedback.setStudent(new Student(studentId));
+        feedback.setStudent(studentRepository.getReferenceById(studentId));
         feedback.setEvent(eventRepository.getReferenceById(createFeedbackDto.getEventId()));
         feedback.setCoverPhoto(uploadedFileMapper.toUploadedFile(uploadFileResult));
         feedback.setPostedAt(LocalDateTime.now());
