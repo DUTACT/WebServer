@@ -56,12 +56,12 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public Collection<EventDto> getEvents() {
-        return eventRepository.findAll().stream().map(eventMapper::toEventDto).toList();
+        return eventRepository.findAllDesc().stream().map(eventMapper::toEventDto).toList();
     }
 
     @Override
     public Collection<EventDto> getEvents(Integer orgId) {
-        return eventRepository.findAllByOrganizerId(orgId)
+        return eventRepository.findAllByOrganizerIdOrderByCreatedAtDesc(orgId)
                 .stream().map(eventMapper::toEventDto).toList();
     }
 
