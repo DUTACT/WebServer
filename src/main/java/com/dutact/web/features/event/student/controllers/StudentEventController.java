@@ -2,11 +2,9 @@ package com.dutact.web.features.event.student.controllers;
 
 import com.dutact.web.auth.context.SecurityContextUtils;
 import com.dutact.web.auth.factors.StudentAccountService;
-import com.dutact.web.common.api.ErrorMessage;
 import com.dutact.web.common.api.exceptions.NotExistsException;
 import com.dutact.web.features.event.student.dtos.EventDto;
 import com.dutact.web.features.event.student.dtos.EventRegisteredDto;
-import com.dutact.web.features.event.student.dtos.EventRegistrationDto;
 import com.dutact.web.features.event.student.services.EventService;
 import com.dutact.web.features.event.student.services.exceptions.AlreadyRegisteredException;
 import com.dutact.web.features.event.student.services.exceptions.NotRegisteredException;
@@ -54,22 +52,15 @@ public class StudentEventController {
                             schema = @Schema(implementation = EventRegisteredDto.class))),
             @ApiResponse(responseCode = "409", description = "Already registered")
     })
-    public ResponseEntity<?> register(@PathVariable Integer id,
-                                      @RequestBody EventRegistrationDto eventRegistrationDto)
+    public ResponseEntity<?> register(@PathVariable Integer id)
             throws NotExistsException {
         Integer requestStudentId = studentAccountService
                 .getStudentId(SecurityContextUtils.getUsername())
                 .orElseThrow(() ->
                         new RuntimeException("The account is not associated with any student profile"));
 
-        Integer studentId = eventRegistrationDto.getStudentId();
-        if (!requestStudentId.equals(studentId)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(new ErrorMessage("You can only register for yourself"));
-        }
-
         try {
-            return ResponseEntity.ok(eventService.register(id, studentId));
+            return ResponseEntity.ok(eventService.register(id, requestStudentId));
         } catch (AlreadyRegisteredException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body(Map.of("error", "Student already registered for this event"));
@@ -81,22 +72,15 @@ public class StudentEventController {
             @ApiResponse(responseCode = "204", description = "Student successfully unregistered"),
             @ApiResponse(responseCode = "409", description = "Student not registered")
     })
-    public ResponseEntity<?> unregister(@PathVariable Integer id,
-                                        @RequestBody EventRegistrationDto eventRegistrationDto)
+    public ResponseEntity<?> unregister(@PathVariable Integer id)
             throws NotExistsException {
         Integer requestStudentId = studentAccountService
                 .getStudentId(SecurityContextUtils.getUsername())
                 .orElseThrow(() ->
                         new RuntimeException("The account is not associated with any student profile"));
 
-        Integer studentId = eventRegistrationDto.getStudentId();
-        if (!requestStudentId.equals(studentId)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(new ErrorMessage("You can only unregister for yourself"));
-        }
-
         try {
-            eventService.unregister(id, studentId);
+            eventService.unregister(id, requestStudentId);
             return ResponseEntity.noContent().build();
         } catch (NotRegisteredException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
