@@ -73,6 +73,7 @@ public class FeedbackServiceImpl implements FeedbackService {
 
         spec = spec.and(FeedbackSpecs.joinEvent());
         spec = spec.and(FeedbackSpecs.joinStudent());
+        spec = spec.and(FeedbackSpecs.orderByPostedAt(false));
 
         return feedbackRepository.findAll(spec)
                 .stream()
@@ -109,7 +110,7 @@ public class FeedbackServiceImpl implements FeedbackService {
         if (updateFeedbackDto.getCoverPhoto() != null) {
             var coverPhoto = feedback.getCoverPhoto();
             if (coverPhoto != null) {
-                storageService.updateFile(coverPhoto.getFileUrl(), updateFeedbackDto.getCoverPhoto());
+                storageService.updateFile(coverPhoto.getFileId(), updateFeedbackDto.getCoverPhoto());
             } else {
                 var coverPhotoExtension = FilenameUtils
                         .getExtension(updateFeedbackDto.getCoverPhoto().getOriginalFilename());

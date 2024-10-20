@@ -14,6 +14,14 @@ public class FeedbackSpecs {
                 criteriaBuilder.equal(root.get("event").get("id"), eventId);
     }
 
+    public static Specification<Feedback> orderByPostedAt(boolean asc) {
+        return (root, query, criteriaBuilder) -> {
+            assert query != null;
+            query.orderBy(asc ? criteriaBuilder.asc(root.get("postedAt")) : criteriaBuilder.desc(root.get("postedAt")));
+            return criteriaBuilder.conjunction();
+        };
+    }
+
     public static Specification<Feedback> joinStudent() {
         return (root, query, criteriaBuilder) -> {
             root.fetch("student");
