@@ -17,6 +17,7 @@ public interface EventMapper {
     @Mapping(target = "coverPhoto", ignore = true)
     @Mapping(target = "posts", ignore = true)
     @Mapping(target = "eventRegistrations", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "organizer.id", source = "organizerId")
     Event toEvent(EventCreateDto eventDto);
 
@@ -26,5 +27,6 @@ public interface EventMapper {
     @Mapping(target = "posts", ignore = true)
     @Mapping(target = "organizer", ignore = true)
     @Mapping(target = "eventRegistrations", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
     void updateEvent(@MappingTarget Event eventDto, EventUpdateDto event);
 }
