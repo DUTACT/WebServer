@@ -16,9 +16,10 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 public class Feedback {
-    @EmbeddedId
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private FeedbackId id;
+    private Integer id;
 
     @Column(name = "content")
     private String content;
@@ -32,12 +33,10 @@ public class Feedback {
     private UploadedFile coverPhoto;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("studentId")
     @JoinColumn(name = "student_id")
     private Student student;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("eventId")
     @JoinColumn(name = "event_id")
     private Event event;
 }

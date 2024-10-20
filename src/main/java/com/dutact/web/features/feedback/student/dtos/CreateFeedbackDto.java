@@ -7,9 +7,6 @@ import org.springframework.web.multipart.MultipartFile;
 @Data
 public class CreateFeedbackDto {
     @NotNull
-    private Integer studentId;
-
-    @NotNull
     private Integer eventId;
 
     @NotNull

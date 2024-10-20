@@ -2,12 +2,12 @@ BEGIN;
 
 CREATE TABLE "feedback"
 (
+    id          SERIAL PRIMARY KEY,
     student_id  INTEGER NOT NULL,
     event_id    INTEGER NOT NULL,
     content     TEXT,
     posted_at   TIMESTAMP,
-    cover_photo JSONB,
-    PRIMARY KEY (student_id, event_id)
+    cover_photo JSONB
 );
 
 ALTER TABLE "feedback"

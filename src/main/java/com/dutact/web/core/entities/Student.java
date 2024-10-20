@@ -2,6 +2,7 @@ package com.dutact.web.core.entities;
 
 import com.dutact.web.auth.factors.Account;
 import com.dutact.web.core.entities.feedback.Feedback;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
@@ -18,10 +19,17 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Student extends Account {
+    @Column(name = "full_name")
     private String fullName;
+
+    @Column(name = "phone")
     private String phone;
+
+    @Column(name = "faculty")
     private String faculty;
-    private String avatar_url;
+
+    @Column(name = "avatar_url")
+    private String avatarUrl;
 
     @OneToMany(mappedBy = "student")
     @Builder.Default

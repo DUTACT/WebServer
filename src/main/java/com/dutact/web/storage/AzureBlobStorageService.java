@@ -4,6 +4,7 @@ import jakarta.annotation.Nullable;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.InputStreamSource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.io.WritableResource;
 import org.springframework.stereotype.Service;
@@ -39,6 +40,12 @@ public class AzureBlobStorageService implements StorageService {
         return new UploadFileResult(resourceLocation, resource.getURL());
     }
 
+    @SneakyThrows
+    @Override
+    public UploadFileResult uploadFile(InputStreamSource file, @Nullable String extension) {
+        return uploadFile(file.getInputStream(), extension);
+    }
+
     @Override
     @SneakyThrows
     public void updateFile(String fileId, InputStream file) {
@@ -46,6 +53,15 @@ public class AzureBlobStorageService implements StorageService {
 
         try (OutputStream outputStream = resource.getOutputStream()) {
             file.transferTo(outputStream);
+        }
+    }
+
+    @Override
+    public void updateFile(String fileId, InputStreamSource file) {
+        try (var inputStream = file.getInputStream()) {
+            updateFile(fileId, inputStream);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
