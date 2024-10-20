@@ -5,7 +5,10 @@ import com.dutact.web.auth.factors.Role;
 import com.dutact.web.common.mapper.UploadedFileMapper;
 import com.dutact.web.core.entities.event.Event;
 import com.dutact.web.core.entities.event.EventStatus;
+import com.dutact.web.core.entities.feedback.Feedback;
 import com.dutact.web.core.repositories.EventRepository;
+import com.dutact.web.core.specs.EventSpecs;
+import com.dutact.web.core.specs.FeedbackSpecs;
 import com.dutact.web.features.event.admin.dtos.event.EventCreateDto;
 import com.dutact.web.features.event.admin.dtos.event.EventDto;
 import com.dutact.web.features.event.admin.dtos.event.EventUpdateDto;
@@ -13,10 +16,12 @@ import com.dutact.web.storage.StorageService;
 import com.dutact.web.storage.UploadFileResult;
 import lombok.SneakyThrows;
 import org.apache.commons.io.FilenameUtils;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 @Service("organizerEventService")
@@ -55,14 +60,24 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public Collection<EventDto> getEvents() {
-        return eventRepository.findAll().stream().map(eventMapper::toEventDto).toList();
+    public List<EventDto> getEvents() {
+        Specification<Event> spec = EventSpecs.orderByCreatedAt(false);
+
+        return eventRepository.findAll(spec)
+                .stream()
+                .map(eventMapper::toEventDto)
+                .toList();
     }
 
     @Override
-    public Collection<EventDto> getEvents(Integer orgId) {
-        return eventRepository.findAllByOrganizerId(orgId)
-                .stream().map(eventMapper::toEventDto).toList();
+    public List<EventDto> getEvents(Integer orgId) {
+        Specification<Event> spec = EventSpecs.hasOrganizerId(orgId);
+        spec = spec.and(EventSpecs.orderByCreatedAt(false));
+
+        return eventRepository.findAll(spec)
+                .stream()
+                .map(eventMapper::toEventDto)
+                .toList();
     }
 
     @Override

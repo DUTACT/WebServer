@@ -32,6 +32,9 @@ public class Event {
     @Column(name = "content")
     private String content;
 
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+
     @Column(name = "start_at")
     private LocalDateTime startAt;
 
@@ -63,6 +66,11 @@ public class Event {
 
     @OneToMany(mappedBy = "event")
     private List<EventRegistration> eventRegistrations = new ArrayList<>();
+
+    @PrePersist
+    public void prePersist() {
+        createdAt = LocalDateTime.now();
+    }
 
     public Event(Integer id) {
         this.id = id;

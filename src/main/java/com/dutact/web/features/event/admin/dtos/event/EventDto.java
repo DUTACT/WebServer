@@ -19,6 +19,9 @@ public class EventDto {
     @JsonProperty("content")
     private String content;
 
+    @JsonProperty("createdAt")
+    private String createdAt;
+
     @JsonProperty("startAt")
     private LocalDateTime startAt;
 
