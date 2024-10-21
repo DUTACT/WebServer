@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
         elements = @AnnotateWith.Element(strings = "studentEventMapper"))
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface EventMapper {
+    @Mapping(target = "registeredAt", ignore = true)
     @Mapping(target = "coverPhotoUrl", source = "coverPhoto.fileUrl")
     EventDto toDto(Event event);
 }
