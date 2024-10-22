@@ -77,7 +77,7 @@ public class OrganizerEventController {
         return ResponseEntity.ok(event);
     }
 
-    @PutMapping(path = "/{eventId}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    @PatchMapping(path = "/{eventId}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<EventDto> updateEvent(
             @PathVariable("id") Integer organizerId,
             @PathVariable("eventId") Integer eventId,
