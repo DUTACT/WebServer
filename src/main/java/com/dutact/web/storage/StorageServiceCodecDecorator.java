@@ -53,6 +53,12 @@ public class StorageServiceCodecDecorator implements StorageService {
         return storageService.getFileUrl(decodedFileId);
     }
 
+    @Override
+    public void deleteFile(String fileId) {
+        String decodedFileId = decode(fileId);
+        storageService.deleteFile(decodedFileId);
+    }
+
     private String encode(String str) {
         byte[] encodedBytes = Base64.getEncoder().encode(str.getBytes());
         return new String(encodedBytes, BASE64_ENCODING_CHARSET);

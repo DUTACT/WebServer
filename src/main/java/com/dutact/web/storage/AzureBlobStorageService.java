@@ -1,16 +1,22 @@
 package com.dutact.web.storage;
 
+import com.azure.identity.ClientSecretCredential;
+import com.azure.identity.ClientSecretCredentialBuilder;
+import com.azure.storage.blob.BlobClient;
+import com.azure.storage.blob.BlobContainerClient;
+import com.azure.storage.blob.BlobServiceClient;
+import com.azure.storage.blob.BlobServiceClientBuilder;
+import com.azure.storage.blob.models.BlobHttpHeaders;
+import com.dutact.web.common.utils.MIMEMappingUtils;
 import jakarta.annotation.Nullable;
 import lombok.SneakyThrows;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.apache.tika.Tika;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamSource;
-import org.springframework.core.io.ResourceLoader;
-import org.springframework.core.io.WritableResource;
 import org.springframework.stereotype.Service;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.URL;
 import java.util.UUID;
 
@@ -18,42 +24,65 @@ import java.util.UUID;
 public class AzureBlobStorageService implements StorageService {
     private static final int MAX_GENERATE_RESOURCE_LOCATION_ATTEMPTS = 10;
 
-    private final ResourceLoader resourceLoader;
-    private final String containerName;
+    private final BlobContainerClient containerClient;
 
-    public AzureBlobStorageService(@Qualifier("azureStorageBlobProtocolResolver") ResourceLoader resourceLoader,
-                                   @Value("${dutact.storage.azure.blob.container-name}") String containerName) {
-        this.resourceLoader = resourceLoader;
-        this.containerName = containerName;
+    public AzureBlobStorageService(@Value("${azure.credential.client-id}") String clientId,
+                                   @Value("${azure.credential.client-secret}") String clientSecret,
+                                   @Value("${azure.profile.tenant-id}") String tenantId,
+                                   @Value("${azure.storage.blob.account-name}") String accountName,
+                                   @Value("${azure.storage.blob.container-name}") String containerName) {
+        ClientSecretCredential clientSecretCredential = new ClientSecretCredentialBuilder()
+                .clientId(clientId)
+                .clientSecret(clientSecret)
+                .tenantId(tenantId)
+                .build();
+
+        BlobServiceClient blobServiceClient = new BlobServiceClientBuilder()
+                .endpoint(String.format("https://%s.blob.core.windows.net", accountName))
+                .credential(clientSecretCredential)
+                .buildClient();
+
+        containerClient = blobServiceClient.getBlobContainerClient(containerName);
     }
 
     @Override
     @SneakyThrows
     public UploadFileResult uploadFile(InputStream file, @Nullable String extension) {
-        String resourceLocation = randomAvailableResourceLocation(extension);
-        WritableResource resource = (WritableResource) resourceLoader.getResource(resourceLocation);
+        String resourceLocation = randomAvailableBlobName(extension);
+        BlobClient blobClient = containerClient.getBlobClient(resourceLocation);
+        InputStream byteStream = new ByteArrayInputStream(file.readAllBytes());
 
-        try (OutputStream outputStream = resource.getOutputStream()) {
-            file.transferTo(outputStream);
-        }
+        blobClient.upload(byteStream, true);
 
-        return new UploadFileResult(resourceLocation, resource.getURL());
+        byteStream.reset();
+        blobClient.setHttpHeaders(new BlobHttpHeaders()
+                .setContentType(new Tika().detect(byteStream)));
+
+        byteStream.close();
+        return new UploadFileResult(resourceLocation, new URL(blobClient.getBlobUrl()));
     }
 
     @SneakyThrows
     @Override
     public UploadFileResult uploadFile(InputStreamSource file, @Nullable String extension) {
-        return uploadFile(file.getInputStream(), extension);
+        try (InputStream inputStream = file.getInputStream()) {
+            return uploadFile(inputStream, extension);
+        }
     }
 
     @Override
     @SneakyThrows
     public void updateFile(String fileId, InputStream file) {
-        WritableResource resource = (WritableResource) resourceLoader.getResource(fileId);
+        InputStream byteStream = new ByteArrayInputStream(file.readAllBytes());
+        BlobClient blobClient = containerClient.getBlobClient(fileId);
 
-        try (OutputStream outputStream = resource.getOutputStream()) {
-            file.transferTo(outputStream);
-        }
+        blobClient.upload(byteStream, true);
+
+        byteStream.reset();
+        blobClient.setHttpHeaders(new BlobHttpHeaders()
+                .setContentType(new Tika().detect(byteStream)));
+
+        byteStream.close();
     }
 
     @Override
@@ -69,15 +98,19 @@ public class AzureBlobStorageService implements StorageService {
     @Override
     @SneakyThrows
     public URL getFileUrl(String fileId) {
-        return resourceLoader.getResource(fileId).getURL();
+        return new URL(containerClient.getBlobClient(fileId).getBlobUrl());
     }
 
-    private String randomAvailableResourceLocation(String extension) {
+    @Override
+    public void deleteFile(String fileId) {
+        containerClient.getBlobClient(fileId).delete();
+    }
+
+    private String randomAvailableBlobName(String extension) {
         for (int i = 0; i < MAX_GENERATE_RESOURCE_LOCATION_ATTEMPTS; i++) {
             String fileName = randomFileName(extension);
-            String resourceLocation = getResourceLocation(fileName);
-            if (!resourceLoader.getResource(resourceLocation).exists()) {
-                return resourceLocation;
+            if (!containerClient.getBlobClient(fileName).exists()) {
+                return fileName;
             }
         }
         throw new IllegalStateException("Failed to generate available resource location");
@@ -87,9 +120,10 @@ public class AzureBlobStorageService implements StorageService {
         return UUID.randomUUID() + "." + extension;
     }
 
-    private String getResourceLocation(String fileName) {
-        return "azure-blob://" + containerName +
-                "/" +
-                fileName;
+    private String getContentType(@Nullable String extension) {
+        if (extension == null) {
+            return "application/octet-stream";
+        }
+        return MIMEMappingUtils.getMIMEType(extension);
     }
 }
