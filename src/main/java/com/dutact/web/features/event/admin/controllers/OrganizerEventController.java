@@ -81,7 +81,7 @@ public class OrganizerEventController {
     public ResponseEntity<EventDto> updateEvent(
             @PathVariable("id") Integer organizerId,
             @PathVariable("eventId") Integer eventId,
-            @RequestBody EventUpdateDto eventDto) throws ForbiddenException, NotExistsException {
+            @ModelAttribute EventUpdateDto eventDto) throws ForbiddenException, NotExistsException {
         validateRequestOrganizer(organizerId);
 
         return ResponseEntity.ok(eventService.updateEvent(eventId, eventDto));

@@ -26,6 +26,10 @@ repositories {
 extra["springCloudAzureVersion"] = "5.15.0"
 
 dependencies {
+    implementation(platform("com.azure:azure-sdk-bom:1.2.28"))
+    implementation("com.azure:azure-identity")
+    implementation("com.azure:azure-storage-blob")
+    implementation("org.apache.tika:tika-core:3.0.0")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-authorization-server")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
@@ -40,8 +44,6 @@ dependencies {
     implementation("com.auth0:java-jwt:4.4.0")
     implementation("org.flywaydb:flyway-core")
     implementation("org.flywaydb:flyway-database-postgresql")
-    implementation("com.azure.spring:spring-cloud-azure-starter")
-    implementation("com.azure.spring:spring-cloud-azure-starter-storage")
     implementation("commons-io:commons-io:2.16.1")
     implementation("org.mapstruct:mapstruct:1.6.2")
     implementation("org.mapstruct:mapstruct-processor:1.6.2")
@@ -55,12 +57,6 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-}
-
-dependencyManagement {
-    imports {
-        mavenBom("com.azure.spring:spring-cloud-azure-dependencies:${property("springCloudAzureVersion")}")
-    }
 }
 
 tasks.withType<Test> {
