@@ -18,7 +18,7 @@ public interface EventMapper {
     @Mapping(target = "posts", ignore = true)
     @Mapping(target = "eventRegistrations", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
-    @Mapping(target = "organizer.id", ignore = true)
+    @Mapping(target = "organizer", ignore = true)
     Event toEvent(EventCreateDto eventDto);
 
     @Mapping(target = "id", ignore = true)
