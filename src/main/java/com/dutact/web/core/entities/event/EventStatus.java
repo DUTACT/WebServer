@@ -42,6 +42,5 @@ public abstract class EventStatus {
             this.reason = reason;
             this.moderatedAt = LocalDateTime.now().toString();
         }
-
     }
 }
