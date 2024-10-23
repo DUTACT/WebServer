@@ -2,8 +2,11 @@ package com.dutact.web.features.event.student.services;
 
 import com.dutact.web.common.api.exceptions.NotExistsException;
 import com.dutact.web.features.event.student.dtos.EventDto;
+import com.dutact.web.features.event.student.dtos.EventFollowDto;
 import com.dutact.web.features.event.student.dtos.EventRegisteredDto;
+import com.dutact.web.features.event.student.services.exceptions.AlreadyFollowedException;
 import com.dutact.web.features.event.student.services.exceptions.AlreadyRegisteredException;
+import com.dutact.web.features.event.student.services.exceptions.NotFollowedException;
 import com.dutact.web.features.event.student.services.exceptions.NotRegisteredException;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,4 +24,11 @@ public interface EventService {
     @Transactional
     void unregister(Integer eventId, Integer studentId)
             throws NotRegisteredException, NotExistsException;
+
+    EventFollowDto follow(Integer eventId, Integer studentId)
+            throws AlreadyFollowedException, NotExistsException;
+
+    @Transactional
+    void unfollow(Integer eventId, Integer studentId)
+            throws NotFollowedException, NotExistsException;
 }

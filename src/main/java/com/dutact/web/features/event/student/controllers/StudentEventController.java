@@ -2,11 +2,14 @@ package com.dutact.web.features.event.student.controllers;
 
 import com.dutact.web.auth.context.SecurityContextUtils;
 import com.dutact.web.auth.factors.StudentAccountService;
+import com.dutact.web.common.api.ErrorMessage;
 import com.dutact.web.common.api.exceptions.NotExistsException;
 import com.dutact.web.features.event.student.dtos.EventDto;
 import com.dutact.web.features.event.student.dtos.EventRegisteredDto;
 import com.dutact.web.features.event.student.services.EventService;
+import com.dutact.web.features.event.student.services.exceptions.AlreadyFollowedException;
 import com.dutact.web.features.event.student.services.exceptions.AlreadyRegisteredException;
+import com.dutact.web.features.event.student.services.exceptions.NotFollowedException;
 import com.dutact.web.features.event.student.services.exceptions.NotRegisteredException;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -85,6 +88,49 @@ public class StudentEventController {
         } catch (NotRegisteredException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body(Map.of("error", "Student not registered for this event"));
+        }
+    }
+
+    @PostMapping("/{id}/follow")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Student successfully followed the event",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = EventRegisteredDto.class))),
+            @ApiResponse(responseCode = "409", description = "Already followed")
+    })
+    public ResponseEntity<?> follow(@PathVariable Integer id)
+            throws NotExistsException {
+        Integer requestStudentId = studentAccountService
+                .getStudentId(SecurityContextUtils.getUsername())
+                .orElseThrow(() ->
+                        new RuntimeException("The account is not associated with any student profile"));
+
+        try {
+            return ResponseEntity.ok(eventService.follow(id, requestStudentId));
+        } catch (AlreadyFollowedException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(new ErrorMessage("Student already follow this event"));
+        }
+    }
+
+    @PostMapping("/{id}/unfollow")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Student successfully follow"),
+            @ApiResponse(responseCode = "409", description = "Student not follow")
+    })
+    public ResponseEntity<?> unfollow(@PathVariable Integer id)
+            throws NotExistsException {
+        Integer requestStudentId = studentAccountService
+                .getStudentId(SecurityContextUtils.getUsername())
+                .orElseThrow(() ->
+                        new RuntimeException("The account is not associated with any student profile"));
+
+        try {
+            eventService.unfollow(id, requestStudentId);
+            return ResponseEntity.noContent().build();
+        } catch (NotFollowedException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(new ErrorMessage("Student not follow for this event"));
         }
     }
 }

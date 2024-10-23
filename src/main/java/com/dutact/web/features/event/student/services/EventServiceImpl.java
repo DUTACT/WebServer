@@ -3,17 +3,22 @@ package com.dutact.web.features.event.student.services;
 import com.dutact.web.auth.context.SecurityContextUtils;
 import com.dutact.web.auth.factors.StudentAccountService;
 import com.dutact.web.common.api.exceptions.NotExistsException;
+import com.dutact.web.core.entities.EventFollow;
 import com.dutact.web.core.entities.EventRegistration;
 import com.dutact.web.core.entities.Student;
 import com.dutact.web.core.entities.event.Event;
 import com.dutact.web.core.entities.event.EventStatus;
+import com.dutact.web.core.repositories.EventFollowRepository;
 import com.dutact.web.core.repositories.EventRegistrationRepository;
 import com.dutact.web.core.repositories.EventRepository;
 import com.dutact.web.core.specs.EventRegistrationSpecs;
 import com.dutact.web.core.specs.EventSpecs;
 import com.dutact.web.features.event.student.dtos.EventDto;
+import com.dutact.web.features.event.student.dtos.EventFollowDto;
 import com.dutact.web.features.event.student.dtos.EventRegisteredDto;
+import com.dutact.web.features.event.student.services.exceptions.AlreadyFollowedException;
 import com.dutact.web.features.event.student.services.exceptions.AlreadyRegisteredException;
+import com.dutact.web.features.event.student.services.exceptions.NotFollowedException;
 import com.dutact.web.features.event.student.services.exceptions.NotRegisteredException;
 import org.springframework.stereotype.Service;
 
@@ -27,19 +32,26 @@ public class EventServiceImpl implements EventService {
     private final EventRepository eventRepository;
     private final EventRegistrationRepository eventRegistrationRepository;
     private final StudentAccountService studentAccountService;
+    private final EventFollowRepository eventFollowRepository;
     private final EventMapper eventMapper;
     private final EventRegistrationMapper eventRegistrationMapper;
+    private final EventFollowMapper eventFollowMapper;
 
     public EventServiceImpl(EventRepository eventRepository,
                             EventRegistrationRepository eventRegistrationRepository,
                             StudentAccountService studentAccountService,
                             EventMapper eventMapper,
-                            EventRegistrationMapper eventRegistrationMapper) {
+                            EventRegistrationMapper eventRegistrationMapper,
+                            EventFollowRepository eventFollowRepository,
+                            EventFollowMapper eventFollowMapper
+    ) {
         this.eventRepository = eventRepository;
         this.eventRegistrationRepository = eventRegistrationRepository;
         this.studentAccountService = studentAccountService;
         this.eventMapper = eventMapper;
         this.eventRegistrationMapper = eventRegistrationMapper;
+        this.eventFollowRepository = eventFollowRepository;
+        this.eventFollowMapper = eventFollowMapper;
     }
 
     @Override
@@ -125,5 +137,36 @@ public class EventServiceImpl implements EventService {
         }
 
         eventRegistrationRepository.deleteByEventIdAndStudentId(eventId, studentId);
+    }
+
+    @Override
+    public EventFollowDto follow(Integer eventId, Integer studentId) throws AlreadyFollowedException, NotExistsException {
+        if (eventFollowRepository.existsByEventIdAndStudentId(eventId, studentId)) {
+            throw new AlreadyFollowedException();
+        }
+
+        if (!eventRepository.existsById(eventId)) {
+            throw new NotExistsException();
+        }
+
+        EventFollow eventFollow = new EventFollow();
+        eventFollow.setEvent(new Event(eventId));
+        eventFollow.setStudent(new Student(studentId));
+
+        return eventFollowMapper.toDto(eventFollowRepository.save(eventFollow));
+    }
+
+    @Override
+    public void unfollow(Integer eventId, Integer studentId)
+            throws NotFollowedException, NotExistsException {
+        if (!eventFollowRepository.existsByEventIdAndStudentId(eventId, studentId)) {
+            throw new NotFollowedException();
+        }
+
+        if (!eventRepository.existsById(eventId)) {
+            throw new NotExistsException();
+        }
+
+        eventFollowRepository.deleteByEventIdAndStudentId(eventId, studentId);
     }
 }
