@@ -3,9 +3,9 @@ BEGIN;
 CREATE TABLE event_follow
 (
     id            SERIAL PRIMARY KEY,
-    follow_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    student_id    INTEGER,
-    event_id      INTEGER
+    followed_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    student_id    INTEGER   NOT NULL,
+    event_id      INTEGER   NOT NULL
 );
 
 ALTER TABLE "event_follow"

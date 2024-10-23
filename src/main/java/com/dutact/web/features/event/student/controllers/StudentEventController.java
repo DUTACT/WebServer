@@ -2,6 +2,7 @@ package com.dutact.web.features.event.student.controllers;
 
 import com.dutact.web.auth.context.SecurityContextUtils;
 import com.dutact.web.auth.factors.StudentAccountService;
+import com.dutact.web.common.api.ErrorMessage;
 import com.dutact.web.common.api.exceptions.NotExistsException;
 import com.dutact.web.features.event.student.dtos.EventDto;
 import com.dutact.web.features.event.student.dtos.EventRegisteredDto;
@@ -108,7 +109,7 @@ public class StudentEventController {
             return ResponseEntity.ok(eventService.follow(id, requestStudentId));
         } catch (AlreadyFollowedException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(Map.of("error", "Student already follow this event"));
+                    .body(new ErrorMessage("Student already follow this event"));
         }
     }
 
@@ -129,7 +130,7 @@ public class StudentEventController {
             return ResponseEntity.noContent().build();
         } catch (NotFollowedException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(Map.of("error", "Student not follow for this event"));
+                    .body(new ErrorMessage("Student not follow for this event"));
         }
     }
 }

@@ -17,7 +17,7 @@ public class EventFollow {
     @Column(name = "id")
     private Integer id;
 
-    @Column(name = "follow_at")
+    @Column(name = "followed_at")
     private LocalDateTime followAt = LocalDateTime.now();
 
     @ManyToOne(fetch = FetchType.LAZY)
