@@ -19,12 +19,12 @@ public abstract class EventStatus {
     @Getter
     @Setter
     public static class Approved extends EventStatus {
-        public static final String TYPE_NAME = "approved";
-        public String moderatedAt;
-
         public Approved() {
             this.moderatedAt = LocalDateTime.now().toString();
         }
+
+        public static final String TYPE_NAME = "approved";
+        public String moderatedAt;
     }
 
     @NoArgsConstructor
@@ -34,15 +34,14 @@ public abstract class EventStatus {
 
     @Getter
     @Setter
-    @NoArgsConstructor
     public static class Rejected extends EventStatus {
         public static final String TYPE_NAME = "rejected";
-        private String reason;
-        private String moderatedAt;
 
         public Rejected(String reason) {
             this.reason = reason;
             this.moderatedAt = LocalDateTime.now().toString();
         }
+        private String reason;
+        private String moderatedAt;
     }
 }
