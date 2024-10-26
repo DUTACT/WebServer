@@ -2,9 +2,10 @@ package com.dutact.web.features.event.student.controllers;
 
 import com.dutact.web.auth.context.SecurityContextUtils;
 import com.dutact.web.auth.factors.StudentAccountService;
-import com.dutact.web.common.api.ErrorMessage;
+import com.dutact.web.common.api.exceptions.ConflictException;
 import com.dutact.web.common.api.exceptions.NotExistsException;
 import com.dutact.web.features.event.student.dtos.EventDto;
+import com.dutact.web.features.event.student.dtos.EventFollowDto;
 import com.dutact.web.features.event.student.dtos.EventRegisteredDto;
 import com.dutact.web.features.event.student.services.EventService;
 import com.dutact.web.features.event.student.services.exceptions.AlreadyFollowedException;
@@ -92,14 +93,8 @@ public class StudentEventController {
     }
 
     @PostMapping("/{id}/follow")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Student successfully followed the event",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = EventRegisteredDto.class))),
-            @ApiResponse(responseCode = "409", description = "Already followed")
-    })
-    public ResponseEntity<?> follow(@PathVariable Integer id)
-            throws NotExistsException {
+    public ResponseEntity<EventFollowDto> follow(@PathVariable Integer id)
+            throws NotExistsException, ConflictException {
         Integer requestStudentId = studentAccountService
                 .getStudentId(SecurityContextUtils.getUsername())
                 .orElseThrow(() ->
@@ -108,18 +103,14 @@ public class StudentEventController {
         try {
             return ResponseEntity.ok(eventService.follow(id, requestStudentId));
         } catch (AlreadyFollowedException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(new ErrorMessage("Student already follow this event"));
+            throw new ConflictException("Student already follow for this event");
         }
     }
 
     @PostMapping("/{id}/unfollow")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Student successfully follow"),
-            @ApiResponse(responseCode = "409", description = "Student not follow")
-    })
+    @ApiResponse(responseCode = "204", description = "Student successfully unfollowed")
     public ResponseEntity<?> unfollow(@PathVariable Integer id)
-            throws NotExistsException {
+            throws NotExistsException, ConflictException {
         Integer requestStudentId = studentAccountService
                 .getStudentId(SecurityContextUtils.getUsername())
                 .orElseThrow(() ->
@@ -129,8 +120,7 @@ public class StudentEventController {
             eventService.unfollow(id, requestStudentId);
             return ResponseEntity.noContent().build();
         } catch (NotFollowedException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(new ErrorMessage("Student not follow for this event"));
+            throw new ConflictException("Student not follow for this event");
         }
     }
 }
