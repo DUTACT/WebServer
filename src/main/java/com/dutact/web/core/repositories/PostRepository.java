@@ -12,8 +12,8 @@ import java.util.Optional;
 @Repository
 public interface PostRepository extends JpaRepository<Post, Integer> {
     boolean existsByIdAndEventId(Integer postId, Integer eventId);
-
-    Collection<Post> findAllByEventId(Integer eventId);
+    List<Post> findAllByEventId(Integer eventId);
+    List<Post> findAllByEventIdIn(List<Integer> eventIds);
 
     @Query(value = "SELECT * FROM Post e WHERE e.status ->> 'type' = :status", nativeQuery = true)
     List<Post> findAllByStatus(String status);
