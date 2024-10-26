@@ -13,6 +13,6 @@ public class EventFollowDto {
     @JsonProperty("eventId")
     private Integer eventId;
 
-    @JsonProperty("followAt")
-    private String followAt;
+    @JsonProperty("followedAt")
+    private String followedAt;
 }
