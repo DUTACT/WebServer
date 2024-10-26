@@ -24,6 +24,7 @@ public interface NewsfeedMapper {
 
     @Mapping(target = "coverPhotoUrl", source = "coverPhoto.fileUrl")
     @Mapping(target = "student", source = "student")
+    @Mapping(target = "student.avatarUrl", source = "student.avatarUrl")
     @Mapping(target = "student.name", source = "student.fullName")
     @Mapping(target = "event", source = "event")
     @Mapping(target = "event.coverPhotoUrl", source = "event.coverPhoto.fileUrl")
