@@ -1,14 +1,10 @@
 package com.dutact.web.features.newsfeed.student.dtos;
 
 
-import com.dutact.web.features.event.admin.dtos.post.PostDto;
-import com.dutact.web.features.feedback.student.dtos.FeedbackDto;
-import com.dutact.web.features.post.student.dtos.PostEventDto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -16,14 +12,14 @@ import java.time.LocalDateTime;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = NewsfeedElementDto.NewsfeedPostDto.class, name = NewsfeedElementDto.NewsfeedPostDto.TYPE_NAME),
-        @JsonSubTypes.Type(value = NewsfeedElementDto.NewsfeedFeedbackDto.class, name = NewsfeedElementDto.NewsfeedFeedbackDto.TYPE_NAME),
+        @JsonSubTypes.Type(value = NewsfeedItemDto.NewsfeedPostDto.class, name = NewsfeedItemDto.NewsfeedPostDto.TYPE_NAME),
+        @JsonSubTypes.Type(value = NewsfeedItemDto.NewsfeedFeedbackDto.class, name = NewsfeedItemDto.NewsfeedFeedbackDto.TYPE_NAME),
 })
-public abstract class NewsfeedElementDto implements Comparable<NewsfeedElementDto> {
+public abstract class NewsfeedItemDto implements Comparable<NewsfeedItemDto> {
     @EqualsAndHashCode(callSuper = true)
     @Data
     @Schema(name = "StudentNewsfeedPostDto")
-    public static class NewsfeedPostDto extends NewsfeedElementDto {
+    public static class NewsfeedPostDto extends NewsfeedItemDto {
         public static final String TYPE_NAME = "post";
 
         @JsonProperty("organizer")
@@ -45,7 +41,7 @@ public abstract class NewsfeedElementDto implements Comparable<NewsfeedElementDt
         private String coverPhotoUrl;
 
         @Override
-        public int compareTo(NewsfeedElementDto object) {
+        public int compareTo(NewsfeedItemDto object) {
             if (object instanceof NewsfeedPostDto) {
                 NewsfeedPostDto postCompareTo = (NewsfeedPostDto) object;
                 return this.postedAt.compareTo(postCompareTo.postedAt);
@@ -59,7 +55,7 @@ public abstract class NewsfeedElementDto implements Comparable<NewsfeedElementDt
     @EqualsAndHashCode(callSuper = true)
     @Data
     @Schema(name = "StudentNewsfeedFeedbackDto")
-    public static class NewsfeedFeedbackDto extends NewsfeedElementDto {
+    public static class NewsfeedFeedbackDto extends NewsfeedItemDto {
         public static final String TYPE_NAME = "feedback";
 
         @JsonProperty("student")
@@ -81,7 +77,7 @@ public abstract class NewsfeedElementDto implements Comparable<NewsfeedElementDt
         private String coverPhotoUrl;
 
         @Override
-        public int compareTo(NewsfeedElementDto object) {
+        public int compareTo(NewsfeedItemDto object) {
             if (object instanceof NewsfeedPostDto) {
                 NewsfeedPostDto postCompareTo = (NewsfeedPostDto) object;
                 return this.postedAt.compareTo(postCompareTo.postedAt);
