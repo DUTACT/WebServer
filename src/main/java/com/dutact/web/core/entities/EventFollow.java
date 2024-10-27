@@ -18,7 +18,7 @@ public class EventFollow {
     private Integer id;
 
     @Column(name = "followed_at")
-    private LocalDateTime followAt = LocalDateTime.now();
+    private LocalDateTime followedAt = LocalDateTime.now();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "student_id")

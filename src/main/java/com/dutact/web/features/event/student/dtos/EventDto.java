@@ -37,6 +37,12 @@ public class EventDto {
             "null if the student has not registered for the event")
     private LocalDateTime registeredAt;
 
+    @Nullable
+    @JsonProperty("followedAt")
+    @Schema(description = "The date and time when the student followed the event, " +
+            "null if the student has not followed the event")
+    private LocalDateTime followedAt;
+
     @JsonProperty("coverPhotoUrl")
     private String coverPhotoUrl;
 
