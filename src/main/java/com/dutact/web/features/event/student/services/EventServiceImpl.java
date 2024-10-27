@@ -11,6 +11,7 @@ import com.dutact.web.core.entities.event.EventStatus;
 import com.dutact.web.core.repositories.EventFollowRepository;
 import com.dutact.web.core.repositories.EventRegistrationRepository;
 import com.dutact.web.core.repositories.EventRepository;
+import com.dutact.web.core.specs.EventFollowSpecs;
 import com.dutact.web.core.specs.EventRegistrationSpecs;
 import com.dutact.web.core.specs.EventSpecs;
 import com.dutact.web.features.event.student.dtos.EventDto;
@@ -67,12 +68,18 @@ public class EventServiceImpl implements EventService {
                 .and(EventSpecs.joinOrganizer()));
 
         if (event.isPresent() && event.get().getStatus() instanceof EventStatus.Approved) {
+            EventDto eventDto = eventMapper.toDto(event.get());
+
             Optional<EventRegistration> eventRegistration = eventRegistrationRepository
                     .findOne(EventRegistrationSpecs.hasEventId(id)
                             .and(EventRegistrationSpecs.hasStudentId(requestStudentId)));
-
-            EventDto eventDto = eventMapper.toDto(event.get());
             eventDto.setRegisteredAt(eventRegistration.map(EventRegistration::getRegisteredAt)
+                    .orElse(null));
+
+            Optional<EventFollow> eventFollow = eventFollowRepository
+                    .findOne(EventFollowSpecs.hasEventId(id)
+                            .and(EventFollowSpecs.hasStudentId(requestStudentId)));
+            eventDto.setFollowedAt(eventFollow.map(EventFollow::getFollowedAt)
                     .orElse(null));
 
             return Optional.of(eventDto);
@@ -96,6 +103,11 @@ public class EventServiceImpl implements EventService {
                 .stream()
                 .collect(Collectors.toMap(r -> r.getEvent().getId(), r -> r));
 
+        Map<Integer, EventFollow> eventFollows = eventFollowRepository
+                .findAll(EventFollowSpecs.hasStudentId(requestStudentId))
+                .stream()
+                .collect(Collectors.toMap(f -> f.getEvent().getId(), f -> f));
+
         return events.stream()
                 .map(event -> {
                     EventDto eventDto = eventMapper.toDto(event);
@@ -103,6 +115,12 @@ public class EventServiceImpl implements EventService {
                         eventDto.setRegisteredAt(eventRegistrations
                                 .get(event.getId()).getRegisteredAt());
                     }
+
+                    if (eventFollows.containsKey(event.getId())) {
+                        eventDto.setFollowedAt(eventFollows
+                                .get(event.getId()).getFollowedAt());
+                    }
+
                     return eventDto;
                 })
                 .toList();
