@@ -4,10 +4,10 @@ import com.dutact.web.common.api.exceptions.NotExistsException;
 import com.dutact.web.features.event.student.dtos.EventDto;
 import com.dutact.web.features.event.student.dtos.EventFollowDto;
 import com.dutact.web.features.event.student.dtos.EventRegisteredDto;
-import com.dutact.web.features.event.student.services.exceptions.AlreadyFollowedException;
-import com.dutact.web.features.event.student.services.exceptions.AlreadyRegisteredException;
-import com.dutact.web.features.event.student.services.exceptions.NotFollowedException;
-import com.dutact.web.features.event.student.services.exceptions.NotRegisteredException;
+import com.dutact.web.features.event.student.services.exceptions.FollowForbiddenException;
+import com.dutact.web.features.event.student.services.exceptions.RegisterForbiddenException;
+import com.dutact.web.features.event.student.services.exceptions.UnfollowForbiddenException;
+import com.dutact.web.features.event.student.services.exceptions.UnregisterForbiddenException;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -19,16 +19,16 @@ public interface EventService {
     List<EventDto> getEvents();
 
     EventRegisteredDto register(Integer eventId, Integer studentId)
-            throws AlreadyRegisteredException, NotExistsException;
+            throws RegisterForbiddenException, NotExistsException;
 
     @Transactional
     void unregister(Integer eventId, Integer studentId)
-            throws NotRegisteredException, NotExistsException;
+            throws NotExistsException, UnregisterForbiddenException;
 
     EventFollowDto follow(Integer eventId, Integer studentId)
-            throws AlreadyFollowedException, NotExistsException;
+            throws FollowForbiddenException, NotExistsException;
 
     @Transactional
     void unfollow(Integer eventId, Integer studentId)
-            throws NotFollowedException, NotExistsException;
+            throws NotExistsException, UnfollowForbiddenException;
 }

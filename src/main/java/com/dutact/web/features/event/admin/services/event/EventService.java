@@ -1,5 +1,6 @@
 package com.dutact.web.features.event.admin.services.event;
 
+import com.dutact.web.common.api.exceptions.ConflictException;
 import com.dutact.web.common.api.exceptions.NotExistsException;
 import com.dutact.web.core.entities.event.EventStatus;
 import com.dutact.web.features.event.admin.dtos.event.EventCreateDto;
@@ -10,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface EventService {
-    EventDto createEvent(Integer organizerId, EventCreateDto eventDto) throws NotExistsException;
+    EventDto createEvent(Integer organizerId, EventCreateDto eventDto) throws NotExistsException, ConflictException;
 
     List<EventDto> getEvents();
 
@@ -20,9 +21,11 @@ public interface EventService {
 
     EventDto updateEvent(Integer eventId, EventUpdateDto eventDto) throws NotExistsException;
 
-    EventStatus approveEvent(Integer eventId) throws NotExistsException;
+    EventStatus approveEvent(Integer eventId) throws NotExistsException, ConflictException;
 
-    EventStatus rejectEvent(Integer eventId, String reason) throws NotExistsException;
+    EventStatus rejectEvent(Integer eventId, String reason) throws NotExistsException, ConflictException;
+
+    EventDto closeEventRegistration(Integer eventId) throws NotExistsException, ConflictException;
 
     void deleteEvent(Integer eventId);
 

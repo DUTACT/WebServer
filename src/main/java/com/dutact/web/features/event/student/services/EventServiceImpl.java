@@ -16,12 +16,13 @@ import com.dutact.web.core.specs.EventSpecs;
 import com.dutact.web.features.event.student.dtos.EventDto;
 import com.dutact.web.features.event.student.dtos.EventFollowDto;
 import com.dutact.web.features.event.student.dtos.EventRegisteredDto;
-import com.dutact.web.features.event.student.services.exceptions.AlreadyFollowedException;
-import com.dutact.web.features.event.student.services.exceptions.AlreadyRegisteredException;
-import com.dutact.web.features.event.student.services.exceptions.NotFollowedException;
-import com.dutact.web.features.event.student.services.exceptions.NotRegisteredException;
+import com.dutact.web.features.event.student.services.exceptions.FollowForbiddenException;
+import com.dutact.web.features.event.student.services.exceptions.RegisterForbiddenException;
+import com.dutact.web.features.event.student.services.exceptions.UnfollowForbiddenException;
+import com.dutact.web.features.event.student.services.exceptions.UnregisterForbiddenException;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -109,14 +110,28 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public EventRegisteredDto register(Integer eventId, Integer studentId)
-            throws AlreadyRegisteredException, NotExistsException {
-        if (eventRegistrationRepository.existsByEventIdAndStudentId(eventId, studentId)) {
-            throw new AlreadyRegisteredException();
+            throws RegisterForbiddenException, NotExistsException {
+        Optional<Event> eventOpt = eventRepository
+                .findOne(EventSpecs.hasId(eventId)
+                        .and(EventSpecs.hasStatus(EventStatus.Approved.TYPE_NAME)));
+
+        if (eventOpt.isEmpty()) {
+            throw new NotExistsException("Event not found.");
         }
 
-        if (!eventRepository.existsById(eventId)) {
-            throw new NotExistsException();
+        Event event = eventOpt.get();
+        if (event.getEndRegistrationAt().isBefore(LocalDateTime.now())) {
+            throw new RegisterForbiddenException("Registration is closed.");
         }
+
+        Optional<EventRegistration> registrationOpt = eventRegistrationRepository
+                .findOne(EventRegistrationSpecs.hasEventId(eventId)
+                        .and(EventRegistrationSpecs.hasStudentId(studentId)));
+
+        if (registrationOpt.isPresent()) {
+            throw new RegisterForbiddenException("You are already registered for this event.");
+        }
+
 
         EventRegistration eventRegistration = new EventRegistration();
         eventRegistration.setEvent(new Event(eventId));
@@ -127,9 +142,9 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public void unregister(Integer eventId, Integer studentId)
-            throws NotRegisteredException, NotExistsException {
+            throws UnregisterForbiddenException, NotExistsException {
         if (!eventRegistrationRepository.existsByEventIdAndStudentId(eventId, studentId)) {
-            throw new NotRegisteredException();
+            throw new UnregisterForbiddenException("You are not registered for this event.");
         }
 
         if (!eventRepository.existsById(eventId)) {
@@ -140,9 +155,9 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public EventFollowDto follow(Integer eventId, Integer studentId) throws AlreadyFollowedException, NotExistsException {
+    public EventFollowDto follow(Integer eventId, Integer studentId) throws FollowForbiddenException, NotExistsException {
         if (eventFollowRepository.existsByEventIdAndStudentId(eventId, studentId)) {
-            throw new AlreadyFollowedException();
+            throw new FollowForbiddenException("You are already following this event.");
         }
 
         if (!eventRepository.existsById(eventId)) {
@@ -158,9 +173,9 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public void unfollow(Integer eventId, Integer studentId)
-            throws NotFollowedException, NotExistsException {
+            throws UnfollowForbiddenException, NotExistsException {
         if (!eventFollowRepository.existsByEventIdAndStudentId(eventId, studentId)) {
-            throw new NotFollowedException();
+            throw new UnfollowForbiddenException("You are not following this event.");
         }
 
         if (!eventRepository.existsById(eventId)) {

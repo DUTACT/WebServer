@@ -3,6 +3,7 @@ package com.dutact.web.features.event.admin.controllers;
 import com.dutact.web.auth.context.SecurityContextUtils;
 import com.dutact.web.auth.factors.OrganizerAccountService;
 import com.dutact.web.auth.factors.Role;
+import com.dutact.web.common.api.exceptions.ConflictException;
 import com.dutact.web.common.api.exceptions.ForbiddenException;
 import com.dutact.web.common.api.exceptions.NotExistsException;
 import com.dutact.web.features.event.admin.dtos.event.EventCreateDto;
@@ -36,7 +37,8 @@ public class OrganizerEventController {
     @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<EventDto> createEvent(
             @PathVariable("id") Integer organizerId,
-            @ModelAttribute EventCreateDto eventDto) throws ForbiddenException, NotExistsException {
+            @ModelAttribute EventCreateDto eventDto)
+            throws ForbiddenException, NotExistsException, ConflictException {
         if (!canManageOwnEvents()) {
             return ResponseEntity.status(403).build();
         }
@@ -85,6 +87,16 @@ public class OrganizerEventController {
         validateRequestOrganizer(organizerId);
 
         return ResponseEntity.ok(eventService.updateEvent(eventId, eventDto));
+    }
+
+    @PostMapping("/{eventId}/close")
+    public ResponseEntity<EventDto> closeEvent(
+            @PathVariable("id") Integer organizerId,
+            @PathVariable("eventId") Integer eventId)
+            throws ForbiddenException, NotExistsException, ConflictException {
+        validateRequestOrganizer(organizerId);
+
+        return ResponseEntity.ok(eventService.closeEventRegistration(eventId));
     }
 
     @DeleteMapping("/{eventId}")

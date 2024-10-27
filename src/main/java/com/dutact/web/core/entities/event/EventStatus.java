@@ -13,22 +13,47 @@ import java.time.LocalDateTime;
 @JsonSubTypes({
         @JsonSubTypes.Type(value = EventStatus.Approved.class, name = EventStatus.Approved.TYPE_NAME),
         @JsonSubTypes.Type(value = EventStatus.Pending.class, name = EventStatus.Pending.TYPE_NAME),
-        @JsonSubTypes.Type(value = EventStatus.Rejected.class, name = EventStatus.Rejected.TYPE_NAME)
+        @JsonSubTypes.Type(value = EventStatus.Rejected.class, name = EventStatus.Rejected.TYPE_NAME),
 })
 public abstract class EventStatus {
+    /**
+     * Change the status of the event
+     *
+     * @return the new status
+     */
+    public abstract EventStatus changeStatus(EventStatus newStatus)
+            throws CannotChangeStatusException;
+
     @Getter
     @Setter
     public static class Approved extends EventStatus {
         public static final String TYPE_NAME = "approved";
         public String moderatedAt;
+
         public Approved() {
             this.moderatedAt = LocalDateTime.now().toString();
+        }
+
+        @Override
+        public EventStatus changeStatus(EventStatus newStatus) throws CannotChangeStatusException {
+            throw new CannotChangeStatusException("Cannot change status from approved to " +
+                    newStatus.getClass().getSimpleName());
         }
     }
 
     @NoArgsConstructor
     public static class Pending extends EventStatus {
         public static final String TYPE_NAME = "pending";
+
+        @Override
+        public EventStatus changeStatus(EventStatus newStatus) throws CannotChangeStatusException {
+            if (newStatus instanceof Approved || newStatus instanceof Rejected) {
+                return newStatus;
+            } else {
+                throw new CannotChangeStatusException("Cannot change status from pending to " +
+                        newStatus.getClass().getSimpleName());
+            }
+        }
     }
 
     @Getter
@@ -38,9 +63,16 @@ public abstract class EventStatus {
         public static final String TYPE_NAME = "rejected";
         private String reason;
         private String moderatedAt;
+
         public Rejected(String reason) {
             this.reason = reason;
             this.moderatedAt = LocalDateTime.now().toString();
+        }
+
+        @Override
+        public EventStatus changeStatus(EventStatus newStatus) throws CannotChangeStatusException {
+            throw new CannotChangeStatusException("Cannot change status from rejected to " +
+                    newStatus.getClass().getSimpleName());
         }
     }
 }
