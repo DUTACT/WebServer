@@ -2,8 +2,10 @@ package com.dutact.web.features.event.admin.services.event;
 
 import com.dutact.web.auth.context.SecurityContextUtils;
 import com.dutact.web.auth.factors.Role;
+import com.dutact.web.common.api.exceptions.ConflictException;
 import com.dutact.web.common.api.exceptions.NotExistsException;
 import com.dutact.web.common.mapper.UploadedFileMapper;
+import com.dutact.web.core.entities.event.CannotChangeStatusException;
 import com.dutact.web.core.entities.event.Event;
 import com.dutact.web.core.entities.event.EventStatus;
 import com.dutact.web.core.repositories.EventRepository;
@@ -20,6 +22,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -45,7 +48,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public EventDto createEvent(Integer organizerId, EventCreateDto eventDto)
-            throws NotExistsException {
+            throws NotExistsException, ConflictException {
         Event event = eventMapper.toEvent(eventDto);
         event.setOrganizer(organizerRepository.findById(organizerId)
                 .orElseThrow(() -> new NotExistsException("Organizer not found")));
@@ -53,9 +56,9 @@ public class EventServiceImpl implements EventService {
         event.setCoverPhoto(uploadedFileMapper.toUploadedFile(uploadFileResult));
 
         if (SecurityContextUtils.hasRole(Role.STUDENT_AFFAIRS_OFFICE)) {
-            event.setStatus(new EventStatus.Approved());
+            updateEventStatus(event, new EventStatus.Approved());
         } else {
-            event.setStatus(new EventStatus.Pending());
+            updateEventStatus(event, new EventStatus.Pending());
         }
 
         eventRepository.save(event);
@@ -116,21 +119,32 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public EventStatus approveEvent(Integer eventId) throws NotExistsException {
-        if (!eventRepository.existsById(eventId)) {
-            throw new NotExistsException("Event not found");
-        }
-
+    public EventStatus approveEvent(Integer eventId) throws NotExistsException, ConflictException {
         return updateEventStatus(eventId, new EventStatus.Approved());
     }
 
     @Override
-    public EventStatus rejectEvent(Integer eventId, String reason) throws NotExistsException {
-        if (!eventRepository.existsById(eventId)) {
+    public EventStatus rejectEvent(Integer eventId, String reason) throws NotExistsException, ConflictException {
+        return updateEventStatus(eventId, new EventStatus.Rejected(reason));
+    }
+
+    @Override
+    public EventDto closeEventRegistration(Integer eventId) throws NotExistsException, ConflictException {
+        Optional<Event> eventOpt = eventRepository.findById(eventId);
+        if (eventOpt.isEmpty()) {
             throw new NotExistsException("Event not found");
         }
 
-        return updateEventStatus(eventId, new EventStatus.Rejected(reason));
+        if (!(eventOpt.get().getStatus() instanceof EventStatus.Approved)) {
+            throw new ConflictException("Cannot close registration for unapproved event");
+        }
+
+        Event event = eventOpt.get();
+        event.setEndRegistrationAt(LocalDateTime.now());
+
+        eventRepository.save(event);
+
+        return eventMapper.toEventDto(event);
     }
 
     @Override
@@ -143,12 +157,21 @@ public class EventServiceImpl implements EventService {
         return eventRepository.existsByIdAndOrganizerId(eventId, orgId);
     }
 
-    private EventStatus updateEventStatus(Integer eventId, EventStatus eventStatus) {
-        Event event = eventRepository.findById(eventId).orElseThrow();
-        event.setStatus(eventStatus);
+    private EventStatus updateEventStatus(Integer eventId, EventStatus eventStatus)
+            throws NotExistsException, ConflictException {
+        Event event = eventRepository.findById(eventId).orElseThrow(() -> new NotExistsException("Event not found"));
+        updateEventStatus(event, eventStatus);
         eventRepository.save(event);
 
         return event.getStatus();
+    }
+
+    private void updateEventStatus(Event event, EventStatus status) throws ConflictException {
+        try {
+            event.setStatus(status);
+        } catch (CannotChangeStatusException e) {
+            throw new ConflictException("Cannot change status");
+        }
     }
 
     private void updateFile(MultipartFile file, String fileId) {

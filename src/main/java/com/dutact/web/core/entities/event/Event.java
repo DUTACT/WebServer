@@ -67,12 +67,16 @@ public class Event {
     @OneToMany(mappedBy = "event")
     private List<EventRegistration> eventRegistrations = new ArrayList<>();
 
+    public Event(Integer id) {
+        this.id = id;
+    }
+
     @PrePersist
     public void prePersist() {
         createdAt = LocalDateTime.now();
     }
 
-    public Event(Integer id) {
-        this.id = id;
+    public void setStatus(EventStatus status) throws CannotChangeStatusException {
+        this.status = this.status.changeStatus(status);
     }
 }
