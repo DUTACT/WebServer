@@ -109,8 +109,6 @@ public class EventServiceImpl implements EventService {
         if (eventDto.getCoverPhoto() != null) {
             UploadFileResult uploadFileResult = writeFile(eventDto.getCoverPhoto());
             event.setCoverPhoto(uploadedFileMapper.toUploadedFile(uploadFileResult));
-        } else {
-            event.setCoverPhoto(null);
         }
 
         eventRepository.save(event);

@@ -67,8 +67,10 @@ public class PostServiceImpl implements PostService {
                 .orElseThrow(() -> new NotExistsException("Post not found"));
         postMapper.updatePost(post, postUpdateDto);
 
-        UploadFileResult uploadFileResult = writeFile(postUpdateDto.getCoverPhoto());
-        post.setCoverPhoto(uploadedFileMapper.toUploadedFile(uploadFileResult));
+        if (postUpdateDto.getCoverPhoto() != null) {
+            UploadFileResult uploadFileResult = writeFile(postUpdateDto.getCoverPhoto());
+            post.setCoverPhoto(uploadedFileMapper.toUploadedFile(uploadFileResult));
+        }
 
 
         postRepository.save(post);
