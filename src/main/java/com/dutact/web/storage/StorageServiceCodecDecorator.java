@@ -35,15 +35,15 @@ public class StorageServiceCodecDecorator implements StorageService {
     }
 
     @Override
-    public void updateFile(String fileId, InputStream file) {
+    public UploadFileResult updateFile(String fileId, InputStream file) {
         String decodedFileId = decode(fileId);
-        storageService.updateFile(decodedFileId, file);
+        return storageService.updateFile(decodedFileId, file);
     }
 
     @Override
-    public void updateFile(String fileId, InputStreamSource file) {
+    public UploadFileResult updateFile(String fileId, InputStreamSource file) {
         String decodedFileId = decode(fileId);
-        storageService.updateFile(decodedFileId, file);
+        return storageService.updateFile(decodedFileId, file);
     }
 
     @Override
