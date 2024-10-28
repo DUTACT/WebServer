@@ -12,5 +12,6 @@ public class PostCreateDto {
     @NotNull
     private String content;
 
+    @NotNull
     private MultipartFile coverPhoto;
 }

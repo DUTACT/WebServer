@@ -26,5 +26,6 @@ public class EventCreateDto {
     @NotNull
     private LocalDateTime endRegistrationAt;
 
+    @NotNull
     private MultipartFile coverPhoto;
 }
