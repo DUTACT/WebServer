@@ -28,6 +28,5 @@ public interface PostMapper {
     @Mapping(target = "status", ignore = true)
     @Mapping(target = "coverPhoto", ignore = true)
     @Mapping(target = "postedAt", ignore = true)
-    @Mapping(target = "event.id", source = "eventId")
     void updatePost(@MappingTarget Post post, PostUpdateDto postUpdateDto);
 }

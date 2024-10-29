@@ -9,11 +9,9 @@ import java.time.LocalDateTime;
 
 @Data
 public class PostUpdateDto {
-    @NotNull
-    private Integer eventId;
-
-    @NotNull
+    @Nullable
     private String content;
 
+    @Nullable
     private MultipartFile coverPhoto;
 }

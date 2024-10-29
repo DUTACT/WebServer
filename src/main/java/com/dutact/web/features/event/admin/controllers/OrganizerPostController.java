@@ -7,8 +7,10 @@ import com.dutact.web.common.api.exceptions.ForbiddenException;
 import com.dutact.web.common.api.exceptions.NotExistsException;
 import com.dutact.web.core.entities.post.PostStatus;
 import com.dutact.web.features.event.admin.dtos.event.EventDto;
+import com.dutact.web.features.event.admin.dtos.event.EventUpdateDto;
 import com.dutact.web.features.event.admin.dtos.post.PostCreateDto;
 import com.dutact.web.features.event.admin.dtos.post.PostDto;
+import com.dutact.web.features.event.admin.dtos.post.PostUpdateDto;
 import com.dutact.web.features.event.admin.services.event.EventService;
 import com.dutact.web.features.event.admin.services.post.PostService;
 import org.springframework.http.HttpStatus;
@@ -19,17 +21,18 @@ import org.springframework.web.bind.annotation.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collection;
+import java.util.Objects;
 
 @RestController
-@RequestMapping("/api/admin/posts")
-public class AdminPostController {
+@RequestMapping("/api/admin/organizers/{orgId}/posts")
+public class OrganizerPostController {
     private final EventService eventService;
     private final PostService postService;
     private final OrganizerAccountService organizerAccountService;
 
-    public AdminPostController(EventService eventService,
-                               PostService postService,
-                               OrganizerAccountService organizerAccountService) {
+    public OrganizerPostController(EventService eventService,
+                                   PostService postService,
+                                   OrganizerAccountService organizerAccountService) {
         this.eventService = eventService;
         this.postService = postService;
         this.organizerAccountService = organizerAccountService;
@@ -56,7 +59,7 @@ public class AdminPostController {
     }
 
     @GetMapping
-    public ResponseEntity<Collection<PostDto>> getPosts(@RequestParam("event_id") Integer eventId)
+    public ResponseEntity<Collection<PostDto>> getPosts(@RequestParam("eventId") Integer eventId)
             throws ForbiddenException {
         if (SecurityContextUtils.hasRole(Role.EVENT_ORGANIZER) && isEventOwner(eventId) ||
                 SecurityContextUtils.hasRole(Role.STUDENT_AFFAIRS_OFFICE)) {
@@ -66,8 +69,8 @@ public class AdminPostController {
         throw new ForbiddenException("This account does not have permission to view posts for this event");
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<PostDto> getPost(@PathVariable Integer id) throws ForbiddenException {
+    @GetMapping("/{postId}")
+    public ResponseEntity<PostDto> getPost(@PathVariable("postId") Integer id) throws ForbiddenException {
         PostDto post = postService.getPost(id).orElseThrow();
         EventDto event = eventService.getEvent(post.getEventId()).orElseThrow();
         if (SecurityContextUtils.hasRole(Role.EVENT_ORGANIZER) && !isEventOwner(event.getId())) {
@@ -77,14 +80,28 @@ public class AdminPostController {
         return ResponseEntity.ok(post);
     }
 
-    @PutMapping("/{id}/status")
-    public ResponseEntity<PostStatus> updateEventStatus(@PathVariable Integer id,
+    @PutMapping("/{postId}/status")
+    public ResponseEntity<PostStatus> updateEventStatus(@PathVariable("postId") Integer id,
                                                         @RequestBody PostStatus status) throws ForbiddenException {
         if (!SecurityContextUtils.hasRole(Role.STUDENT_AFFAIRS_OFFICE)) {
             throw new ForbiddenException("This account does not have permission to update post status");
         }
 
         return ResponseEntity.ok(postService.updatePostStatus(id, status));
+    }
+
+    @PatchMapping(path = "/{postId}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<PostDto> updatePost(
+            @PathVariable("postId") Integer postId,
+            @ModelAttribute PostUpdateDto postUpdateDto) throws ForbiddenException, NotExistsException {
+        PostDto post = postService.getPost(postId).orElseThrow(NotExistsException::new);
+        EventDto event = eventService.getEvent(post.getEventId()).orElseThrow();
+
+        if (!(canManageOwnPosts() && isEventOwner(event.getId()))) {
+            throw new ForbiddenException("This account does not have permission to update this post");
+        }
+
+        return ResponseEntity.ok(postService.updatePost(postId, postUpdateDto));
     }
 
     @DeleteMapping("/{id}")
