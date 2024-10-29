@@ -59,7 +59,7 @@ public class OrganizerPostController {
     }
 
     @GetMapping
-    public ResponseEntity<Collection<PostDto>> getPosts(@RequestParam("eventId") Integer eventId)
+    public ResponseEntity<Collection<PostDto>> getPosts(@RequestParam("event-id") Integer eventId)
             throws ForbiddenException {
         if (SecurityContextUtils.hasRole(Role.EVENT_ORGANIZER) && isEventOwner(eventId) ||
                 SecurityContextUtils.hasRole(Role.STUDENT_AFFAIRS_OFFICE)) {
