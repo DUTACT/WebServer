@@ -52,8 +52,10 @@ public class EventServiceImpl implements EventService {
         Event event = eventMapper.toEvent(eventDto);
         event.setOrganizer(organizerRepository.findById(organizerId)
                 .orElseThrow(() -> new NotExistsException("Organizer not found")));
+
         UploadFileResult uploadFileResult = writeFile(eventDto.getCoverPhoto());
         event.setCoverPhoto(uploadedFileMapper.toUploadedFile(uploadFileResult));
+        
 
         if (SecurityContextUtils.hasRole(Role.STUDENT_AFFAIRS_OFFICE)) {
             updateEventStatus(event, new EventStatus.Approved());
@@ -105,12 +107,8 @@ public class EventServiceImpl implements EventService {
         eventMapper.updateEvent(event, eventDto);
 
         if (eventDto.getCoverPhoto() != null) {
-            if (event.getCoverPhoto() != null) {
-                updateFile(eventDto.getCoverPhoto(), event.getCoverPhoto().getFileId());
-            } else {
-                UploadFileResult uploadFileResult = writeFile(eventDto.getCoverPhoto());
-                event.setCoverPhoto(uploadedFileMapper.toUploadedFile(uploadFileResult));
-            }
+            UploadFileResult uploadFileResult = writeFile(eventDto.getCoverPhoto());
+            event.setCoverPhoto(uploadedFileMapper.toUploadedFile(uploadFileResult));
         }
 
         eventRepository.save(event);
