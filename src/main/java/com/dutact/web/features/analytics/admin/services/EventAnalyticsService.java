@@ -2,8 +2,14 @@ package com.dutact.web.features.analytics.admin.services;
 
 
 import com.dutact.web.common.api.exceptions.NotExistsException;
-import com.dutact.web.features.analytics.admin.dtos.registration.EventRegistrationsDto;
+import com.dutact.web.features.analytics.admin.dtos.registration.EventRegistrationCountByDateDto;
+import com.dutact.web.features.analytics.admin.dtos.registration.EventRegistrationQueryParams;
+
+import java.util.List;
 
 public interface EventAnalyticsService {
-    EventRegistrationsDto getEventRegistrations(Integer eventId) throws NotExistsException;
+    List<EventRegistrationCountByDateDto> getEventRegistrations(
+            Integer eventId,
+            EventRegistrationQueryParams queryParams)
+            throws NotExistsException;
 }

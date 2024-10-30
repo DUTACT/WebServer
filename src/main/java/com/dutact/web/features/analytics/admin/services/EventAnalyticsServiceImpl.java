@@ -4,9 +4,11 @@ import com.dutact.web.common.api.exceptions.NotExistsException;
 import com.dutact.web.core.entities.event.Event;
 import com.dutact.web.core.repositories.EventRegistrationRepository;
 import com.dutact.web.core.repositories.EventRepository;
+import com.dutact.web.features.analytics.admin.dtos.registration.EventRegistrationCountByDateDto;
 import com.dutact.web.features.analytics.admin.dtos.registration.EventRegistrationQueryParams;
-import com.dutact.web.features.analytics.admin.dtos.registration.EventRegistrationsDto;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class EventAnalyticsServiceImpl implements EventAnalyticsService {
@@ -19,14 +21,18 @@ public class EventAnalyticsServiceImpl implements EventAnalyticsService {
         this.eventRegistrationRepository = eventRegistrationRepository;
     }
 
-    @Override
-    public EventRegistrationsDto getEventRegistrations(EventRegistrationQueryParams queryParams) throws NotExistsException {
-        return null;
-    }
 
     @Override
-    public EventRegistrationsDto getEventRegistrations(Integer eventId) throws NotExistsException {
+    public List<EventRegistrationCountByDateDto> getEventRegistrations(
+            Integer eventId,
+            EventRegistrationQueryParams queryParams) throws NotExistsException {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotExistsException("Event not found"));
+
+        EventRegistrationQueryParams queryParams =
+                new EventRegistrationQueryParams();
+        queryParams.setEventId(eventId);
+
+        return eventRegistrationRepository.countRegistrationsByDate(queryParams);
     }
 }

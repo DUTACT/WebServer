@@ -1,7 +1,9 @@
 package com.dutact.web.features.analytics.admin.controllers;
 
 import com.dutact.web.common.api.exceptions.ForbiddenException;
-import com.dutact.web.features.analytics.admin.dtos.registration.EventRegistrationsDto;
+import com.dutact.web.features.analytics.admin.dtos.registration.EventRegistrationCountByDateDto;
+import com.dutact.web.features.analytics.admin.dtos.registration.EventRegistrationQueryParams;
+import jakarta.websocket.server.PathParam;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,11 +16,10 @@ import java.util.List;
 @RequestMapping("/api/admin/analytics/events")
 public class OrganizerEventAnalysticController {
     @GetMapping("/{eventId}/registrations")
-    public ResponseEntity<List<EventRegistrationsDto>> getEventRegistrations(
-            @RequestParam("organizerId") Integer organizerId,
-            @RequestParam("eventId") Integer eventId) throws ForbiddenException {
-        validateRequestOrganizer(organizerId);
-
+    public ResponseEntity<List<EventRegistrationCountByDateDto>> getEventRegistrations(
+            @PathParam("eventId") Integer eventId,
+            @RequestParam EventRegistrationQueryParams queryParams
+    ) throws ForbiddenException {
         return ResponseEntity.ok(eventService.getEventRegistrations(eventId));
     }
 

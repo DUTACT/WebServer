@@ -5,7 +5,7 @@ import lombok.Data;
 import java.time.LocalDate;
 
 @Data
-public class EventRegistrationByDateDto {
+public class EventRegistrationCountByDateDto {
     private LocalDate date;
     private Integer registrations;
 }
