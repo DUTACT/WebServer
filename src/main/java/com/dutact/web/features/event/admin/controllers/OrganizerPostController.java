@@ -24,7 +24,7 @@ import java.util.Collection;
 import java.util.Objects;
 
 @RestController
-@RequestMapping("/api/admin/organizers/{orgId}/posts")
+@RequestMapping("/api/admin/posts")
 public class OrganizerPostController {
     private final EventService eventService;
     private final PostService postService;
