@@ -55,7 +55,7 @@ public class Event {
     @Column(name = "status", columnDefinition = "jsonb")
     @ColumnTransformer(write = "?::jsonb")
     @Convert(converter = EventStatusConverter.class)
-    private EventStatus status;
+    private EventStatus status = new EventStatus.Pending();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "organizer_id")
