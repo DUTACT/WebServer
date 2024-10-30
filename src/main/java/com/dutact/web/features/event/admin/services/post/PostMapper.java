@@ -6,12 +6,10 @@ import com.dutact.web.features.event.admin.dtos.event.EventUpdateDto;
 import com.dutact.web.features.event.admin.dtos.post.PostCreateDto;
 import com.dutact.web.features.event.admin.dtos.post.PostDto;
 import com.dutact.web.features.event.admin.dtos.post.PostUpdateDto;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingConstants;
-import org.mapstruct.MappingTarget;
+import org.mapstruct.*;
 
-@Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
+@Mapper(componentModel = MappingConstants.ComponentModel.SPRING,
+        nullValuePropertyMappingStrategy  = NullValuePropertyMappingStrategy.IGNORE)
 public interface PostMapper {
     @Mapping(target = "eventId", source = "event.id")
     @Mapping(target = "coverPhotoUrl", source = "coverPhoto.fileUrl")
@@ -28,6 +26,5 @@ public interface PostMapper {
     @Mapping(target = "status", ignore = true)
     @Mapping(target = "coverPhoto", ignore = true)
     @Mapping(target = "postedAt", ignore = true)
-    @Mapping(target = "event.id", source = "eventId")
     void updatePost(@MappingTarget Post post, PostUpdateDto postUpdateDto);
 }

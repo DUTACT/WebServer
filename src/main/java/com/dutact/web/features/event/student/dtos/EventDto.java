@@ -1,5 +1,6 @@
 package com.dutact.web.features.event.student.dtos;
 
+import com.dutact.web.core.entities.event.EventStatus;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.annotation.Nullable;
@@ -42,6 +43,9 @@ public class EventDto {
     @Schema(description = "The date and time when the student followed the event, " +
             "null if the student has not followed the event")
     private LocalDateTime followedAt;
+
+    @JsonProperty("status")
+    private EventStatus status;
 
     @JsonProperty("coverPhotoUrl")
     private String coverPhotoUrl;
