@@ -99,4 +99,5 @@ jobs:
                 'OTP_LIFESPAN=${{vars.OTP_LIFESPAN}}' \
                 'MAIL_USERNAME=${{vars.MAIL_USERNAME}}' \
                 'MAIL_PASSWORD=secretref:mail-password' \
+                'TZ=Asia/Bangkok' \
               
