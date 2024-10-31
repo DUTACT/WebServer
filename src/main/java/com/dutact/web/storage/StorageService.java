@@ -20,12 +20,12 @@ public interface StorageService {
     /**
      * Update file content, if file does not exist, create a new file with the given id then update its content
      */
-    void updateFile(String fileId, InputStream file);
+    UploadFileResult updateFile(String fileId, InputStream file);
 
     /**
      * Update file content, if file does not exist, create a new file with the given id then update its content
      */
-    void updateFile(String fileId, InputStreamSource file);
+    UploadFileResult updateFile(String fileId, InputStreamSource file);
 
     URL getFileUrl(String fileId);
 

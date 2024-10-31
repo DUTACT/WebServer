@@ -10,6 +10,7 @@ import com.azure.storage.blob.models.BlobHttpHeaders;
 import com.dutact.web.common.utils.MIMEMappingUtils;
 import jakarta.annotation.Nullable;
 import lombok.SneakyThrows;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.tika.Tika;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamSource;
@@ -72,23 +73,16 @@ public class AzureBlobStorageService implements StorageService {
 
     @Override
     @SneakyThrows
-    public void updateFile(String fileId, InputStream file) {
-        InputStream byteStream = new ByteArrayInputStream(file.readAllBytes());
-        BlobClient blobClient = containerClient.getBlobClient(fileId);
-
-        blobClient.upload(byteStream, true);
-
-        byteStream.reset();
-        blobClient.setHttpHeaders(new BlobHttpHeaders()
-                .setContentType(new Tika().detect(byteStream)));
-
-        byteStream.close();
+    public UploadFileResult updateFile(String fileId, InputStream file) {
+        deleteFile(fileId);
+        String extension = FilenameUtils.getExtension(fileId);
+        return uploadFile(file, extension);
     }
 
     @Override
-    public void updateFile(String fileId, InputStreamSource file) {
+    public UploadFileResult updateFile(String fileId, InputStreamSource file) {
         try (var inputStream = file.getInputStream()) {
-            updateFile(fileId, inputStream);
+            return updateFile(fileId, inputStream);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

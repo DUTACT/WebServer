@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface EventMapper {
     @Mapping(target = "registeredAt", ignore = true)
+    @Mapping(target = "followedAt", ignore = true)
     @Mapping(target = "coverPhotoUrl", source = "coverPhoto.fileUrl")
     EventDto toDto(Event event);
 }
