@@ -7,7 +7,6 @@ import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
 import com.azure.storage.blob.models.BlobHttpHeaders;
-import com.dutact.web.common.utils.MIMEMappingUtils;
 import jakarta.annotation.Nullable;
 import lombok.SneakyThrows;
 import org.apache.commons.io.FilenameUtils;
@@ -97,7 +96,10 @@ public class AzureBlobStorageService implements StorageService {
 
     @Override
     public void deleteFile(String fileId) {
-        containerClient.getBlobClient(fileId).delete();
+        var blobClient = containerClient.getBlobClient(fileId);
+        if (blobClient.exists()) {
+            blobClient.delete();
+        }
     }
 
     private String randomAvailableBlobName(String extension) {
@@ -112,12 +114,5 @@ public class AzureBlobStorageService implements StorageService {
 
     private String randomFileName(String extension) {
         return UUID.randomUUID() + "." + extension;
-    }
-
-    private String getContentType(@Nullable String extension) {
-        if (extension == null) {
-            return "application/octet-stream";
-        }
-        return MIMEMappingUtils.getMIMEType(extension);
     }
 }

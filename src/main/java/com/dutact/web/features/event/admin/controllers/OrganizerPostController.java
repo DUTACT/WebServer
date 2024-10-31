@@ -7,7 +7,6 @@ import com.dutact.web.common.api.exceptions.ForbiddenException;
 import com.dutact.web.common.api.exceptions.NotExistsException;
 import com.dutact.web.core.entities.post.PostStatus;
 import com.dutact.web.features.event.admin.dtos.event.EventDto;
-import com.dutact.web.features.event.admin.dtos.event.EventUpdateDto;
 import com.dutact.web.features.event.admin.dtos.post.PostCreateDto;
 import com.dutact.web.features.event.admin.dtos.post.PostDto;
 import com.dutact.web.features.event.admin.dtos.post.PostUpdateDto;
@@ -21,7 +20,6 @@ import org.springframework.web.bind.annotation.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collection;
-import java.util.Objects;
 
 @RestController
 @RequestMapping("/api/admin/posts")
@@ -59,7 +57,7 @@ public class OrganizerPostController {
     }
 
     @GetMapping
-    public ResponseEntity<Collection<PostDto>> getPosts(@RequestParam("event-id") Integer eventId)
+    public ResponseEntity<Collection<PostDto>> getPosts(@RequestParam("event_id") Integer eventId)
             throws ForbiddenException {
         if (SecurityContextUtils.hasRole(Role.EVENT_ORGANIZER) && isEventOwner(eventId) ||
                 SecurityContextUtils.hasRole(Role.STUDENT_AFFAIRS_OFFICE)) {

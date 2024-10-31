@@ -113,7 +113,8 @@ public class FeedbackServiceImpl implements FeedbackService {
         if (updateFeedbackDto.getCoverPhoto() != null) {
             var coverPhoto = feedback.getCoverPhoto();
             if (coverPhoto != null) {
-                storageService.updateFile(coverPhoto.getFileId(), updateFeedbackDto.getCoverPhoto());
+                var uploadFileResult = storageService.updateFile(coverPhoto.getFileId(), updateFeedbackDto.getCoverPhoto());
+                feedback.setCoverPhoto(uploadedFileMapper.toUploadedFile(uploadFileResult));
             } else {
                 var coverPhotoExtension = FilenameUtils
                         .getExtension(updateFeedbackDto.getCoverPhoto().getOriginalFilename());
