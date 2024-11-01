@@ -50,13 +50,16 @@ public class FeedbackServiceImpl implements FeedbackService {
         }
 
         var feedback = feedbackMapper.toFeedback(createFeedbackDto);
-        var uploadFileResult = storageService
-                .uploadFile(createFeedbackDto.getCoverPhoto(),
-                        FilenameUtils.getExtension(createFeedbackDto.getCoverPhoto().getOriginalFilename()));
 
+        if (createFeedbackDto.getCoverPhoto() != null) {
+            var uploadFileResult = storageService
+                    .uploadFile(createFeedbackDto.getCoverPhoto(),
+                            FilenameUtils.getExtension(createFeedbackDto.getCoverPhoto().getOriginalFilename()));
+            feedback.setCoverPhoto(uploadedFileMapper.toUploadedFile(uploadFileResult));
+        }
+        
         feedback.setStudent(studentRepository.getReferenceById(studentId));
         feedback.setEvent(eventRepository.getReferenceById(createFeedbackDto.getEventId()));
-        feedback.setCoverPhoto(uploadedFileMapper.toUploadedFile(uploadFileResult));
         feedback.setPostedAt(LocalDateTime.now());
         feedbackRepository.save(feedback);
 
