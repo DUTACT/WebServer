@@ -24,8 +24,18 @@ public class AdminEventController {
     }
 
     @GetMapping
-    public ResponseEntity<Collection<EventDto>> getEvents() {
-        return ResponseEntity.ok(eventService.getEvents());
+    public ResponseEntity<Collection<EventDto>> getEvents(
+            @RequestParam(name = "organizer-id", required = false) Integer organizerId
+    ) {
+        if (organizerId != null) {
+            try {
+                return ResponseEntity.ok(eventService.getEvents(organizerId));
+            } catch (NotExistsException e) {
+                return ResponseEntity.notFound().build();
+            }
+        } else {
+            return ResponseEntity.ok(eventService.getEvents());
+        }
     }
 
     @GetMapping("/{id}")
