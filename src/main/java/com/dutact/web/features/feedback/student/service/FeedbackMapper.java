@@ -21,7 +21,7 @@ public interface FeedbackMapper {
     Feedback toFeedback(CreateFeedbackDto createFeedbackDto);
 
     @Mapping(target = "coverPhotoUrl", source = "coverPhoto.fileUrl")
-    @Mapping(target = "student.avatarUrl", source = "student.avatarUrl")
+    @Mapping(target = "student.avatarUrl", source = "student.avatar.fileUrl")
     @Mapping(target = "event.coverPhotoUrl", source = "event.coverPhoto.fileUrl")
     FeedbackDto toDto(Feedback feedback);
 
