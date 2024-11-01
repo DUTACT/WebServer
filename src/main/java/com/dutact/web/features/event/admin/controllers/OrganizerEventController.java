@@ -53,7 +53,9 @@ public class OrganizerEventController {
     @GetMapping
     public ResponseEntity<List<EventDto>> getEvents(
             @PathVariable("id") Integer organizerId) throws ForbiddenException, NotExistsException {
-        validateRequestOrganizer(organizerId);
+        if (!SecurityContextUtils.hasRole(Role.STUDENT_AFFAIRS_OFFICE)){
+            validateRequestOrganizer(organizerId);
+        }
 
         return ResponseEntity.ok(eventService
                 .getEvents(organizerId));
@@ -63,7 +65,9 @@ public class OrganizerEventController {
     public ResponseEntity<EventDto> getEvent(
             @PathVariable("id") Integer organizerId,
             @PathVariable("eventId") Integer eventId) throws ForbiddenException {
-        validateRequestOrganizer(organizerId);
+        if (!SecurityContextUtils.hasRole(Role.STUDENT_AFFAIRS_OFFICE)){
+            validateRequestOrganizer(organizerId);
+        }
 
         Optional<EventDto> eventOpt = eventService.getEvent(eventId);
         if (eventOpt.isEmpty()) {
