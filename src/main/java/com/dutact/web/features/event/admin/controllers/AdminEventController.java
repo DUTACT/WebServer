@@ -25,7 +25,7 @@ public class AdminEventController {
 
     @GetMapping
     public ResponseEntity<Collection<EventDto>> getEvents(
-            @RequestParam(name = "organizer-id", required = false) Integer organizerId
+            @RequestParam(name = "organizer_id", required = false) Integer organizerId
     ) {
         if (organizerId != null) {
             try {
