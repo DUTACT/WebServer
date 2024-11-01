@@ -1,12 +1,13 @@
 package com.dutact.web.core.entities;
 
 import com.dutact.web.auth.factors.Account;
+import com.dutact.web.core.entities.common.UploadFileConverter;
+import com.dutact.web.core.entities.common.UploadedFile;
 import com.dutact.web.core.entities.feedback.Feedback;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import jakarta.annotation.Nullable;
+import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.ColumnTransformer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,8 +29,11 @@ public class Student extends Account {
     @Column(name = "faculty")
     private String faculty;
 
-    @Column(name = "avatar_url")
-    private String avatarUrl;
+    @Nullable
+    @Column(name = "avatar", columnDefinition = "jsonb")
+    @ColumnTransformer(write = "?::jsonb")
+    @Convert(converter = UploadFileConverter.class)
+    private UploadedFile avatar;
 
     @OneToMany(mappedBy = "student")
     @Builder.Default
