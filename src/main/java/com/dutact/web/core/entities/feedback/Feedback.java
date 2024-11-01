@@ -4,6 +4,7 @@ import com.dutact.web.core.entities.Student;
 import com.dutact.web.core.entities.common.UploadFileConverter;
 import com.dutact.web.core.entities.common.UploadedFile;
 import com.dutact.web.core.entities.event.Event;
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -27,6 +28,7 @@ public class Feedback {
     @Column(name = "posted_at")
     private LocalDateTime postedAt;
 
+    @Nullable
     @Column(name = "cover_photo", columnDefinition = "jsonb")
     @ColumnTransformer(write = "?::jsonb")
     @Convert(converter = UploadFileConverter.class)

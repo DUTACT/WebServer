@@ -1,5 +1,6 @@
 package com.dutact.web.features.feedback.student.dtos;
 
+import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;
@@ -12,6 +13,6 @@ public class CreateFeedbackDto {
     @NotNull
     private String content;
 
-    @NotNull
+    @Nullable
     private MultipartFile coverPhoto;
 }
