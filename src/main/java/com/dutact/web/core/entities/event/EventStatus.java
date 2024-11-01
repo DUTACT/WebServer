@@ -47,12 +47,7 @@ public abstract class EventStatus {
 
         @Override
         public EventStatus changeStatus(EventStatus newStatus) throws CannotChangeStatusException {
-            if (newStatus instanceof Approved || newStatus instanceof Rejected) {
-                return newStatus;
-            } else {
-                throw new CannotChangeStatusException("Cannot change status from pending to " +
-                        newStatus.getClass().getSimpleName());
-            }
+            return newStatus;
         }
     }
 
