@@ -21,7 +21,7 @@ public class StudentProfileController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getProfile(@PathVariable Integer id) {
+    public ResponseEntity<?> getProfile(@PathVariable Integer id) throws NotExistsException {
         return ResponseEntity.ok(studentProfileService.getProfile(id));
     }
 

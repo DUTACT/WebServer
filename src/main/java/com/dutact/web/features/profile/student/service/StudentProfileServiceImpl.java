@@ -49,8 +49,8 @@ public class StudentProfileServiceImpl implements StudentProfileService {
     }
 
     @Override
-    public StudentProfileDto getProfile(Integer studentId) {
-        return studentProfileMapper.toProfileDto(studentRepository.findById(studentId).get());
+    public StudentProfileDto getProfile(Integer studentId) throws NotExistsException {
+        return studentProfileMapper.toProfileDto(studentRepository.findById(studentId).orElseThrow(NotExistsException::new));
     }
 
     @Override
@@ -80,11 +80,8 @@ public class StudentProfileServiceImpl implements StudentProfileService {
     }
 
     private UploadFileResult writeFile(MultipartFile file) {
-        try (var inputStream = file.getInputStream()) {
-            return storageService.uploadFile(inputStream,
-                    FilenameUtils.getExtension(file.getOriginalFilename()));
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        return storageService.uploadFile(file,
+                FilenameUtils.getExtension(file.getOriginalFilename()));
+
     }
 }
