@@ -57,8 +57,8 @@ public class FeedbackController {
     @PatchMapping(path = "/{id}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<FeedbackDto> updateFeedback(
             @PathVariable Integer id,
-            @ModelAttribute UpdateFeedbackDto createFeedbackDto) throws NotExistsException {
-        return ResponseEntity.ok(feedbackService.updateFeedback(id, createFeedbackDto));
+            @ModelAttribute UpdateFeedbackDto updateFeedbackDto) throws NotExistsException {
+        return ResponseEntity.ok(feedbackService.updateFeedback(id, updateFeedbackDto));
     }
 
     @DeleteMapping("/{id}")

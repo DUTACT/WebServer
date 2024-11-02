@@ -57,7 +57,7 @@ public class FeedbackServiceImpl implements FeedbackService {
                             FilenameUtils.getExtension(createFeedbackDto.getCoverPhoto().getOriginalFilename()));
             feedback.setCoverPhoto(uploadedFileMapper.toUploadedFile(uploadFileResult));
         }
-        
+
         feedback.setStudent(studentRepository.getReferenceById(studentId));
         feedback.setEvent(eventRepository.getReferenceById(createFeedbackDto.getEventId()));
         feedback.setPostedAt(LocalDateTime.now());
@@ -100,6 +100,9 @@ public class FeedbackServiceImpl implements FeedbackService {
                 .orElseThrow(() -> new NotExistsException("The feedback does not exist"));
 
         feedbackMapper.updateFeedback(feedback, updateFeedbackDto);
+        if (updateFeedbackDto.isDeleteCoverPhoto()) {
+            deleteCoverPhoto(feedback);
+        }
         updateCoverPhoto(feedback, updateFeedbackDto);
 
         feedbackRepository.save(feedback);
@@ -110,6 +113,13 @@ public class FeedbackServiceImpl implements FeedbackService {
     @Override
     public void deleteFeedback(Integer feedbackId) {
         feedbackRepository.deleteById(feedbackId);
+    }
+
+    void deleteCoverPhoto(Feedback feedback) {
+        if (feedback.getCoverPhoto() != null) {
+            storageService.deleteFile(feedback.getCoverPhoto().getFileId());
+            feedback.setCoverPhoto(null);
+        }
     }
 
     void updateCoverPhoto(Feedback feedback, UpdateFeedbackDto updateFeedbackDto) {
