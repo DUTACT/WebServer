@@ -1,11 +1,8 @@
 package com.dutact.web.features.profile.student.dtos;
 
-import com.dutact.web.features.post.student.dtos.PostEventDto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
-
-import java.time.LocalDateTime;
 
 @Data
 @Schema(name = "StudentProfileDto")
@@ -24,4 +21,10 @@ public class StudentProfileDto {
 
     @JsonProperty("avatarUrl")
     private String avatarUrl;
+
+    @JsonProperty("address")
+    private String address;
+
+    @JsonProperty("className")
+    private String className;
 }

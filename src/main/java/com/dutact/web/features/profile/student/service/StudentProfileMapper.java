@@ -1,10 +1,6 @@
 package com.dutact.web.features.profile.student.service;
 
 import com.dutact.web.core.entities.Student;
-import com.dutact.web.core.entities.event.Event;
-import com.dutact.web.features.event.admin.dtos.event.EventCreateDto;
-import com.dutact.web.features.event.admin.dtos.event.EventDto;
-import com.dutact.web.features.event.admin.dtos.event.EventUpdateDto;
 import com.dutact.web.features.profile.student.dtos.StudentProfileDto;
 import com.dutact.web.features.profile.student.dtos.StudentProfileUpdateDto;
 import org.mapstruct.*;

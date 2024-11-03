@@ -1,15 +1,16 @@
 package com.dutact.web.core.entities;
 
 import com.dutact.web.auth.factors.Account;
+import com.dutact.web.core.entities.common.UploadFileConverter;
+import com.dutact.web.core.entities.common.UploadedFile;
 import com.dutact.web.core.entities.event.Event;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import jakarta.annotation.Nullable;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.ColumnTransformer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,10 +22,23 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class EventOrganizer extends Account {
+    @Column(name = "name")
     private String name;
 
-    @Column(name = "avatar_url")
-    private String avatarUrl;
+    @Nullable
+    @Column(name = "avatar", columnDefinition = "jsonb")
+    @ColumnTransformer(write = "?::jsonb")
+    @Convert(converter = UploadFileConverter.class)
+    private UploadedFile avatar;
+
+    @Column(name = "phone")
+    private String phone;
+
+    @Column(name = "address")
+    private String address;
+
+    @Column(name = "person_in_charge_name")
+    private String personInChargeName;
 
     @OneToMany(mappedBy = "organizer")
     private List<Event> events = new ArrayList<>();

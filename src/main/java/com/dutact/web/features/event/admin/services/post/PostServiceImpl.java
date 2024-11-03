@@ -2,12 +2,9 @@ package com.dutact.web.features.event.admin.services.post;
 
 import com.dutact.web.common.api.exceptions.NotExistsException;
 import com.dutact.web.common.mapper.UploadedFileMapper;
-import com.dutact.web.core.entities.event.Event;
 import com.dutact.web.core.entities.post.Post;
 import com.dutact.web.core.entities.post.PostStatus;
 import com.dutact.web.core.repositories.PostRepository;
-import com.dutact.web.features.event.admin.dtos.event.EventDto;
-import com.dutact.web.features.event.admin.dtos.event.EventUpdateDto;
 import com.dutact.web.features.event.admin.dtos.post.PostCreateDto;
 import com.dutact.web.features.event.admin.dtos.post.PostDto;
 import com.dutact.web.features.event.admin.dtos.post.PostUpdateDto;

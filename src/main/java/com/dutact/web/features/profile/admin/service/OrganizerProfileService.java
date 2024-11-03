@@ -2,9 +2,10 @@ package com.dutact.web.features.profile.admin.service;
 
 import com.dutact.web.common.api.exceptions.ConflictException;
 import com.dutact.web.common.api.exceptions.NotExistsException;
-import com.dutact.web.features.profile.admin.dtos.StudentProfileUpdateDto;
+import com.dutact.web.features.profile.admin.dtos.OrganizerProfileDto;
+import com.dutact.web.features.profile.admin.dtos.OrganizerProfileUpdateDto;
 
-public interface StudentProfileService {
-    StudentProfileDto getProfile(Integer studentId) throws NotExistsException;
-    void updateProfile(Integer studentId, StudentProfileUpdateDto studentProfileDto) throws NotExistsException, ConflictException;
+public interface OrganizerProfileService {
+    OrganizerProfileDto getProfile(Integer id) throws NotExistsException;
+    void updateProfile(Integer id, OrganizerProfileUpdateDto organizerProfileUpdateDto) throws NotExistsException, ConflictException;
 }

@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 public interface NewsfeedMapper {
     @Mapping(target = "coverPhotoUrl", source = "coverPhoto.fileUrl")
     @Mapping(target = "organizer.name", source = "event.organizer.name")
-    @Mapping(target = "organizer.avatarUrl", source = "event.organizer.avatarUrl")
+    @Mapping(target = "organizer.avatarUrl", source = "event.organizer.avatar.fileUrl")
     @Mapping(target = "event", source = "event")
     @Mapping(target = "event.coverPhotoUrl", source = "event.coverPhoto.fileUrl")
     NewsfeedItemDto.NewsfeedPostDto toPostDto(Post post);

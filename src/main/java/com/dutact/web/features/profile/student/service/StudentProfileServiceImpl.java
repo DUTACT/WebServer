@@ -1,34 +1,19 @@
 package com.dutact.web.features.profile.student.service;
 
 import com.dutact.web.auth.context.SecurityContextUtils;
-import com.dutact.web.auth.factors.Role;
-import com.dutact.web.auth.factors.StudentAccountService;
 import com.dutact.web.common.api.exceptions.ConflictException;
 import com.dutact.web.common.api.exceptions.NotExistsException;
 import com.dutact.web.common.mapper.UploadedFileMapper;
 import com.dutact.web.core.entities.Student;
-import com.dutact.web.core.entities.event.CannotChangeStatusException;
-import com.dutact.web.core.entities.event.Event;
-import com.dutact.web.core.entities.event.EventStatus;
-import com.dutact.web.core.repositories.EventRepository;
-import com.dutact.web.core.repositories.OrganizerRepository;
 import com.dutact.web.core.repositories.StudentRepository;
-import com.dutact.web.core.specs.EventSpecs;
-import com.dutact.web.features.event.admin.dtos.event.EventCreateDto;
-import com.dutact.web.features.event.admin.dtos.event.EventDto;
-import com.dutact.web.features.event.admin.dtos.event.EventUpdateDto;
 import com.dutact.web.features.profile.student.dtos.StudentProfileDto;
 import com.dutact.web.features.profile.student.dtos.StudentProfileUpdateDto;
 import com.dutact.web.storage.StorageService;
 import com.dutact.web.storage.UploadFileResult;
-import lombok.SneakyThrows;
 import org.apache.commons.io.FilenameUtils;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 
 @Service("studentProfileService")

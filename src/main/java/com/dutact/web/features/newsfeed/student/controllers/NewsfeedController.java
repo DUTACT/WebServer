@@ -5,7 +5,9 @@ import com.dutact.web.auth.factors.StudentAccountService;
 import com.dutact.web.features.newsfeed.student.dtos.NewsfeedItemDto;
 import com.dutact.web.features.newsfeed.student.service.NewsfeedService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 

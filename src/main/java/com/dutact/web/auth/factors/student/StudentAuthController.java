@@ -1,6 +1,5 @@
 package com.dutact.web.auth.factors.student;
 
-import com.azure.core.annotation.QueryParam;
 import com.dutact.web.auth.dto.ConfirmDto;
 import com.dutact.web.auth.dto.student.StudentConfirmResetPasswordDto;
 import com.dutact.web.auth.dto.student.StudentRegisterDto;

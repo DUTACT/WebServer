@@ -2,7 +2,9 @@ package com.dutact.web.features.newsfeed.student.service;
 
 import com.dutact.web.core.entities.feedback.Feedback;
 import com.dutact.web.core.entities.post.Post;
-import com.dutact.web.core.repositories.*;
+import com.dutact.web.core.repositories.EventFollowRepository;
+import com.dutact.web.core.repositories.FeedbackRepository;
+import com.dutact.web.core.repositories.PostRepository;
 import com.dutact.web.features.newsfeed.student.dtos.NewsfeedItemDto;
 import org.springframework.stereotype.Service;
 

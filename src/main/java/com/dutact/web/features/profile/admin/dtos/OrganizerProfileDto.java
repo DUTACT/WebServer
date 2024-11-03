@@ -7,24 +7,18 @@ import lombok.Data;
 @Data
 @Schema(name = "organizerProfileDto")
 public class OrganizerProfileDto {
-    @JsonProperty("studentEmail")
-    private String studentEmail;
-
-    @JsonProperty("fullName")
-    private String fullName;
-
-    @JsonProperty("phone")
-    private String phone;
-
-    @JsonProperty("faculty")
-    private String faculty;
+    @JsonProperty("name")
+    private String name;
 
     @JsonProperty("avatarUrl")
     private String avatarUrl;
 
+    @JsonProperty("phone")
+    private String phone;
+
     @JsonProperty("address")
     private String address;
 
-    @JsonProperty("className")
-    private String className;
+    @JsonProperty("personInChargeName")
+    private String personInChargeName;
 }

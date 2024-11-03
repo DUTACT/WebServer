@@ -29,6 +29,12 @@ public class Student extends Account {
     @Column(name = "faculty")
     private String faculty;
 
+    @Column(name = "address")
+    private String address;
+
+    @Column(name = "class_name")
+    private String className;
+
     @Nullable
     @Column(name = "avatar", columnDefinition = "jsonb")
     @ColumnTransformer(write = "?::jsonb")
