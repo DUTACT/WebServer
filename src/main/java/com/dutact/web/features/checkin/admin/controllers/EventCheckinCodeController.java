@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Collection;
 
 @RestController
-@RequestMapping("/api/admin/events/participation-codes")
+@RequestMapping("/api/admin/events/checkin-codes")
 public class EventCheckinCodeController {
     private final EventCheckInCodeService checkInCodeService;
 
