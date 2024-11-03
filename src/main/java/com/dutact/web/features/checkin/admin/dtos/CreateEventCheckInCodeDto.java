@@ -1,4 +1,4 @@
-package com.dutact.web.features.participation.admin.dtos;
+package com.dutact.web.features.checkin.admin.dtos;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -6,7 +6,7 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Data
-public class CreateEventParticipationCodeDto {
+public class CreateEventCheckInCodeDto {
     @NotNull
     private LocalDateTime startAt;
 
