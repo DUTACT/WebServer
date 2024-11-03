@@ -11,6 +11,9 @@ public class EventParticipationCodeDto {
     @JsonProperty("id")
     private UUID id;
 
+    @JsonProperty("title")
+    private String title;
+
     @JsonProperty("eventId")
     private Integer eventId;
 

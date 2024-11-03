@@ -28,6 +28,9 @@ public class EventParticipationCode {
     @Column(name = "end_at")
     private LocalDateTime endAt;
 
+    @Column(name = "title")
+    private String title;
+
     @PrePersist
     public void prePersist() {
         startAt = startAt.withSecond(0).withNano(0);
