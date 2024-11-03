@@ -1,6 +1,8 @@
 BEGIN;
 
-ALTER TABLE "student"
-    ADD COLUMN address VARCHAR(255),
-    ADD COLUMN class_name VARCHAR(255);
+ALTER TABLE "event_organizer"
+    DROP COLUMN "avatar_url";
+ALTER TABLE "event_organizer"
+    ADD COLUMN "avatar" JSONB;
+
 COMMIT;

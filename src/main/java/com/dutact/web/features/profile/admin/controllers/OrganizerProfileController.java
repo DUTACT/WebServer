@@ -9,21 +9,21 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/student/profile")
-public class StudentProfileController {
+@RequestMapping("/api/admin/organizer/{id}/profile")
+public class OrganizerProfileController {
 
     private final OrganizerProfileService organizerProfileService;
 
-    public StudentProfileController(OrganizerProfileService organizerProfileService) {
+    public OrganizerProfileController(OrganizerProfileService organizerProfileService) {
         this.organizerProfileService = organizerProfileService;
     }
 
-    @GetMapping("/{id}")
+    @GetMapping()
     public ResponseEntity<?> getProfile(@PathVariable Integer id) throws NotExistsException {
         return ResponseEntity.ok(organizerProfileService.getProfile(id));
     }
 
-    @PutMapping(path = "/{id}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    @PutMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<?> updateProfile(
             @PathVariable Integer id,
             @ModelAttribute OrganizerProfileUpdateDto organizerProfileUpdateDto) throws ConflictException, NotExistsException {

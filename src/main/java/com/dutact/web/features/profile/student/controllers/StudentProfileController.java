@@ -1,9 +1,7 @@
 package com.dutact.web.features.profile.student.controllers;
 
-import com.dutact.web.auth.context.SecurityContextUtils;
 import com.dutact.web.common.api.exceptions.ConflictException;
 import com.dutact.web.common.api.exceptions.NotExistsException;
-import com.dutact.web.features.post.student.service.PostService;
 import com.dutact.web.features.profile.student.dtos.StudentProfileUpdateDto;
 import com.dutact.web.features.profile.student.service.StudentProfileService;
 import org.springframework.http.MediaType;

@@ -5,22 +5,19 @@ import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;
 
 @Data
-public class StudentProfileUpdateDto {
+public class OrganizerProfileUpdateDto {
     @Nullable
-    private String fullName;
+    private String name;
+
+    @Nullable
+    private MultipartFile avatar;
 
     @Nullable
     private String phone;
 
     @Nullable
-    private String faculty;
-
-    @Nullable
     private String address;
 
     @Nullable
-    private String className;
-
-    @Nullable
-    private MultipartFile avatar;
+    private String personInChargeName;
 }

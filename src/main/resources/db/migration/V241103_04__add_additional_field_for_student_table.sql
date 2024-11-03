@@ -1,2 +1,6 @@
-ALTER TABLE event_participation_code
-    RENAME TO event_checkin_code;
+BEGIN;
+
+ALTER TABLE "student"
+    ADD COLUMN address VARCHAR(255),
+    ADD COLUMN class_name VARCHAR(255);
+COMMIT;
