@@ -1,0 +1,33 @@
+package com.dutact.web.features.profile.admin.controllers;
+
+import com.dutact.web.common.api.exceptions.ConflictException;
+import com.dutact.web.common.api.exceptions.NotExistsException;
+import com.dutact.web.features.profile.admin.dtos.OrganizerProfileUpdateDto;
+import com.dutact.web.features.profile.admin.service.OrganizerProfileService;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api/student/profile")
+public class StudentProfileController {
+
+    private final OrganizerProfileService organizerProfileService;
+
+    public StudentProfileController(OrganizerProfileService organizerProfileService) {
+        this.organizerProfileService = organizerProfileService;
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getProfile(@PathVariable Integer id) throws NotExistsException {
+        return ResponseEntity.ok(organizerProfileService.getProfile(id));
+    }
+
+    @PutMapping(path = "/{id}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<?> updateProfile(
+            @PathVariable Integer id,
+            @ModelAttribute OrganizerProfileUpdateDto organizerProfileUpdateDto) throws ConflictException, NotExistsException {
+        organizerProfileService.updateProfile(id, organizerProfileUpdateDto);
+        return ResponseEntity.ok().build();
+    }
+}
