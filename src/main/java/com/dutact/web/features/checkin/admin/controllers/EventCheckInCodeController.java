@@ -11,10 +11,10 @@ import java.util.Collection;
 
 @RestController
 @RequestMapping("/api/admin/events/checkin-codes")
-public class EventCheckinCodeController {
+public class EventCheckInCodeController {
     private final EventCheckInCodeService checkInCodeService;
 
-    public EventCheckinCodeController(
+    public EventCheckInCodeController(
             EventCheckInCodeService checkInCodeService) {
         this.checkInCodeService = checkInCodeService;
     }
