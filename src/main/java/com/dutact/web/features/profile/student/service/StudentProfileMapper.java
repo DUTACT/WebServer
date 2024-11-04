@@ -23,5 +23,6 @@ public interface StudentProfileMapper {
     @Mapping(target = "role", ignore = true)
     @Mapping(target = "eventRegistrations", ignore = true)
     @Mapping(target = "feedbacks", ignore = true)
+    @Mapping(target = "avatar", ignore = true)
     void updateProfile(@MappingTarget Student student, StudentProfileUpdateDto studentProfileUpdateDto);
 }
