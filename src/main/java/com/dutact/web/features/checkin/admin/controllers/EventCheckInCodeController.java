@@ -8,6 +8,7 @@ import jakarta.validation.constraints.NotNull;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/admin/events/checkin-codes")
@@ -26,9 +27,9 @@ public class EventCheckInCodeController {
     }
 
     @GetMapping("/{id}")
-    public EventCheckInCodeDto getCheckInCode(@PathVariable Integer id)
+    public EventCheckInCodeDto getCheckInCode(@PathVariable String id)
             throws NotExistsException {
-        return checkInCodeService.getCheckInCode(id);
+        return checkInCodeService.getCheckInCode(UUID.fromString(id));
     }
 
     @PostMapping
@@ -39,7 +40,7 @@ public class EventCheckInCodeController {
     }
 
     @DeleteMapping("/{id}")
-    public void deleteCheckInCode(@PathVariable Integer id) {
-        checkInCodeService.deleteCheckInCode(id);
+    public void deleteCheckInCode(@PathVariable String id) {
+        checkInCodeService.deleteCheckInCode(UUID.fromString(id));
     }
 }

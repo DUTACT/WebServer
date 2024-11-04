@@ -9,6 +9,7 @@ import com.dutact.web.features.checkin.admin.dtos.EventCheckInCodeDto;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
+import java.util.UUID;
 
 @Service
 public class EventCheckInCodeServiceImpl implements EventCheckInCodeService {
@@ -40,7 +41,7 @@ public class EventCheckInCodeServiceImpl implements EventCheckInCodeService {
     }
 
     @Override
-    public EventCheckInCodeDto getCheckInCode(Integer id) throws NotExistsException {
+    public EventCheckInCodeDto getCheckInCode(UUID id) throws NotExistsException {
         var checkInCode = checkInCodeRepository
                 .findById(id)
                 .orElseThrow(() -> new NotExistsException("Event participation code not found"));
@@ -62,7 +63,7 @@ public class EventCheckInCodeServiceImpl implements EventCheckInCodeService {
     }
 
     @Override
-    public void deleteCheckInCode(Integer id) {
+    public void deleteCheckInCode(UUID id) {
         checkInCodeRepository.deleteById(id);
     }
 }

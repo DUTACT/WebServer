@@ -5,14 +5,15 @@ import com.dutact.web.features.checkin.admin.dtos.CreateEventCheckInCodeDto;
 import com.dutact.web.features.checkin.admin.dtos.EventCheckInCodeDto;
 
 import java.util.Collection;
+import java.util.UUID;
 
 public interface EventCheckInCodeService {
     EventCheckInCodeDto createCheckInCode(CreateEventCheckInCodeDto createEventCheckinCodeDto)
             throws NotExistsException;
 
-    EventCheckInCodeDto getCheckInCode(Integer id) throws NotExistsException;
+    EventCheckInCodeDto getCheckInCode(UUID id) throws NotExistsException;
 
     Collection<EventCheckInCodeDto> getCheckInCodes(Integer eventId) throws NotExistsException;
 
-    void deleteCheckInCode(Integer id);
+    void deleteCheckInCode(UUID id);
 }
