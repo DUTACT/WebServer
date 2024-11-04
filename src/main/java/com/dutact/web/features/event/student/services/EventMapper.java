@@ -16,5 +16,6 @@ public interface EventMapper {
     @Mapping(target = "registeredAt", ignore = true)
     @Mapping(target = "followedAt", ignore = true)
     @Mapping(target = "coverPhotoUrl", source = "coverPhoto.fileUrl")
+    @Mapping(target = "organizer.avatarUrl", source = "organizer.avatar.fileUrl")
     EventDto toDto(Event event);
 }

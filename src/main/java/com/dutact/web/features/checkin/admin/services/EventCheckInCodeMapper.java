@@ -9,6 +9,8 @@ import org.mapstruct.MappingConstants;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface EventCheckInCodeMapper {
+    @Mapping(target = "event", ignore = true)
+    @Mapping(target = "id", ignore = true)
     EventCheckInCode toCheckInCode(CreateEventCheckInCodeDto createEventCheckInCodeDto);
 
     @Mapping(target = "eventId", source = "event.id")

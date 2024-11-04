@@ -7,9 +7,7 @@ import com.dutact.web.features.checkin.admin.dtos.EventCheckInCodeDto;
 import java.util.Collection;
 
 public interface EventCheckInCodeService {
-    EventCheckInCodeDto createCheckInCode(
-            Integer eventId,
-            CreateEventCheckInCodeDto createEventCheckinCodeDto)
+    EventCheckInCodeDto createCheckInCode(CreateEventCheckInCodeDto createEventCheckinCodeDto)
             throws NotExistsException;
 
     EventCheckInCodeDto getCheckInCode(Integer id) throws NotExistsException;

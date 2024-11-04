@@ -27,9 +27,9 @@ public class EventCheckInCodeServiceImpl implements EventCheckInCodeService {
 
     @Override
     public EventCheckInCodeDto createCheckInCode(
-            Integer eventId,
             CreateEventCheckInCodeDto createEventCheckinCodeDto)
             throws NotExistsException {
+        var eventId = createEventCheckinCodeDto.getEventId();
         var event = eventRepository.findById(eventId).orElseThrow(() -> new NotExistsException("Event not found"));
 
         var checkInCode = mapper.toCheckInCode(createEventCheckinCodeDto);

@@ -10,6 +10,7 @@ import org.mapstruct.*;
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface EventMapper {
     @Mapping(target = "coverPhotoUrl", source = "coverPhoto.fileUrl")
+    @Mapping(target = "organizer.avatarUrl", source = "organizer.avatar.fileUrl")
     EventDto toEventDto(Event event);
 
     @Mapping(target = "id", ignore = true)

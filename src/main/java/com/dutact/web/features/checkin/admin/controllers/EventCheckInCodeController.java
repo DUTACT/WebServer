@@ -33,10 +33,9 @@ public class EventCheckInCodeController {
 
     @PostMapping
     public EventCheckInCodeDto createCheckInCode(
-            @NotNull @RequestParam Integer eventId,
             @RequestBody CreateEventCheckInCodeDto eventParticipationCodeDto)
             throws NotExistsException {
-        return checkInCodeService.createCheckInCode(eventId, eventParticipationCodeDto);
+        return checkInCodeService.createCheckInCode(eventParticipationCodeDto);
     }
 
     @DeleteMapping("/{id}")

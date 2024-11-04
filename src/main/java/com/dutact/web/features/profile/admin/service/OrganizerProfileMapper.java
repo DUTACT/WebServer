@@ -21,5 +21,6 @@ public interface OrganizerProfileMapper {
     @Mapping(target = "enabled", ignore = true)
     @Mapping(target = "role", ignore = true)
     @Mapping(target = "events", ignore = true)
+    @Mapping(target = "avatar", ignore = true)
     void updateProfile(@MappingTarget EventOrganizer eventOrganizer, OrganizerProfileUpdateDto organizerProfileUpdateDto);
 }

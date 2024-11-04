@@ -8,6 +8,12 @@ import java.time.LocalDateTime;
 @Data
 public class CreateEventCheckInCodeDto {
     @NotNull
+    private Integer eventId;
+
+    @NotNull
+    private String title;
+
+    @NotNull
     private LocalDateTime startAt;
 
     @NotNull
