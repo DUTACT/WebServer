@@ -1,7 +1,9 @@
 package com.dutact.web.features.checkin.admin.services;
 
-import java.util.List;
+import com.dutact.web.common.api.PageResponse;
+import com.dutact.web.features.checkin.admin.dtos.GetParticipationQueryParam;
+import com.dutact.web.features.checkin.admin.dtos.ParticipationPreviewDto;
 
 public interface EventCheckInService {
-    List<String> getCheckedInParticipants(Integer eventId);
+    PageResponse<ParticipationPreviewDto> getCheckedInParticipants(GetParticipationQueryParam eventId);
 }
