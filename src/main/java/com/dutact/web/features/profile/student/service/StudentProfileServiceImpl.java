@@ -2,6 +2,7 @@ package com.dutact.web.features.profile.student.service;
 
 import com.dutact.web.auth.context.SecurityContextUtils;
 import com.dutact.web.auth.dto.NewPasswordDto;
+import com.dutact.web.auth.exception.InvalidCredentialsException;
 import com.dutact.web.auth.exception.InvalidLoginCredentialsException;
 import com.dutact.web.auth.exception.NoPermissionException;
 import com.dutact.web.auth.factors.AccountService;
@@ -61,7 +62,7 @@ public class StudentProfileServiceImpl implements StudentProfileService {
     }
 
     @Override
-    public void changePassword(Integer studentId, NewPasswordDto newPasswordDto) throws NotExistsException, InvalidLoginCredentialsException, NoPermissionException {
+    public void changePassword(Integer studentId, NewPasswordDto newPasswordDto) throws NotExistsException, NoPermissionException, InvalidCredentialsException {
         Student student = studentRepository.findById(studentId).orElseThrow(NotExistsException::new);
 
         accountService.changePassword(studentId, newPasswordDto);

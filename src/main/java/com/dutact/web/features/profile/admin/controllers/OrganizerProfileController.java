@@ -1,6 +1,7 @@
 package com.dutact.web.features.profile.admin.controllers;
 
 import com.dutact.web.auth.dto.NewPasswordDto;
+import com.dutact.web.auth.exception.InvalidCredentialsException;
 import com.dutact.web.auth.exception.InvalidLoginCredentialsException;
 import com.dutact.web.auth.exception.NoPermissionException;
 import com.dutact.web.common.api.ErrorMessage;
@@ -39,8 +40,8 @@ public class OrganizerProfileController {
         try{
             organizerProfileService.changePassword(id, newPasswordDto);
             return ResponseEntity.ok().build();
-        } catch (InvalidLoginCredentialsException e) {
-            return ResponseEntity.status(401).body(new ErrorMessage(e.getMessage()));
+        } catch (InvalidCredentialsException e) {
+            return ResponseEntity.status(400).body(new ErrorMessage(e.getMessage()));
         } catch (NoPermissionException e) {
             return ResponseEntity.status(403).body(new ErrorMessage(e.getMessage()));
         }
