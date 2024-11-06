@@ -1,5 +1,8 @@
 package com.dutact.web.features.profile.student.controllers;
 
+import com.dutact.web.auth.dto.NewPasswordDto;
+import com.dutact.web.auth.exception.InvalidLoginCredentialsException;
+import com.dutact.web.auth.exception.NoPermissionException;
 import com.dutact.web.common.api.exceptions.ConflictException;
 import com.dutact.web.common.api.exceptions.NotExistsException;
 import com.dutact.web.features.profile.student.dtos.StudentProfileUpdateDto;
@@ -28,5 +31,11 @@ public class StudentProfileController {
             @PathVariable Integer id,
             @ModelAttribute StudentProfileUpdateDto studentProfileUpdateDto) throws ConflictException, NotExistsException {
         return ResponseEntity.ok(studentProfileService.updateProfile(id, studentProfileUpdateDto));
+    }
+
+    @PutMapping("/{id}/change-password")
+    public ResponseEntity<?> changePassword(@PathVariable Integer id, @RequestBody NewPasswordDto newPasswordDto) throws NotExistsException, InvalidLoginCredentialsException, NoPermissionException {
+        studentProfileService.changePassword(id, newPasswordDto);
+        return ResponseEntity.ok().build();
     }
 }
