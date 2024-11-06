@@ -3,6 +3,7 @@ package com.dutact.web.features.profile.admin.controllers;
 import com.dutact.web.auth.dto.NewPasswordDto;
 import com.dutact.web.auth.exception.InvalidLoginCredentialsException;
 import com.dutact.web.auth.exception.NoPermissionException;
+import com.dutact.web.common.api.ErrorMessage;
 import com.dutact.web.common.api.exceptions.ConflictException;
 import com.dutact.web.common.api.exceptions.NotExistsException;
 import com.dutact.web.features.profile.admin.dtos.OrganizerProfileUpdateDto;
@@ -34,8 +35,14 @@ public class OrganizerProfileController {
     }
 
     @PutMapping("/change-password")
-    public ResponseEntity<?> changePassword(@PathVariable Integer id, @RequestBody NewPasswordDto newPasswordDto) throws NotExistsException, InvalidLoginCredentialsException, NoPermissionException, InvalidLoginCredentialsException, NoPermissionException {
-        organizerProfileService.changePassword(id, newPasswordDto);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<?> changePassword(@PathVariable Integer id, @RequestBody NewPasswordDto newPasswordDto) throws NotExistsException{
+        try{
+            organizerProfileService.changePassword(id, newPasswordDto);
+            return ResponseEntity.ok().build();
+        } catch (InvalidLoginCredentialsException e) {
+            return ResponseEntity.badRequest().body(new ErrorMessage(e.getMessage()));
+        } catch (NoPermissionException e) {
+            return ResponseEntity.status(403).body(new ErrorMessage(e.getMessage()));
+        }
     }
 }
