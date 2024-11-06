@@ -10,6 +10,7 @@ import com.dutact.web.features.profile.admin.dtos.OrganizerProfileDto;
 import com.dutact.web.features.profile.admin.dtos.OrganizerProfileUpdateDto;
 import com.dutact.web.storage.StorageService;
 import com.dutact.web.storage.UploadFileResult;
+import jakarta.annotation.Nonnull;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -39,15 +40,21 @@ public class OrganizerProfileServiceImpl implements OrganizerProfileService {
     }
 
     @Override
-    public OrganizerProfileDto updateProfile(Integer id, OrganizerProfileUpdateDto studentProfileDto) throws NotExistsException, ConflictException {
+    public OrganizerProfileDto updateProfile(Integer id, OrganizerProfileUpdateDto organizerProfile) throws NotExistsException, ConflictException {
         EventOrganizer eventOrganizer = organizerRepository.findById(id).orElseThrow(NotExistsException::new);
         if (!isProfileOwner(id)) {
             throw new ConflictException();
         }
-        organizerProfileMapper.updateProfile(eventOrganizer, studentProfileDto);
+        organizerProfileMapper.updateProfile(eventOrganizer, organizerProfile);
 
-        UploadFileResult uploadFileResult = writeFile(studentProfileDto.getAvatar());
-        eventOrganizer.setAvatar(uploadedFileMapper.toUploadedFile(uploadFileResult));
+        if (organizerProfile.getAvatar() != null) {
+            if (eventOrganizer.getAvatar() != null) {
+                storageService.deleteFile(eventOrganizer.getAvatar().getFileId());
+            }
+            
+            var uploadedFile = writeFile(organizerProfile.getAvatar());
+            eventOrganizer.setAvatar(uploadedFileMapper.toUploadedFile(uploadedFile));
+        }
 
         return organizerProfileMapper.toProfileDto(organizerRepository.save(eventOrganizer));
     }
@@ -64,7 +71,7 @@ public class OrganizerProfileServiceImpl implements OrganizerProfileService {
         return studentOpt.get().getId().equals(profileId);
     }
 
-    private UploadFileResult writeFile(MultipartFile file) {
+    private UploadFileResult writeFile(@Nonnull MultipartFile file) {
         return storageService.uploadFile(file,
                 FilenameUtils.getExtension(file.getOriginalFilename()));
 

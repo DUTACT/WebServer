@@ -31,12 +31,15 @@ public class EventOrganizer extends Account {
     @Convert(converter = UploadFileConverter.class)
     private UploadedFile avatar;
 
+    @Nullable
     @Column(name = "phone")
     private String phone;
 
+    @Nullable
     @Column(name = "address")
     private String address;
 
+    @Nullable
     @Column(name = "person_in_charge_name")
     private String personInChargeName;
 
