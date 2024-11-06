@@ -1,6 +1,10 @@
 package com.dutact.web.features.profile.student.service;
 
 import com.dutact.web.auth.context.SecurityContextUtils;
+import com.dutact.web.auth.dto.NewPasswordDto;
+import com.dutact.web.auth.exception.InvalidLoginCredentialsException;
+import com.dutact.web.auth.exception.NoPermissionException;
+import com.dutact.web.auth.factors.AccountService;
 import com.dutact.web.common.api.exceptions.ConflictException;
 import com.dutact.web.common.api.exceptions.NotExistsException;
 import com.dutact.web.common.mapper.UploadedFileMapper;
@@ -22,15 +26,19 @@ public class StudentProfileServiceImpl implements StudentProfileService {
     private final UploadedFileMapper uploadedFileMapper;
     private final StudentRepository studentRepository;
     private final StorageService storageService;
+    private final AccountService accountService;
 
     public StudentProfileServiceImpl(StudentProfileMapper studentProfileMapper,
                                      UploadedFileMapper uploadedFileMapper,
                                      StudentRepository studentRepository,
-                                     StorageService storageService) {
+                                     StorageService storageService,
+                                     AccountService accountService
+    ) {
         this.studentProfileMapper = studentProfileMapper;
         this.uploadedFileMapper = uploadedFileMapper;
         this.studentRepository = studentRepository;
         this.storageService = storageService;
+        this.accountService = accountService;
     }
 
     @Override
@@ -50,6 +58,13 @@ public class StudentProfileServiceImpl implements StudentProfileService {
         student.setAvatar(uploadedFileMapper.toUploadedFile(uploadFileResult));
 
         return studentProfileMapper.toProfileDto(studentRepository.save(student));
+    }
+
+    @Override
+    public void changePassword(Integer studentId, NewPasswordDto newPasswordDto) throws NotExistsException, InvalidLoginCredentialsException, NoPermissionException {
+        Student student = studentRepository.findById(studentId).orElseThrow(NotExistsException::new);
+
+        accountService.changePassword(studentId, newPasswordDto);
     }
 
 

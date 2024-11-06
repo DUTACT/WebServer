@@ -8,5 +8,8 @@ import lombok.Setter;
 @Setter
 public class NewPasswordDto {
     @NotBlank
+    private String oldPassword;
+
+    @NotBlank
     private String newPassword;
 }
