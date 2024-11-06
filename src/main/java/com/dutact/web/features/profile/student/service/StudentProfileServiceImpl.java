@@ -39,7 +39,7 @@ public class StudentProfileServiceImpl implements StudentProfileService {
     }
 
     @Override
-    public void updateProfile(Integer studentId, StudentProfileUpdateDto studentProfileDto) throws NotExistsException, ConflictException {
+    public StudentProfileDto updateProfile(Integer studentId, StudentProfileUpdateDto studentProfileDto) throws NotExistsException, ConflictException {
         Student student = studentRepository.findById(studentId).orElseThrow(NotExistsException::new);
         if (!isProfileOwner(studentId)) {
             throw new ConflictException();
@@ -49,7 +49,7 @@ public class StudentProfileServiceImpl implements StudentProfileService {
         UploadFileResult uploadFileResult = writeFile(studentProfileDto.getAvatar());
         student.setAvatar(uploadedFileMapper.toUploadedFile(uploadFileResult));
 
-        studentRepository.save(student);
+        return studentProfileMapper.toProfileDto(studentRepository.save(student));
     }
 
 

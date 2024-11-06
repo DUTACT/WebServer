@@ -39,7 +39,7 @@ public class OrganizerProfileServiceImpl implements OrganizerProfileService {
     }
 
     @Override
-    public void updateProfile(Integer id, OrganizerProfileUpdateDto studentProfileDto) throws NotExistsException, ConflictException {
+    public OrganizerProfileDto updateProfile(Integer id, OrganizerProfileUpdateDto studentProfileDto) throws NotExistsException, ConflictException {
         EventOrganizer eventOrganizer = organizerRepository.findById(id).orElseThrow(NotExistsException::new);
         if (!isProfileOwner(id)) {
             throw new ConflictException();
@@ -49,7 +49,7 @@ public class OrganizerProfileServiceImpl implements OrganizerProfileService {
         UploadFileResult uploadFileResult = writeFile(studentProfileDto.getAvatar());
         eventOrganizer.setAvatar(uploadedFileMapper.toUploadedFile(uploadFileResult));
 
-        organizerRepository.save(eventOrganizer);
+        return organizerProfileMapper.toProfileDto(organizerRepository.save(eventOrganizer));
     }
 
 

@@ -27,7 +27,6 @@ public class OrganizerProfileController {
     public ResponseEntity<?> updateProfile(
             @PathVariable Integer id,
             @ModelAttribute OrganizerProfileUpdateDto organizerProfileUpdateDto) throws ConflictException, NotExistsException {
-        organizerProfileService.updateProfile(id, organizerProfileUpdateDto);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(organizerProfileService.updateProfile(id, organizerProfileUpdateDto));
     }
 }

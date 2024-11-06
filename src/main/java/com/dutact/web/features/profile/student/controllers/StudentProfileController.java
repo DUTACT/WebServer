@@ -23,11 +23,10 @@ public class StudentProfileController {
         return ResponseEntity.ok(studentProfileService.getProfile(id));
     }
 
-    @PutMapping(path = "/{id}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    @PatchMapping(path = "/{id}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<?> updateProfile(
             @PathVariable Integer id,
             @ModelAttribute StudentProfileUpdateDto studentProfileUpdateDto) throws ConflictException, NotExistsException {
-        studentProfileService.updateProfile(id, studentProfileUpdateDto);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(studentProfileService.updateProfile(id, studentProfileUpdateDto));
     }
 }
