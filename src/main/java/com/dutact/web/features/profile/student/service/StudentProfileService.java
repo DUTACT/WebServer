@@ -7,5 +7,5 @@ import com.dutact.web.features.profile.student.dtos.StudentProfileUpdateDto;
 
 public interface StudentProfileService {
     StudentProfileDto getProfile(Integer studentId) throws NotExistsException;
-    void updateProfile(Integer studentId, StudentProfileUpdateDto studentProfileDto) throws NotExistsException, ConflictException;
+    StudentProfileDto updateProfile(Integer studentId, StudentProfileUpdateDto studentProfileDto) throws NotExistsException, ConflictException;
 }

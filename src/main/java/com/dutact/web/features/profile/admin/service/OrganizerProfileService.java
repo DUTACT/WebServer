@@ -7,5 +7,5 @@ import com.dutact.web.features.profile.admin.dtos.OrganizerProfileUpdateDto;
 
 public interface OrganizerProfileService {
     OrganizerProfileDto getProfile(Integer id) throws NotExistsException;
-    void updateProfile(Integer id, OrganizerProfileUpdateDto organizerProfileUpdateDto) throws NotExistsException, ConflictException;
+    OrganizerProfileDto updateProfile(Integer id, OrganizerProfileUpdateDto organizerProfileUpdateDto) throws NotExistsException, ConflictException;
 }
