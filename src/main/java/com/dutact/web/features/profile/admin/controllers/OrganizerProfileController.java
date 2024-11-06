@@ -23,7 +23,7 @@ public class OrganizerProfileController {
         return ResponseEntity.ok(organizerProfileService.getProfile(id));
     }
 
-    @PutMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    @PatchMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<?> updateProfile(
             @PathVariable Integer id,
             @ModelAttribute OrganizerProfileUpdateDto organizerProfileUpdateDto) throws ConflictException, NotExistsException {
