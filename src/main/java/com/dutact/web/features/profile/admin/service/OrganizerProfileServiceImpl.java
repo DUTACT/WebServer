@@ -1,6 +1,10 @@
 package com.dutact.web.features.profile.admin.service;
 
 import com.dutact.web.auth.context.SecurityContextUtils;
+import com.dutact.web.auth.dto.NewPasswordDto;
+import com.dutact.web.auth.exception.InvalidLoginCredentialsException;
+import com.dutact.web.auth.exception.NoPermissionException;
+import com.dutact.web.auth.factors.AccountService;
 import com.dutact.web.common.api.exceptions.ConflictException;
 import com.dutact.web.common.api.exceptions.NotExistsException;
 import com.dutact.web.common.mapper.UploadedFileMapper;
@@ -22,15 +26,18 @@ public class OrganizerProfileServiceImpl implements OrganizerProfileService {
     private final OrganizerProfileMapper organizerProfileMapper;
     private final UploadedFileMapper uploadedFileMapper;
     private final OrganizerRepository organizerRepository;
+    private final AccountService accountService;
     private final StorageService storageService;
 
     public OrganizerProfileServiceImpl(OrganizerProfileMapper organizerProfileMapper,
                                        UploadedFileMapper uploadedFileMapper,
                                        OrganizerRepository organizerRepository,
+                                       AccountService accountService,
                                        StorageService storageService) {
         this.organizerProfileMapper = organizerProfileMapper;
         this.uploadedFileMapper = uploadedFileMapper;
         this.organizerRepository = organizerRepository;
+        this.accountService = accountService;
         this.storageService = storageService;
     }
 
@@ -57,6 +64,12 @@ public class OrganizerProfileServiceImpl implements OrganizerProfileService {
         }
 
         return organizerProfileMapper.toProfileDto(organizerRepository.save(eventOrganizer));
+    }
+
+    @Override
+    public void changePassword(Integer id, NewPasswordDto newPasswordDto) throws NotExistsException, InvalidLoginCredentialsException, NoPermissionException {
+        EventOrganizer eventOrganizer = organizerRepository.findById(id).orElseThrow(NotExistsException::new);
+        accountService.changePassword(id, newPasswordDto);
     }
 
 

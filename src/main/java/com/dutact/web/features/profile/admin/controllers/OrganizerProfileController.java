@@ -1,5 +1,8 @@
 package com.dutact.web.features.profile.admin.controllers;
 
+import com.dutact.web.auth.dto.NewPasswordDto;
+import com.dutact.web.auth.exception.InvalidLoginCredentialsException;
+import com.dutact.web.auth.exception.NoPermissionException;
 import com.dutact.web.common.api.exceptions.ConflictException;
 import com.dutact.web.common.api.exceptions.NotExistsException;
 import com.dutact.web.features.profile.admin.dtos.OrganizerProfileUpdateDto;
@@ -28,5 +31,11 @@ public class OrganizerProfileController {
             @PathVariable Integer id,
             @ModelAttribute OrganizerProfileUpdateDto organizerProfileUpdateDto) throws ConflictException, NotExistsException {
         return ResponseEntity.ok(organizerProfileService.updateProfile(id, organizerProfileUpdateDto));
+    }
+
+    @PutMapping("/change-password")
+    public ResponseEntity<?> changePassword(@PathVariable Integer id, @RequestBody NewPasswordDto newPasswordDto) throws NotExistsException, InvalidLoginCredentialsException, NoPermissionException, InvalidLoginCredentialsException, NoPermissionException {
+        organizerProfileService.changePassword(id, newPasswordDto);
+        return ResponseEntity.ok().build();
     }
 }
