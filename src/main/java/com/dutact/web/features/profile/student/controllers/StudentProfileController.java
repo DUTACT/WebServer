@@ -4,7 +4,6 @@ import com.dutact.web.auth.dto.NewPasswordDto;
 import com.dutact.web.auth.dto.ResponseToken;
 import com.dutact.web.auth.exception.InvalidLoginCredentialsException;
 import com.dutact.web.auth.exception.NoPermissionException;
-import com.dutact.web.auth.factors.LoginFailedResponse;
 import com.dutact.web.common.api.ErrorMessage;
 import com.dutact.web.common.api.exceptions.ConflictException;
 import com.dutact.web.common.api.exceptions.NotExistsException;
