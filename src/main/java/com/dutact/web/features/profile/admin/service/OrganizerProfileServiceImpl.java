@@ -2,6 +2,7 @@ package com.dutact.web.features.profile.admin.service;
 
 import com.dutact.web.auth.context.SecurityContextUtils;
 import com.dutact.web.auth.dto.NewPasswordDto;
+import com.dutact.web.auth.exception.InvalidCredentialsException;
 import com.dutact.web.auth.exception.InvalidLoginCredentialsException;
 import com.dutact.web.auth.exception.NoPermissionException;
 import com.dutact.web.auth.factors.AccountService;
@@ -67,7 +68,7 @@ public class OrganizerProfileServiceImpl implements OrganizerProfileService {
     }
 
     @Override
-    public void changePassword(Integer id, NewPasswordDto newPasswordDto) throws NotExistsException, InvalidLoginCredentialsException, NoPermissionException {
+    public void changePassword(Integer id, NewPasswordDto newPasswordDto) throws NotExistsException, NoPermissionException, InvalidCredentialsException {
         EventOrganizer eventOrganizer = organizerRepository.findById(id).orElseThrow(NotExistsException::new);
         accountService.changePassword(id, newPasswordDto);
     }

@@ -5,6 +5,7 @@ import com.dutact.web.auth.dto.LoginDto;
 import com.dutact.web.auth.dto.NewPasswordDto;
 import com.dutact.web.auth.dto.ResponseToken;
 import com.dutact.web.auth.exception.AccountNotEnabledException;
+import com.dutact.web.auth.exception.InvalidCredentialsException;
 import com.dutact.web.auth.exception.InvalidLoginCredentialsException;
 import com.dutact.web.auth.exception.NoPermissionException;
 import com.dutact.web.auth.token.jwt.JWTBuilder;
@@ -81,7 +82,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public void changePassword(Integer accountId, NewPasswordDto newPasswordDto) throws InvalidLoginCredentialsException, NoPermissionException {
+    public void changePassword(Integer accountId, NewPasswordDto newPasswordDto) throws NoPermissionException, InvalidCredentialsException {
         String username = SecurityContextUtils.getUsername();
         boolean isAdmin = isLoginUserAdmin();
 
@@ -90,7 +91,7 @@ public class AccountServiceImpl implements AccountService {
             throw new NoPermissionException();
         }
         if (!passwordEncoder.matches(newPasswordDto.getOldPassword(), account.getPassword())) {
-            throw new InvalidLoginCredentialsException();
+            throw new InvalidCredentialsException();
         }
         account.setPassword(passwordEncoder.encode(newPasswordDto.getNewPassword()));
         accountRepository.save(account);
