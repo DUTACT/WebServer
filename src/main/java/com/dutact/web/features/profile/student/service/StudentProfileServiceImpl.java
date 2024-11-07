@@ -54,9 +54,10 @@ public class StudentProfileServiceImpl implements StudentProfileService {
             throw new ConflictException();
         }
         studentProfileMapper.updateProfile(student, studentProfileDto);
-
-        UploadFileResult uploadFileResult = writeFile(studentProfileDto.getAvatar());
-        student.setAvatar(uploadedFileMapper.toUploadedFile(uploadFileResult));
+        if (studentProfileDto.getAvatar() != null) {
+            UploadFileResult uploadFileResult = writeFile(studentProfileDto.getAvatar());
+            student.setAvatar(uploadedFileMapper.toUploadedFile(uploadFileResult));
+        }
 
         return studentProfileMapper.toProfileDto(studentRepository.save(student));
     }

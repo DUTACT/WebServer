@@ -20,18 +20,23 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Student extends Account {
+    @Nullable
     @Column(name = "full_name")
     private String fullName;
 
+    @Nullable
     @Column(name = "phone")
     private String phone;
 
+    @Nullable
     @Column(name = "faculty")
     private String faculty;
 
+    @Nullable
     @Column(name = "address")
     private String address;
 
+    @Nullable
     @Column(name = "class_name")
     private String className;
 
