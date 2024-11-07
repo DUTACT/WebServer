@@ -40,7 +40,7 @@ public class OrganizerProfileController {
             organizerProfileService.changePassword(id, newPasswordDto);
             return ResponseEntity.ok().build();
         } catch (InvalidLoginCredentialsException e) {
-            return ResponseEntity.badRequest().body(new ErrorMessage(e.getMessage()));
+            return ResponseEntity.status(401).body(new ErrorMessage(e.getMessage()));
         } catch (NoPermissionException e) {
             return ResponseEntity.status(403).body(new ErrorMessage(e.getMessage()));
         }
