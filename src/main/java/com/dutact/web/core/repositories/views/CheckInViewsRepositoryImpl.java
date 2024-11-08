@@ -1,16 +1,12 @@
 package com.dutact.web.core.repositories.views;
 
-import com.dutact.web.core.entities.EventCheckIn;
 import com.dutact.web.core.projections.CheckInPreview;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.criteria.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Repository;
-
-import java.util.function.BiFunction;
 
 @Repository
 public class CheckInViewsRepositoryImpl implements CheckInViewsRepository {
@@ -19,7 +15,47 @@ public class CheckInViewsRepositoryImpl implements CheckInViewsRepository {
 
     @Override
     public Page<CheckInPreview> getCheckInPreviews(CheckInQueryParams queryParams) {
-        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        String query = """
+                SELECT check_in_preview.studentId, check_in_preview.studentName, check_in_preview.totalCheckIn
+                FROM (
+                    SELECT student.id as studentId, student.fullName as studentName, COUNT(student.id) as totalCheckIn
+                    FROM EventCheckInCode check_in_code
+                        JOIN EventCheckIn event_check_in ON check_in_code.id = event_check_in.checkInCode.id
+                        JOIN Student student ON event_check_in.student.id = student.id
+                    WHERE student.fullName LIKE %:searchQuery%
+                        AND check_in_code.event.id = :eventId
+                    GROUP BY student.id, student.fullName
+                ) AS check_in_preview
+                WHERE check_in_preview.totalCheckIn > 0
+                LIMIT :from, :to;
+                """;
+
+
+        String countQuery = "SELECT COUNT(DISTINCT student_id) " +
+                "FROM event_check_in " +
+                "WHERE check_in_code_id IN (SELECT id FROM event_checkin_code WHERE event_id = :eventId) " +
+                "GROUP BY student_id, student_name " +
+                "HAVING student_name LIKE :searchQuery";
+
+        var from = queryParams.getPage() * queryParams.getPageSize();
+        var to = from + queryParams.getPageSize();
+
+        var results = entityManager.createQuery(query, "CheckInPreview")
+                .setParameter("eventId", queryParams.getEventId())
+                .setParameter("searchQuery", "%" + queryParams.getSearchQuery() + "%")
+                .setFirstResult(from)
+                .setMaxResults(to)
+                .getResultList();
+
+        var count = entityManager.createNativeQuery(countQuery)
+                .setParameter("eventId", queryParams.getEventId())
+                .setParameter("searchQuery", "%" + queryParams.getSearchQuery() + "%")
+                .getResultList().size();
+
+        return new PageImpl<>(results,
+                PageRequest.of(queryParams.getPage(), queryParams.getPageSize()),
+                count);
+/*        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
 
         CriteriaQuery<CheckInPreview> query = cb.createQuery(CheckInPreview.class);
 
@@ -75,6 +111,6 @@ public class CheckInViewsRepositoryImpl implements CheckInViewsRepository {
 
         return new PageImpl<>(results,
                 PageRequest.of(queryParams.getPage(), queryParams.getPageSize()),
-                count);
+                count);*/
     }
 }
