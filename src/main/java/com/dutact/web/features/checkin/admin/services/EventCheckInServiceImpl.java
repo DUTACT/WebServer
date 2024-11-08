@@ -1,33 +1,28 @@
 package com.dutact.web.features.checkin.admin.services;
 
 import com.dutact.web.common.api.PageResponse;
-import com.dutact.web.core.repositories.EventCheckInRepository;
-import com.dutact.web.core.specs.EventCheckInSpecs;
-import com.dutact.web.features.checkin.admin.dtos.GetParticipationQueryParam;
-import com.dutact.web.features.checkin.admin.dtos.ParticipationPreviewDto;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
+import com.dutact.web.core.repositories.views.CheckInQueryParams;
+import com.dutact.web.core.repositories.views.CheckInViewsRepository;
+import com.dutact.web.features.checkin.admin.dtos.CheckInPreviewDto;
+import org.springframework.stereotype.Service;
 
+@Service("AdminEventCheckInService")
 public class EventCheckInServiceImpl implements EventCheckInService {
-    private final EventCheckInRepository eventCheckInRepository;
+    private final CheckInViewsRepository checkInViewsRepository;
+    private final EventCheckInMapper mapper;
 
-    public EventCheckInServiceImpl(EventCheckInRepository eventCheckInRepository) {
-        this.eventCheckInRepository = eventCheckInRepository;
+    public EventCheckInServiceImpl(CheckInViewsRepository checkInViewsRepository,
+                                   EventCheckInMapper mapper) {
+        this.checkInViewsRepository = checkInViewsRepository;
+        this.mapper = mapper;
     }
 
     @Override
-    public PageResponse<ParticipationPreviewDto> getCheckedInParticipants(
-            GetParticipationQueryParam queryParam) {
+    public PageResponse<CheckInPreviewDto> getCheckedInParticipants(
+            CheckInQueryParams queryParam) {
 
-        var pageable = PageRequest.of(queryParam.getPage(), queryParam.getPageSize())
-                .withSort(Sort.by(Sort.Order.asc("student.fullName")));
-        var specs = EventCheckInSpecs.hasEventId(queryParam.getEventId());
-        if (queryParam.getSearchQuery() != null) {
-            specs = specs.and(EventCheckInSpecs.studentNameContains(queryParam.getSearchQuery()));
-        }
+        var page = checkInViewsRepository.getCheckInPreviews(queryParam);
 
-        var page = eventCheckInRepository.findAll(specs, pageable);
-
-        return PageResponse.of(page, ParticipationPreviewDto::from);
+        return PageResponse.of(page, mapper::toDto);
     }
 }

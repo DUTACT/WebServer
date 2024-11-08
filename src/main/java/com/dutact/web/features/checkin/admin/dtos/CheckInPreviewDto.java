@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
-public class ParticipationPreviewDto {
+public class CheckInPreviewDto {
     @JsonProperty("studentId")
     private String studentId;
 
