@@ -5,6 +5,7 @@ import com.dutact.web.core.repositories.views.CheckInQueryParams;
 import com.dutact.web.features.checkin.admin.dtos.CheckInPreviewDto;
 import com.dutact.web.features.checkin.admin.services.EventCheckInService;
 import jakarta.annotation.Nullable;
+import jakarta.validation.constraints.Min;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -20,8 +21,8 @@ public class AdminEventCheckInController {
     public PageResponse<CheckInPreviewDto> getCheckedInParticipants(
             @PathVariable Integer eventId,
             @RequestParam(required = false) @Nullable String searchQuery,
-            @RequestParam(required = false, defaultValue = "0") Integer page,
-            @RequestParam(required = false, defaultValue = "10") Integer pageSize) {
+            @RequestParam(required = false, defaultValue = "1") @Min(1) Integer page,
+            @RequestParam(required = false, defaultValue = "10") @Min(1) Integer pageSize) {
 
         var queryParam = new CheckInQueryParams(eventId);
         queryParam.setSearchQuery(searchQuery);
