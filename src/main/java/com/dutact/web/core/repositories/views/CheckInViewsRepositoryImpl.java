@@ -55,11 +55,9 @@ public class CheckInViewsRepositoryImpl implements CheckInViewsRepository {
 
         var countQuery = """
                 SELECT COUNT(DISTINCT student.id)
-                FROM EventCheckInCode check_in_code
-                    JOIN EventCheckIn event_check_in ON check_in_code.id = event_check_in.checkInCode.id
-                    JOIN Student student ON event_check_in.student.id = student.id
+                FROM EventRegistration registration
                 WHERE (:searchQuery IS NULL OR student.fullName LIKE :searchQuery)
-                    AND check_in_code.event.id = :eventId
+                    AND event.id = :eventId
                 """;
 
         var count = entityManager.createQuery(countQuery, Long.class)
