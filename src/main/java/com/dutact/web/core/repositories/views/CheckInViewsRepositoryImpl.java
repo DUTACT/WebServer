@@ -1,6 +1,7 @@
 package com.dutact.web.core.repositories.views;
 
 import com.dutact.web.common.api.PageResponse;
+import com.dutact.web.core.entities.participationcert.ParticipationCertificateStatus;
 import com.dutact.web.core.projections.CheckInPreview;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -14,16 +15,20 @@ public class CheckInViewsRepositoryImpl implements CheckInViewsRepository {
     @Override
     public PageResponse<CheckInPreview> getCheckInPreviews(CheckInQueryParams queryParams) {
         var query = """
-                SELECT check_in_preview.studentId, check_in_preview.studentName, check_in_preview.totalCheckIn
+                SELECT check_in_preview.studentId, check_in_preview.studentName,
+                       check_in_preview.totalCheckIn, check_in_preview.certificateStatus
                 FROM (
-                    SELECT student.id as studentId, student.fullName as studentName, COUNT(event_check_in.id) as totalCheckIn
+                    SELECT student.id as studentId, student.fullName as studentName,
+                            certificate.status as certificateStatus,
+                            COUNT(event_check_in.id) as totalCheckIn
                     FROM EventRegistration registration
                         JOIN Student student ON registration.student.id = student.id
                         JOIN Event event ON registration.event.id = event.id
                         LEFT JOIN EventCheckIn event_check_in ON student.id = event_check_in.student.id
+                        LEFT JOIN ParticipationCertificate certificate ON student.id = certificate.student.id
                     WHERE (:searchQuery IS NULL OR student.fullName LIKE :searchQuery)
                         AND event.id = :eventId
-                    GROUP BY student.id, student.fullName
+                    GROUP BY student.id, student.fullName, certificate.status
                     ORDER BY student.fullName
                 ) AS check_in_preview
                 """;
@@ -41,7 +46,8 @@ public class CheckInViewsRepositoryImpl implements CheckInViewsRepository {
                     return new CheckInPreview(
                             (Integer) arr[0],
                             (String) arr[1],
-                            (Long) arr[2]
+                            (Long) arr[2],
+                            (ParticipationCertificateStatus) arr[3]
                     );
                 })
                 .toList();
