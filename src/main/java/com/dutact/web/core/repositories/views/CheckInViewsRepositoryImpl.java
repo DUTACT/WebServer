@@ -16,12 +16,13 @@ public class CheckInViewsRepositoryImpl implements CheckInViewsRepository {
         var query = """
                 SELECT check_in_preview.studentId, check_in_preview.studentName, check_in_preview.totalCheckIn
                 FROM (
-                    SELECT student.id as studentId, student.fullName as studentName, COUNT(student.id) as totalCheckIn
-                    FROM EventCheckInCode check_in_code
-                        JOIN EventCheckIn event_check_in ON check_in_code.id = event_check_in.checkInCode.id
-                        JOIN Student student ON event_check_in.student.id = student.id
+                    SELECT student.id as studentId, student.fullName as studentName, COUNT(event_check_in.id) as totalCheckIn
+                    FROM EventRegistration registration
+                        JOIN Student student ON registration.student.id = student.id
+                        JOIN Event event ON registration.event.id = event.id
+                        LEFT JOIN EventCheckIn event_check_in ON student.id = event_check_in.student.id
                     WHERE (:searchQuery IS NULL OR student.fullName LIKE :searchQuery)
-                        AND check_in_code.event.id = :eventId
+                        AND event.id = :eventId
                     GROUP BY student.id, student.fullName
                     ORDER BY student.fullName
                 ) AS check_in_preview
