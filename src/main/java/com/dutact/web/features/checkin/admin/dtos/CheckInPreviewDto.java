@@ -7,7 +7,7 @@ import lombok.Data;
 @Data
 public class CheckInPreviewDto {
     @JsonProperty("studentId")
-    private String studentId;
+    private Integer studentId;
 
     @JsonProperty("studentName")
     private String studentName;
