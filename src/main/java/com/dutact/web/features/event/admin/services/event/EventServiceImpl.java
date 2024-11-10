@@ -8,18 +8,22 @@ import com.dutact.web.common.mapper.UploadedFileMapper;
 import com.dutact.web.core.entities.event.CannotChangeStatusException;
 import com.dutact.web.core.entities.event.Event;
 import com.dutact.web.core.entities.event.EventStatus;
+import com.dutact.web.core.entities.eventchange.EventChange;
+import com.dutact.web.core.entities.eventchange.details.EventTimeChanged;
+import com.dutact.web.core.entities.eventchange.details.RegistrationClosed;
+import com.dutact.web.core.entities.eventchange.details.RegistrationRenewed;
+import com.dutact.web.core.repositories.EventChangeRepository;
 import com.dutact.web.core.repositories.EventRepository;
 import com.dutact.web.core.repositories.OrganizerRepository;
 import com.dutact.web.core.specs.EventSpecs;
-import com.dutact.web.features.event.admin.dtos.event.EventCreateDto;
-import com.dutact.web.features.event.admin.dtos.event.EventDto;
-import com.dutact.web.features.event.admin.dtos.event.EventUpdateDto;
+import com.dutact.web.features.event.admin.dtos.event.*;
 import com.dutact.web.storage.StorageService;
 import com.dutact.web.storage.UploadFileResult;
 import lombok.SneakyThrows;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
@@ -32,17 +36,20 @@ public class EventServiceImpl implements EventService {
     private final UploadedFileMapper uploadedFileMapper;
     private final EventRepository eventRepository;
     private final OrganizerRepository organizerRepository;
+    private final EventChangeRepository eventChangeRepository;
     private final StorageService storageService;
 
     public EventServiceImpl(EventMapper eventMapper,
                             UploadedFileMapper uploadedFileMapper,
                             EventRepository eventRepository,
                             OrganizerRepository organizerRepository,
+                            EventChangeRepository eventChangeRepository,
                             StorageService storageService) {
         this.eventMapper = eventMapper;
         this.uploadedFileMapper = uploadedFileMapper;
         this.eventRepository = eventRepository;
         this.organizerRepository = organizerRepository;
+        this.eventChangeRepository = eventChangeRepository;
         this.storageService = storageService;
     }
 
@@ -55,7 +62,7 @@ public class EventServiceImpl implements EventService {
 
         UploadFileResult uploadFileResult = writeFile(eventDto.getCoverPhoto());
         event.setCoverPhoto(uploadedFileMapper.toUploadedFile(uploadFileResult));
-        
+
 
         if (SecurityContextUtils.hasRole(Role.STUDENT_AFFAIRS_OFFICE)) {
             updateEventStatus(event, new EventStatus.Approved());
@@ -117,16 +124,95 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public EventStatus approveEvent(Integer eventId) throws NotExistsException, ConflictException {
-        return updateEventStatus(eventId, new EventStatus.Approved());
+    @Transactional
+    public EventDto renewEventRegistration(
+            Integer eventId,
+            RenewEventRegistrationDto renewEventRegistrationDto)
+            throws NotExistsException {
+        var eventOpt = eventRepository.findById(eventId);
+        if (eventOpt.isEmpty()) {
+            throw new NotExistsException("Event not found");
+        }
+
+        var event = eventOpt.get();
+
+        var change = new EventChange();
+        change.setDetails(new RegistrationRenewed(
+                event.getEndRegistrationAt(),
+                renewEventRegistrationDto.getEndRegistrationAt()
+        ));
+        change.setChangedAt(LocalDateTime.now());
+        eventChangeRepository.save(change);
+
+        event.setEndRegistrationAt(renewEventRegistrationDto.getEndRegistrationAt());
+        eventRepository.save(event);
+
+        return eventMapper.toEventDto(event);
     }
 
     @Override
-    public EventStatus rejectEvent(Integer eventId, String reason) throws NotExistsException, ConflictException {
-        return updateEventStatus(eventId, new EventStatus.Rejected(reason));
+    @Transactional
+    public EventDto changeEventTime(
+            Integer eventId,
+            ChangeEventTimeDto changeEventTimeDto)
+            throws NotExistsException {
+        var eventOpt = eventRepository.findById(eventId);
+        if (eventOpt.isEmpty()) {
+            throw new NotExistsException("Event not found");
+        }
+
+        var event = eventOpt.get();
+
+        var eventChange = new EventChange();
+        var changeDetails = new EventTimeChanged();
+
+        if (changeEventTimeDto.getStartAt() != null) {
+            var startChange = new EventTimeChanged.StartTimeChange();
+            startChange.setNewStart(changeEventTimeDto.getStartAt());
+            startChange.setOldStart(event.getStartAt());
+
+            changeDetails.setStartTimeChange(startChange);
+            event.setStartAt(changeEventTimeDto.getStartAt());
+        }
+
+        if (changeEventTimeDto.getEndAt() != null) {
+            var endChange = new EventTimeChanged.EndTimeChange();
+            endChange.setNewEnd(changeEventTimeDto.getEndAt());
+            endChange.setOldEnd(event.getEndAt());
+
+            changeDetails.setEndTimeChange(endChange);
+            event.setEndAt(changeEventTimeDto.getEndAt());
+        }
+
+        if (changeEventTimeDto.getStartRegistrationAt() != null) {
+            var startRegistrationChange = new EventTimeChanged.RegistrationStartTimeChange();
+            startRegistrationChange.setNewStartRegistration(changeEventTimeDto.getStartRegistrationAt());
+            startRegistrationChange.setOldStartRegistration(event.getStartRegistrationAt());
+
+            changeDetails.setRegistrationStartChange(startRegistrationChange);
+            event.setStartRegistrationAt(changeEventTimeDto.getStartRegistrationAt());
+        }
+
+        if (changeEventTimeDto.getEndRegistrationAt() != null) {
+            var endRegistrationChange = new EventTimeChanged.RegistrationEndTimeChange();
+            endRegistrationChange.setNewEndRegistration(changeEventTimeDto.getEndRegistrationAt());
+            endRegistrationChange.setOldEndRegistration(event.getEndRegistrationAt());
+
+            changeDetails.setRegistrationEndChange(endRegistrationChange);
+            event.setEndRegistrationAt(changeEventTimeDto.getEndRegistrationAt());
+        }
+
+        eventChange.setDetails(changeDetails);
+        eventChange.setChangedAt(LocalDateTime.now());
+
+        eventChangeRepository.save(eventChange);
+        eventRepository.save(event);
+
+        return eventMapper.toEventDto(event);
     }
 
     @Override
+    @Transactional
     public EventDto closeEventRegistration(Integer eventId) throws NotExistsException, ConflictException {
         Optional<Event> eventOpt = eventRepository.findById(eventId);
         if (eventOpt.isEmpty()) {
@@ -138,11 +224,30 @@ public class EventServiceImpl implements EventService {
         }
 
         Event event = eventOpt.get();
-        event.setEndRegistrationAt(LocalDateTime.now());
+        var newTime = LocalDateTime.now();
 
+        var eventChange = new EventChange();
+        eventChange.setDetails(new RegistrationClosed(
+                newTime,
+                event.getEndRegistrationAt()
+        ));
+        eventChange.setChangedAt(newTime);
+        eventChangeRepository.save(eventChange);
+
+        event.setEndRegistrationAt(newTime);
         eventRepository.save(event);
 
         return eventMapper.toEventDto(event);
+    }
+
+    @Override
+    public EventStatus approveEvent(Integer eventId) throws NotExistsException, ConflictException {
+        return updateEventStatus(eventId, new EventStatus.Approved());
+    }
+
+    @Override
+    public EventStatus rejectEvent(Integer eventId, String reason) throws NotExistsException, ConflictException {
+        return updateEventStatus(eventId, new EventStatus.Rejected(reason));
     }
 
     @Override
@@ -169,14 +274,6 @@ public class EventServiceImpl implements EventService {
             event.setStatus(status);
         } catch (CannotChangeStatusException e) {
             throw new ConflictException("Cannot change status");
-        }
-    }
-
-    private void updateFile(MultipartFile file, String fileId) {
-        try (var inputStream = file.getInputStream()) {
-            storageService.updateFile(fileId, inputStream);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
         }
     }
 

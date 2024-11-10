@@ -9,6 +9,7 @@ import com.dutact.web.common.api.exceptions.NotExistsException;
 import com.dutact.web.features.event.admin.dtos.event.EventCreateDto;
 import com.dutact.web.features.event.admin.dtos.event.EventDto;
 import com.dutact.web.features.event.admin.dtos.event.EventUpdateDto;
+import com.dutact.web.features.event.admin.dtos.event.RenewEventRegistrationDto;
 import com.dutact.web.features.event.admin.services.event.EventService;
 import lombok.SneakyThrows;
 import org.springframework.http.MediaType;
@@ -53,7 +54,7 @@ public class OrganizerEventController {
     @GetMapping
     public ResponseEntity<List<EventDto>> getEvents(
             @PathVariable("id") Integer organizerId) throws ForbiddenException, NotExistsException {
-        if (!SecurityContextUtils.hasRole(Role.STUDENT_AFFAIRS_OFFICE)){
+        if (!SecurityContextUtils.hasRole(Role.STUDENT_AFFAIRS_OFFICE)) {
             validateRequestOrganizer(organizerId);
         }
 
@@ -65,7 +66,7 @@ public class OrganizerEventController {
     public ResponseEntity<EventDto> getEvent(
             @PathVariable("id") Integer organizerId,
             @PathVariable("eventId") Integer eventId) throws ForbiddenException {
-        if (!SecurityContextUtils.hasRole(Role.STUDENT_AFFAIRS_OFFICE)){
+        if (!SecurityContextUtils.hasRole(Role.STUDENT_AFFAIRS_OFFICE)) {
             validateRequestOrganizer(organizerId);
         }
 
@@ -78,8 +79,7 @@ public class OrganizerEventController {
         if (!Objects.equals(event.getOrganizer().getId(), organizerId)) {
             throw new ForbiddenException("You are not allowed to access this organizer's events.");
         }
-
-
+        
         return ResponseEntity.ok(event);
     }
 
@@ -91,6 +91,17 @@ public class OrganizerEventController {
         validateRequestOrganizer(organizerId);
 
         return ResponseEntity.ok(eventService.updateEvent(eventId, eventDto));
+    }
+
+    @PostMapping("/{eventId}/renew-registration")
+    public ResponseEntity<EventDto> renewEventRegistration(
+            @PathVariable("id") Integer organizerId,
+            @PathVariable("eventId") Integer eventId,
+            @RequestBody RenewEventRegistrationDto renewEventRegistrationDto)
+            throws ForbiddenException, NotExistsException {
+        validateRequestOrganizer(organizerId);
+
+        return ResponseEntity.ok(eventService.renewEventRegistration(eventId, renewEventRegistrationDto));
     }
 
     @PostMapping("/{eventId}/close")
