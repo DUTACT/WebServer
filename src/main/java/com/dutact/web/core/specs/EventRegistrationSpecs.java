@@ -1,6 +1,6 @@
 package com.dutact.web.core.specs;
 
-import com.dutact.web.core.entities.EventRegistration;
+import com.dutact.web.core.entities.eventregistration.EventRegistration;
 import org.springframework.data.jpa.domain.Specification;
 
 public class EventRegistrationSpecs {

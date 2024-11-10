@@ -1,6 +1,6 @@
 package com.dutact.web.core.projections;
 
-import com.dutact.web.core.entities.participationcert.ParticipationCertificateStatus;
+import com.dutact.web.core.entities.eventregistration.participationcert.ParticipationCertificateStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

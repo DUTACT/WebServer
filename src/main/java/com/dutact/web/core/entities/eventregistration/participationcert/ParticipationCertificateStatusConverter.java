@@ -1,4 +1,4 @@
-package com.dutact.web.core.entities.participationcert;
+package com.dutact.web.core.entities.eventregistration.participationcert;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.Nullable;

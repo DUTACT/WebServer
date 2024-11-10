@@ -1,6 +1,6 @@
 package com.dutact.web.features.checkin.admin.dtos;
 
-import com.dutact.web.core.entities.participationcert.ParticipationCertificateStatus;
+import com.dutact.web.core.entities.eventregistration.participationcert.ParticipationCertificateStatus;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 

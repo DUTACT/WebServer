@@ -1,7 +1,7 @@
 package com.dutact.web.core.repositories.views;
 
 import com.dutact.web.common.api.PageResponse;
-import com.dutact.web.core.entities.participationcert.ParticipationCertificateStatus;
+import com.dutact.web.core.entities.eventregistration.participationcert.ParticipationCertificateStatus;
 import com.dutact.web.core.projections.CheckInPreview;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
