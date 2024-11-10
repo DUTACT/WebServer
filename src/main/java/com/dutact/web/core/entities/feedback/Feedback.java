@@ -21,7 +21,7 @@ public class Feedback {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Integer id;
-
+    
     @Column(name = "content")
     private String content;
 
@@ -41,4 +41,9 @@ public class Feedback {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "event_id")
     private Event event;
+
+    @PrePersist
+    public void prePersist() {
+        postedAt = LocalDateTime.now();
+    }
 }
