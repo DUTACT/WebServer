@@ -1,9 +1,11 @@
 package com.dutact.web.core.entities;
 
 import com.dutact.web.core.entities.event.Event;
+import com.dutact.web.core.entities.participationcert.ParticipationCertificateStatusConverter;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.ColumnTransformer;
 
 import java.time.LocalDateTime;
 
@@ -27,4 +29,9 @@ public class EventRegistration {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "event_id")
     private Event event;
+
+    @Column(name = "certificate_status", columnDefinition = "jsonb")
+    @ColumnTransformer(write = "?::jsonb")
+    @Convert(converter = ParticipationCertificateStatusConverter.class)
+    private ParticipationCertificateStatusConverter certificateStatus;
 }
