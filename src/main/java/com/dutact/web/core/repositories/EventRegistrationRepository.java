@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface EventRegistrationRepository extends JpaRepository<EventRegistration, Integer>, JpaSpecificationExecutor<EventRegistration> {
@@ -20,4 +21,6 @@ public interface EventRegistrationRepository extends JpaRepository<EventRegistra
             "WHERE er.event.id = :eventId " +
             "GROUP BY FUNCTION('DATE_TRUNC', 'day', er.registeredAt)")
     List<RegistrationCountByDate> countRegistrationByDate(Integer eventId);
+
+    Optional<EventRegistration> findByEventIdAndStudentId(Integer eventId, Integer studentId);
 }
