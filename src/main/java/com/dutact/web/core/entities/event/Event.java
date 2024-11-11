@@ -1,10 +1,9 @@
 package com.dutact.web.core.entities.event;
 
 import com.dutact.web.core.entities.EventOrganizer;
-import com.dutact.web.core.entities.eventregistration.EventRegistration;
 import com.dutact.web.core.entities.common.UploadFileConverter;
 import com.dutact.web.core.entities.common.UploadedFile;
-import com.dutact.web.core.entities.participationcert.ParticipationCertificate;
+import com.dutact.web.core.entities.eventregistration.EventRegistration;
 import com.dutact.web.core.entities.post.Post;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -67,9 +66,6 @@ public class Event {
 
     @OneToMany(mappedBy = "event")
     private List<EventRegistration> eventRegistrations = new ArrayList<>();
-
-    @OneToMany(mappedBy = "event")
-    private List<ParticipationCertificate> certificates = new ArrayList<>();
 
     public Event(Integer id) {
         this.id = id;
