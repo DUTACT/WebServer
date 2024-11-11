@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/admin/event-participation")
+@RequestMapping("/api/admin/events/{eventId}/participation")
 public class AdminEventParticipationController {
     @PostMapping("/confirm")
     public void confirm() {
