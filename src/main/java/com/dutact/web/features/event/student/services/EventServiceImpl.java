@@ -4,7 +4,7 @@ import com.dutact.web.auth.context.SecurityContextUtils;
 import com.dutact.web.auth.factors.StudentAccountService;
 import com.dutact.web.common.api.exceptions.NotExistsException;
 import com.dutact.web.core.entities.EventFollow;
-import com.dutact.web.core.entities.EventRegistration;
+import com.dutact.web.core.entities.eventregistration.EventRegistration;
 import com.dutact.web.core.entities.Student;
 import com.dutact.web.core.entities.event.Event;
 import com.dutact.web.core.entities.event.EventStatus;

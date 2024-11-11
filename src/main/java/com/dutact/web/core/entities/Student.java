@@ -3,6 +3,7 @@ package com.dutact.web.core.entities;
 import com.dutact.web.auth.factors.Account;
 import com.dutact.web.core.entities.common.UploadFileConverter;
 import com.dutact.web.core.entities.common.UploadedFile;
+import com.dutact.web.core.entities.eventregistration.EventRegistration;
 import com.dutact.web.core.entities.feedback.Feedback;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
