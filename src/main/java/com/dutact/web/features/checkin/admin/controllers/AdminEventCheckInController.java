@@ -4,8 +4,11 @@ import com.dutact.web.common.api.PageResponse;
 import com.dutact.web.core.repositories.views.CheckInQueryParams;
 import com.dutact.web.features.checkin.admin.dtos.CheckInPreviewDto;
 import com.dutact.web.features.checkin.admin.services.EventCheckInService;
+import com.dutact.web.common.api.exceptions.NotExistsException;
+import com.dutact.web.features.checkin.admin.dtos.CheckInDetailDto;
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.Min;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -32,4 +35,10 @@ public class AdminEventCheckInController {
         return eventCheckInService.getCheckedInParticipants(queryParam);
     }
 
+    @GetMapping("/{studentId}")
+    public ResponseEntity<CheckInDetailDto> getCheckInDetail(
+            @PathVariable Integer eventId,
+            @PathVariable Integer studentId) throws NotExistsException {
+        return ResponseEntity.ok(eventCheckInService.getCheckInDetail(eventId, studentId));
+    }
 }

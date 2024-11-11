@@ -18,7 +18,7 @@ public class EventCheckInSpecs {
     }
 
     public static Specification<EventCheckIn> hasEventId(Integer eventId) {
-        return (root, query, cb) -> cb.equal(root.get("event").get("id"), eventId);
+        return (root, query, cb) -> cb.equal(root.get("checkInCode").get("event").get("id"), eventId);
     }
 
     public static Specification<EventCheckIn> studentNameContains(String name) {

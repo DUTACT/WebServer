@@ -34,12 +34,12 @@ public class EventRegistration {
     @JoinColumn(name = "event_id")
     private Event event;
 
-//    @Column(name = "certificate_status", columnDefinition = "jsonb")
-//    @ColumnTransformer(write = "?::jsonb")
-//    @Convert(converter = ParticipationCertificateStatusConverter.class)
-//    private ParticipationCertificateStatus certificateStatus = new ParticipationCertificateStatus.Pending();
-//
-//    public void setCertificateStatus(ParticipationCertificateStatus certificateStatus) throws CannotChangeStatusException {
-//        this.certificateStatus = this.certificateStatus.changeStatus(certificateStatus);
-//    }
+    @Column(name = "certificate_status", columnDefinition = "jsonb")
+    @ColumnTransformer(write = "?::jsonb")
+    @Convert(converter = ParticipationCertificateStatusConverter.class)
+    private ParticipationCertificateStatus certificateStatus = new ParticipationCertificateStatus.Pending();
+
+    public void setCertificateStatus(ParticipationCertificateStatus certificateStatus) throws CannotChangeStatusException {
+        this.certificateStatus = this.certificateStatus.changeStatus(certificateStatus);
+    }
 }
