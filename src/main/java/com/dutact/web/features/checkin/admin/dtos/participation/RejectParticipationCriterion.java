@@ -1,6 +1,7 @@
 package com.dutact.web.features.checkin.admin.dtos.participation;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import jakarta.annotation.Nonnull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,6 +10,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = RejectParticipationCriterion.All.class, name = RejectParticipationCriterion.All.TYPE_NAME),
         @JsonSubTypes.Type(value = RejectParticipationCriterion.WithStudentsIds.class, name = RejectParticipationCriterion.WithStudentsIds.TYPE_NAME)
@@ -16,9 +18,6 @@ import lombok.Setter;
 public abstract class RejectParticipationCriterion {
     @Nonnull
     private String reason;
-
-    @Nonnull
-    private Integer eventId;
 
     @NoArgsConstructor
     public static class All extends RejectParticipationCriterion {

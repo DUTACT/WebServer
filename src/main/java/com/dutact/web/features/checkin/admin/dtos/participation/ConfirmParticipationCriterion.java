@@ -1,6 +1,7 @@
 package com.dutact.web.features.checkin.admin.dtos.participation;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import jakarta.annotation.Nonnull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,15 +10,13 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = ConfirmParticipationCriterion.All.class, name = ConfirmParticipationCriterion.All.TYPE_NAME),
         @JsonSubTypes.Type(value = ConfirmParticipationCriterion.WithStudentsIds.class, name = ConfirmParticipationCriterion.WithStudentsIds.TYPE_NAME),
         @JsonSubTypes.Type(value = ConfirmParticipationCriterion.CheckedInAtLeast.class, name = ConfirmParticipationCriterion.CheckedInAtLeast.TYPE_NAME)
 })
 public abstract class ConfirmParticipationCriterion {
-    @Nonnull
-    private Integer eventId;
-
     @NoArgsConstructor
     public static class All extends ConfirmParticipationCriterion {
         public static final String TYPE_NAME = "all";

@@ -22,8 +22,8 @@ public class EventParticipationServiceImpl implements EventParticipationService 
 
     @Override
     @Transactional
-    public void confirmParticipation(ConfirmParticipationCriterion confirmCriterion) {
-        var specs = EventRegistrationSpecs.hasEventId(confirmCriterion.getEventId());
+    public void confirmParticipation(Integer eventId, ConfirmParticipationCriterion confirmCriterion) {
+        var specs = EventRegistrationSpecs.hasEventId(eventId);
         specs = specs.and(EventRegistrationSpecs
                 .hasCertificateStatus(ParticipationCertificateStatus.Pending.TYPE_NAME));
 
@@ -58,8 +58,8 @@ public class EventParticipationServiceImpl implements EventParticipationService 
     }
 
     @Override
-    public void rejectParticipation(RejectParticipationCriterion rejectCriterion) {
-        var specs = EventRegistrationSpecs.hasEventId(rejectCriterion.getEventId());
+    public void rejectParticipation(Integer eventId, RejectParticipationCriterion rejectCriterion) {
+        var specs = EventRegistrationSpecs.hasEventId(eventId);
         specs = specs.and(EventRegistrationSpecs
                 .hasCertificateStatus(ParticipationCertificateStatus.Pending.TYPE_NAME));
 
@@ -80,7 +80,7 @@ public class EventParticipationServiceImpl implements EventParticipationService 
 
         registrations.forEach(registration -> {
             try {
-                registration.setCertificateStatus(new ParticipationCertificateStatus.Rejected());
+                registration.setCertificateStatus(new ParticipationCertificateStatus.Rejected(rejectCriterion.getReason()));
             } catch (CannotChangeStatusException e) {
                 log.error("Cannot change status of registration with id: {} to rejected",
                         registration.getId());

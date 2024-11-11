@@ -36,6 +36,7 @@ public class EventRegistrationSpecs {
 
     public static Specification<EventRegistration> checkedInAtLeast(int times) {
         return (root, query, criteriaBuilder) -> {
+            assert query != null;
             var subquery = query.subquery(Long.class);
             var subRoot = subquery.from(EventCheckIn.class);
             subquery.select(criteriaBuilder.count(subRoot.get("id")));

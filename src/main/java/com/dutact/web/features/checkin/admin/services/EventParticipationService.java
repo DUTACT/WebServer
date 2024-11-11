@@ -4,7 +4,7 @@ import com.dutact.web.features.checkin.admin.dtos.participation.ConfirmParticipa
 import com.dutact.web.features.checkin.admin.dtos.participation.RejectParticipationCriterion;
 
 public interface EventParticipationService {
-    void confirmParticipation(ConfirmParticipationCriterion confirmCriterion);
+    void confirmParticipation(Integer eventId, ConfirmParticipationCriterion confirmCriterion);
 
-    void rejectParticipation(RejectParticipationCriterion rejectCriterion);
+    void rejectParticipation(Integer eventId, RejectParticipationCriterion rejectCriterion);
 }
