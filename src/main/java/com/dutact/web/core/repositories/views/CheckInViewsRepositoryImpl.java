@@ -1,6 +1,7 @@
 package com.dutact.web.core.repositories.views;
 
 import com.dutact.web.common.api.PageResponse;
+import com.dutact.web.core.entities.common.UploadedFile;
 import com.dutact.web.core.entities.eventregistration.participationcert.ParticipationCertificateStatus;
 import com.dutact.web.core.projections.CheckInPreview;
 import jakarta.persistence.EntityManager;
@@ -16,18 +17,21 @@ public class CheckInViewsRepositoryImpl implements CheckInViewsRepository {
     public PageResponse<CheckInPreview> getCheckInPreviews(CheckInQueryParams queryParams) {
         var query = """
                 SELECT check_in_preview.studentId, check_in_preview.studentName,
-                       check_in_preview.totalCheckIn, check_in_preview.certificateStatus
+                       check_in_preview.studentAvatarUrl, check_in_preview.totalCheckIn,
+                       check_in_preview.certificateStatus
                 FROM (
                     SELECT student.id as studentId, student.fullName as studentName,
-                            registration.certificateStatus as certificateStatus,
-                            COUNT(event_check_in.id) as totalCheckIn
+                           student.avatar as studentAvatarUrl,
+                           registration.certificateStatus as certificateStatus,
+                           COUNT(event_check_in.id) as totalCheckIn
                     FROM EventRegistration registration
                         JOIN Student student ON registration.student.id = student.id
                         JOIN Event event ON registration.event.id = event.id
                         LEFT JOIN EventCheckIn event_check_in ON student.id = event_check_in.student.id
                     WHERE (:searchQuery IS NULL OR student.fullName LIKE :searchQuery)
                         AND event.id = :eventId
-                    GROUP BY student.id, student.fullName, registration.certificateStatus
+                    GROUP BY student.id, student.fullName, student.avatar,
+                             registration.certificateStatus
                     ORDER BY student.fullName
                 ) AS check_in_preview
                 """;
@@ -42,11 +46,17 @@ public class CheckInViewsRepositoryImpl implements CheckInViewsRepository {
         var queryResult = objQueryResult.stream()
                 .map(obj -> {
                     var arr = (Object[]) obj;
+                    UploadedFile avatar = (UploadedFile) arr[2];
+                    String avatarUrl = null;
+                    if (avatar != null) {
+                        avatarUrl = avatar.getFileUrl();
+                    }
                     return new CheckInPreview(
                             (Integer) arr[0],
                             (String) arr[1],
-                            (Long) arr[2],
-                            (ParticipationCertificateStatus) arr[3]
+                            avatarUrl,
+                            (Long) arr[3],
+                            (ParticipationCertificateStatus) arr[4]
                     );
                 })
                 .toList();
