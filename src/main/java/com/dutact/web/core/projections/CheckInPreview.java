@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 public class CheckInPreview {
     private Integer studentId;
     private String studentName;
+    private String studentAvatarUrl;
     private Long totalCheckIn;
     private ParticipationCertificateStatus certificateStatus;
 }

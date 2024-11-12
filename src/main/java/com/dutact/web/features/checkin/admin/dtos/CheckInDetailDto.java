@@ -15,6 +15,9 @@ public class CheckInDetailDto {
     @JsonProperty("studentName")
     private String studentName;
 
+    @JsonProperty("studentAvatarUrl")
+    private String studentAvatarUrl;
+
     @JsonProperty("totalCheckIn")
     private Integer totalCheckIn;
 

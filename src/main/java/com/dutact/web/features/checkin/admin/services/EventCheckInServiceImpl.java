@@ -2,6 +2,7 @@ package com.dutact.web.features.checkin.admin.services;
 
 import com.dutact.web.common.api.PageResponse;
 import com.dutact.web.common.api.exceptions.NotExistsException;
+import com.dutact.web.core.entities.common.UploadedFile;
 import com.dutact.web.core.entities.eventregistration.EventRegistration;
 import com.dutact.web.core.repositories.EventCheckInRepository;
 import com.dutact.web.core.repositories.EventRegistrationRepository;
@@ -52,6 +53,10 @@ public class EventCheckInServiceImpl implements EventCheckInService {
         var detail = new CheckInDetailDto();
         detail.setStudentId(studentId);
         detail.setStudentName(registration.getStudent().getFullName());
+        UploadedFile avatar = registration.getStudent().getAvatar();
+        if (avatar != null) {
+            detail.setStudentAvatarUrl(avatar.getFileUrl());
+        }
         detail.setTotalCheckIn(checkIns.size());
         detail.setCertificateStatus(registration.getCertificateStatus());
         detail.setCheckIns(checkIns.stream()
