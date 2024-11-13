@@ -10,7 +10,6 @@ import com.dutact.web.core.entities.Student;
 import com.dutact.web.core.entities.event.Event;
 import com.dutact.web.core.entities.event.EventStatus;
 import com.dutact.web.core.repositories.*;
-import com.dutact.web.core.repositories.views.CheckInViewsRepository;
 import com.dutact.web.core.specs.EventCheckInSpecs;
 import com.dutact.web.core.specs.EventFollowSpecs;
 import com.dutact.web.core.specs.EventRegistrationSpecs;
@@ -216,7 +215,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public PageResponse<EventRegisteredDetailsDto> getRegisteredEvents(
+    public PageResponse<EventDetailsDto> getRegisteredEvents(
             Integer studentId, Integer page, Integer pageSize) {
         // Verify student exists
         studentRepository.findById(studentId)
@@ -237,7 +236,7 @@ public class EventServiceImpl implements EventService {
                             EventCheckInSpecs.hasStudent(studentId)
                                     .and(EventCheckInSpecs.hasEventId(registration.getEvent().getId())));
                     EventDto eventDto = this.getEvent(registration.getEvent().getId()).get();
-                    EventRegisteredDetailsDto detailsDto = eventRegistrationMapper.toDetailsDto(registration);
+                    EventDetailsDto detailsDto = eventMapper.toDetailsDto(registration);
                     detailsDto.setEvent(eventDto);
                     detailsDto.setTotalCheckIn(checkIns.size());
                     detailsDto.setCertificateStatus(registration.getCertificateStatus());
@@ -250,8 +249,36 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public PageResponse<EventFollowDetailsDto> getFollowedEvents(Integer studentId, Integer page, Integer pageSize) {
-        return null;
+    public PageResponse<EventDetailsDto> getFollowedEvents(Integer studentId, Integer page, Integer pageSize) {
+        // Verify student exists
+        studentRepository.findById(studentId)
+                .orElseThrow(() -> new RuntimeException("Student not found"));
+
+        // Create pageable request
+        Pageable pageable = PageRequest.of(page - 1, pageSize);
+        
+        // Get paginated follows
+        Page<EventFollow> followedEventsPage = 
+                eventFollowRepository.findAllByStudentId(studentId, pageable);
+
+        // Map to DTOs using the existing page
+        return PageResponse.of(
+                followedEventsPage,
+                follow -> {
+                    var checkIns = checkInRepository.findAll(
+                            EventCheckInSpecs.hasStudent(studentId)
+                                    .and(EventCheckInSpecs.hasEventId(follow.getEvent().getId())));
+                    
+                    EventDto eventDto = this.getEvent(follow.getEvent().getId()).get();
+                    EventDetailsDto detailsDto = eventMapper.toDetailsDto(follow);
+                    detailsDto.setEvent(eventDto);
+                    detailsDto.setTotalCheckIn(checkIns.size());
+                    detailsDto.setCheckIns(checkIns.stream()
+                            .map(eventCheckInMapper::toCheckInHistoryDto)
+                            .toList());
+                    return detailsDto;
+                }
+        );
     }
 
 }

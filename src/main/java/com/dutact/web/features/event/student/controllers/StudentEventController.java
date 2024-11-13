@@ -5,11 +5,9 @@ import com.dutact.web.auth.factors.StudentAccountService;
 import com.dutact.web.common.api.PageResponse;
 import com.dutact.web.common.api.exceptions.ConflictException;
 import com.dutact.web.common.api.exceptions.NotExistsException;
-import com.dutact.web.features.checkin.student.dtos.StudentRegistrationDto;
 import com.dutact.web.features.event.student.dtos.EventDto;
-import com.dutact.web.features.event.student.dtos.EventFollowDetailsDto;
 import com.dutact.web.features.event.student.dtos.EventFollowDto;
-import com.dutact.web.features.event.student.dtos.EventRegisteredDetailsDto;
+import com.dutact.web.features.event.student.dtos.EventDetailsDto;
 import com.dutact.web.features.event.student.services.EventService;
 import com.dutact.web.features.event.student.services.exceptions.FollowForbiddenException;
 import com.dutact.web.features.event.student.services.exceptions.RegisterForbiddenException;
@@ -114,7 +112,7 @@ public class StudentEventController {
     }
 
     @GetMapping("/registered")
-    public PageResponse<EventRegisteredDetailsDto> getRegisteredEvents(
+    public PageResponse<EventDetailsDto> getRegisteredEvents(
             @RequestParam(required = false, defaultValue = "1") @Min(1) Integer page,
             @RequestParam(required = false, defaultValue = "10") @Min(1) Integer pageSize) {
         Integer requestStudentId = studentAccountService
@@ -124,11 +122,14 @@ public class StudentEventController {
         return eventService.getRegisteredEvents(requestStudentId, page, pageSize);
     }
 
-//    @GetMapping("/followed")
-//    public PageResponse<EventFollowDetailsDto> getFollowedEvents(
-//            @RequestParam(required = false, defaultValue = "1") @Min(1) Integer page,
-//            @RequestParam(required = false, defaultValue = "10") @Min(1) Integer pageSize) {
-//        var username = SecurityContextUtils.getUsername();
-//        return eventService.getFollowedEvents(username, page, pageSize);
-//    }
+    @GetMapping("/followed")
+    public PageResponse<EventDetailsDto> getFollowedEvents(
+            @RequestParam(required = false, defaultValue = "1") @Min(1) Integer page,
+            @RequestParam(required = false, defaultValue = "10") @Min(1) Integer pageSize) {
+        Integer requestStudentId = studentAccountService
+                .getStudentId(SecurityContextUtils.getUsername())
+                .orElseThrow(() ->
+                        new RuntimeException("The account is not associated with any student profile"));
+        return eventService.getFollowedEvents(requestStudentId, page, pageSize);
+    }
 }
