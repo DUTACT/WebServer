@@ -5,7 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 @Data
-@Schema(name = "StudentEventFollwedDto")
+@Schema(name = "StudentEventFollowDto")
 public class EventFollowDto {
     @JsonProperty("studentId")
     private Integer studentId;
@@ -13,6 +13,6 @@ public class EventFollowDto {
     @JsonProperty("eventId")
     private Integer eventId;
 
-    @JsonProperty("followedAt")
-    private String followedAt;
+    @JsonProperty("followAt")
+    private String followAt;
 }

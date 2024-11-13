@@ -3,7 +3,10 @@ package com.dutact.web.features.checkin.student.controllers;
 import com.dutact.web.auth.context.SecurityContextUtils;
 import com.dutact.web.auth.dto.ResponseToken;
 import com.dutact.web.auth.factors.StudentAccountService;
+import com.dutact.web.common.api.PageResponse;
 import com.dutact.web.common.api.exceptions.NotExistsException;
+import com.dutact.web.features.checkin.student.dtos.StudentCheckInDetailDto;
+import com.dutact.web.features.checkin.student.dtos.StudentRegistrationDto;
 import com.dutact.web.features.checkin.student.services.EventCheckInService;
 import com.dutact.web.features.checkin.student.services.exceptions.AlreadyCheckInException;
 import com.dutact.web.features.checkin.student.services.exceptions.EarlyCheckInAttemptException;
@@ -12,14 +15,12 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.constraints.Min;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/event-check-in")
@@ -62,8 +63,14 @@ public class EventCheckInController {
                     .body(new CheckInFailedResponse(CheckInFailedResponse.LATE_CHECK_IN));
         }
     }
-}
 
+    @GetMapping("/{eventId}/check-in")
+    public ResponseEntity<StudentCheckInDetailDto> getCheckInDetail(@PathVariable Integer eventId)
+            throws NotExistsException {
+        var username = SecurityContextUtils.getUsername();
+        return ResponseEntity.ok(eventCheckInService.getCheckInDetail(eventId, username));
+    }
+}
 @Data
 @AllArgsConstructor
 class CheckInFailedResponse {
@@ -77,3 +84,4 @@ class CheckInFailedResponse {
             LATE_CHECK_IN})
     private String status;
 }
+
