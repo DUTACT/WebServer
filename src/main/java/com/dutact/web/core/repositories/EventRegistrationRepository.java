@@ -1,7 +1,14 @@
 package com.dutact.web.core.repositories;
 
+import com.dutact.web.core.entities.EventCheckIn;
+import com.dutact.web.core.entities.EventFollow;
+import com.dutact.web.core.entities.event.Event;
 import com.dutact.web.core.entities.eventregistration.EventRegistration;
 import com.dutact.web.core.projections.RegistrationCountByDate;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -23,4 +30,6 @@ public interface EventRegistrationRepository extends JpaRepository<EventRegistra
     List<RegistrationCountByDate> countRegistrationByDate(Integer eventId);
 
     Optional<EventRegistration> findByEventIdAndStudentId(Integer eventId, Integer studentId);
+
+    Page<EventRegistration> findAllByStudentId(Integer studentId, Pageable pageable);
 }

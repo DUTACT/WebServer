@@ -1,22 +1,22 @@
-package com.dutact.web.features.checkin.admin.dtos;
+package com.dutact.web.features.event.student.dtos;
 
 import com.dutact.web.core.entities.eventregistration.participationcert.ParticipationCertificateStatus;
+import com.dutact.web.features.checkin.admin.dtos.CheckInHistoryDto;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
-public class CheckInDetailDto {
+@Schema(name = "StudentEventRegisteredDetailsDto")
+public class EventRegisteredDetailsDto {
     @JsonProperty("studentId")
     private Integer studentId;
 
-    @JsonProperty("studentName")
-    private String studentName;
-
-    @JsonProperty("studentAvatarUrl")
-    private String studentAvatarUrl;
+    @JsonProperty("event")
+    private EventDto event;
 
     @JsonProperty("totalCheckIn")
     private Integer totalCheckIn;
@@ -26,4 +26,4 @@ public class CheckInDetailDto {
 
     @JsonProperty("checkIns")
     private List<CheckInHistoryDto> checkIns;
-} 
+}

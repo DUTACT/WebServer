@@ -2,6 +2,7 @@ package com.dutact.web.common.api;
 
 import lombok.Getter;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.function.Function;
@@ -23,6 +24,21 @@ public class PageResponse<T> {
         pageResponse.pagination.totalPage = (int) Math.ceil((double) totalData / pageSize);
         pageResponse.pagination.currentPage = currentPage;
         pageResponse.pagination.pageSize = pageSize;
+
+        return pageResponse;
+    }
+
+    public static <S, T> PageResponse<T> of(
+            Page<S> page,
+            Function<S, T> mapper
+            ) {
+        PageResponse<T> pageResponse = new PageResponse<>();
+        pageResponse.data = page.getContent().stream().map(mapper).toList();
+        pageResponse.pagination = new PaginationMetadata();
+        pageResponse.pagination.totalData = Math.toIntExact(page.getTotalElements());
+        pageResponse.pagination.totalPage = page.getTotalPages();
+        pageResponse.pagination.currentPage = page.getNumber() + 1;
+        pageResponse.pagination.pageSize = page.getSize();
 
         return pageResponse;
     }
