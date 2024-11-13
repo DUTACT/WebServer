@@ -1,7 +1,7 @@
 package com.dutact.web.features.event.student.services;
 
 import com.dutact.web.core.entities.eventregistration.EventRegistration;
-import com.dutact.web.features.event.student.dtos.EventRegisteredDetailsDto;
+import com.dutact.web.features.event.student.dtos.EventDetailsDto;
 import com.dutact.web.features.event.student.dtos.EventRegisteredDto;
 import org.mapstruct.AnnotateWith;
 import org.mapstruct.Mapper;
@@ -18,7 +18,4 @@ public interface EventRegistrationMapper {
     @Mapping(target = "eventId", source = "event.id")
     @Mapping(target = "registeredAt", source = "registeredAt")
     EventRegisteredDto toDto(EventRegistration eventRegistration);
-
-    @Mapping(target = "studentId", source = "student.id")
-    EventRegisteredDetailsDto toDetailsDto(EventRegistration eventRegistration);
 }

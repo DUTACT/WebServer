@@ -31,7 +31,7 @@ public interface EventService {
     void unfollow(Integer eventId, Integer studentId)
             throws NotExistsException, UnfollowForbiddenException;
 
-    PageResponse<EventRegisteredDetailsDto> getRegisteredEvents(Integer studentId, Integer page, Integer pageSize);
+    PageResponse<EventDetailsDto> getRegisteredEvents(Integer studentId, Integer page, Integer pageSize);
 
-    PageResponse<EventFollowDetailsDto> getFollowedEvents(Integer studentId, Integer page, Integer pageSize);
+    PageResponse<EventDetailsDto> getFollowedEvents(Integer studentId, Integer page, Integer pageSize);
 }
