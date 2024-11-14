@@ -48,6 +48,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public Collection<PostDto> getPosts(Integer eventId) {
+
         return postRepository.findAllByEventId(eventId).stream().map(postMapper::toPostDto).toList();
     }
 

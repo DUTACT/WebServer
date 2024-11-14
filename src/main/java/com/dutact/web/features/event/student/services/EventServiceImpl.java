@@ -23,6 +23,7 @@ import com.dutact.web.features.event.student.services.exceptions.UnregisterForbi
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -222,7 +223,7 @@ public class EventServiceImpl implements EventService {
                 .orElseThrow(() -> new RuntimeException("Student not found"));
 
         // Create pageable request
-        Pageable pageable = PageRequest.of(page - 1, pageSize);
+        Pageable pageable = PageRequest.of(page - 1, pageSize, Sort.by(Sort.Direction.ASC, "event.createdAt"));
         
         // Get paginated registrations
         Page<EventRegistration> registeredEventsPage = 
@@ -255,7 +256,7 @@ public class EventServiceImpl implements EventService {
                 .orElseThrow(() -> new RuntimeException("Student not found"));
 
         // Create pageable request
-        Pageable pageable = PageRequest.of(page - 1, pageSize);
+        Pageable pageable = PageRequest.of(page - 1, pageSize, Sort.by(Sort.Direction.DESC, "event.createdAt"));
         
         // Get paginated follows
         Page<EventFollow> followedEventsPage = 
