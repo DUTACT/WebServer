@@ -26,11 +26,11 @@ public class CheckInViewsRepositoryImpl implements CheckInViewsRepository {
                            COUNT(event_check_in.id) as totalCheckIn
                     FROM EventRegistration registration
                         JOIN Student student ON registration.student.id = student.id
-                        LEFT JOIN EventCheckIn event_check_in ON student.id = event_check_in.student.id
-                        JOIN EventCheckInCode event_check_in_code ON event_check_in.checkInCode.id = event_check_in_code.id
+                        LEFT JOIN EventCheckIn event_check_in ON registration.student.id = event_check_in.student.id
+                        LEFT JOIN EventCheckInCode event_check_in_code ON event_check_in.checkInCode.id = event_check_in_code.id
                     WHERE (:searchQuery IS NULL OR student.fullName LIKE :searchQuery)
                         AND registration.event.id = :eventId
-                        AND event_check_in_code.event.id = :eventId
+                        AND (event_check_in_code.id IS NULL OR event_check_in_code.event.id = :eventId)
                     GROUP BY student.id,
                              student.fullName,
                              student.avatar,
