@@ -28,7 +28,7 @@ public class CheckInViewsRepositoryImpl implements CheckInViewsRepository {
                         JOIN Student student ON registration.student.id = student.id
                         LEFT JOIN EventCheckIn event_check_in ON student.id = event_check_in.student.id
                         JOIN EventCheckInCode event_check_in_code ON event_check_in.checkInCode.id = event_check_in_code.id
-                    WHERE (:searchQuery IS NULL OR unaccent(student.fullName) ILIKE unaccent(:searchQuery))
+                    WHERE (:searchQuery IS NULL OR student.fullName LIKE :searchQuery)
                         AND registration.event.id = :eventId
                         AND event_check_in_code.event.id = :eventId
                     GROUP BY student.id,
