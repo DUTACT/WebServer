@@ -5,6 +5,7 @@ import com.dutact.web.auth.dto.ResponseToken;
 import com.dutact.web.auth.factors.StudentAccountService;
 import com.dutact.web.common.api.PageResponse;
 import com.dutact.web.common.api.exceptions.NotExistsException;
+import com.dutact.web.features.checkin.student.dtos.EventCheckInResult;
 import com.dutact.web.features.checkin.student.dtos.StudentCheckInDetailDto;
 import com.dutact.web.features.checkin.student.dtos.StudentRegistrationDto;
 import com.dutact.web.features.checkin.student.services.EventCheckInService;
@@ -39,7 +40,7 @@ public class EventCheckInController {
     @PostMapping
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Check-in successful",
-                    content = @Content(schema = @Schema(implementation = ResponseToken.class))),
+                    content = @Content(schema = @Schema(implementation = EventCheckInResult.class))),
             @ApiResponse(responseCode = "409", description = "Conflict - Check-in failed",
                     content = @Content(schema = @Schema(implementation = CheckInFailedResponse.class)))
     })

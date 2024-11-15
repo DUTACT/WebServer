@@ -97,6 +97,8 @@ public class EventCheckInServiceImpl implements EventCheckInService {
 
         var result = new EventCheckInResult();
         result.setCheckInTime(now);
+        result.setEventName(checkInCode.getEvent().getName());
+        result.setEventId(checkInCode.getEvent().getId());
 
         return result;
     }
