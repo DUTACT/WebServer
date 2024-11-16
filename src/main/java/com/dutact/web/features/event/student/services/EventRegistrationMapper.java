@@ -1,6 +1,7 @@
 package com.dutact.web.features.event.student.services;
 
-import com.dutact.web.core.entities.EventRegistration;
+import com.dutact.web.core.entities.eventregistration.EventRegistration;
+import com.dutact.web.features.event.student.dtos.EventDetailsDto;
 import com.dutact.web.features.event.student.dtos.EventRegisteredDto;
 import org.mapstruct.AnnotateWith;
 import org.mapstruct.Mapper;

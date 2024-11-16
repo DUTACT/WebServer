@@ -1,6 +1,9 @@
 package com.dutact.web.core.specs;
 
 import com.dutact.web.core.entities.EventCheckIn;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.util.UUID;
@@ -18,7 +21,7 @@ public class EventCheckInSpecs {
     }
 
     public static Specification<EventCheckIn> hasEventId(Integer eventId) {
-        return (root, query, cb) -> cb.equal(root.get("event").get("id"), eventId);
+        return (root, query, cb) -> cb.equal(root.get("checkInCode").get("event").get("id"), eventId);
     }
 
     public static Specification<EventCheckIn> studentNameContains(String name) {

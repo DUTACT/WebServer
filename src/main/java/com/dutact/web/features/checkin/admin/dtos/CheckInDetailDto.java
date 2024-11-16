@@ -4,8 +4,11 @@ import com.dutact.web.core.entities.eventregistration.participationcert.Particip
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 @Data
-public class CheckInPreviewDto {
+public class CheckInDetailDto {
     @JsonProperty("studentId")
     private Integer studentId;
 
@@ -20,4 +23,7 @@ public class CheckInPreviewDto {
 
     @JsonProperty("certificateStatus")
     private ParticipationCertificateStatus certificateStatus;
-}
+
+    @JsonProperty("checkIns")
+    private List<CheckInHistoryDto> checkIns;
+} 

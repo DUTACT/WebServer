@@ -2,16 +2,19 @@ package com.dutact.web.features.event.student.controllers;
 
 import com.dutact.web.auth.context.SecurityContextUtils;
 import com.dutact.web.auth.factors.StudentAccountService;
+import com.dutact.web.common.api.PageResponse;
 import com.dutact.web.common.api.exceptions.ConflictException;
 import com.dutact.web.common.api.exceptions.NotExistsException;
 import com.dutact.web.features.event.student.dtos.EventDto;
 import com.dutact.web.features.event.student.dtos.EventFollowDto;
+import com.dutact.web.features.event.student.dtos.EventDetailsDto;
 import com.dutact.web.features.event.student.services.EventService;
 import com.dutact.web.features.event.student.services.exceptions.FollowForbiddenException;
 import com.dutact.web.features.event.student.services.exceptions.RegisterForbiddenException;
 import com.dutact.web.features.event.student.services.exceptions.UnfollowForbiddenException;
 import com.dutact.web.features.event.student.services.exceptions.UnregisterForbiddenException;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import jakarta.validation.constraints.Min;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -106,5 +109,27 @@ public class StudentEventController {
         } catch (UnfollowForbiddenException e) {
             throw new ConflictException(e.getMessage());
         }
+    }
+
+    @GetMapping("/registered")
+    public PageResponse<EventDetailsDto> getRegisteredEvents(
+            @RequestParam(required = false, defaultValue = "1") @Min(1) Integer page,
+            @RequestParam(required = false, defaultValue = "10") @Min(1) Integer pageSize) {
+        Integer requestStudentId = studentAccountService
+                .getStudentId(SecurityContextUtils.getUsername())
+                .orElseThrow(() ->
+                        new RuntimeException("The account is not associated with any student profile"));
+        return eventService.getRegisteredEvents(requestStudentId, page, pageSize);
+    }
+
+    @GetMapping("/followed")
+    public PageResponse<EventDetailsDto> getFollowedEvents(
+            @RequestParam(required = false, defaultValue = "1") @Min(1) Integer page,
+            @RequestParam(required = false, defaultValue = "10") @Min(1) Integer pageSize) {
+        Integer requestStudentId = studentAccountService
+                .getStudentId(SecurityContextUtils.getUsername())
+                .orElseThrow(() ->
+                        new RuntimeException("The account is not associated with any student profile"));
+        return eventService.getFollowedEvents(requestStudentId, page, pageSize);
     }
 }

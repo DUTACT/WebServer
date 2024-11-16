@@ -1,9 +1,8 @@
 package com.dutact.web.features.event.student.services;
 
+import com.dutact.web.common.api.PageResponse;
 import com.dutact.web.common.api.exceptions.NotExistsException;
-import com.dutact.web.features.event.student.dtos.EventDto;
-import com.dutact.web.features.event.student.dtos.EventFollowDto;
-import com.dutact.web.features.event.student.dtos.EventRegisteredDto;
+import com.dutact.web.features.event.student.dtos.*;
 import com.dutact.web.features.event.student.services.exceptions.FollowForbiddenException;
 import com.dutact.web.features.event.student.services.exceptions.RegisterForbiddenException;
 import com.dutact.web.features.event.student.services.exceptions.UnfollowForbiddenException;
@@ -31,4 +30,8 @@ public interface EventService {
     @Transactional
     void unfollow(Integer eventId, Integer studentId)
             throws NotExistsException, UnfollowForbiddenException;
+
+    PageResponse<EventDetailsDto> getRegisteredEvents(Integer studentId, Integer page, Integer pageSize);
+
+    PageResponse<EventDetailsDto> getFollowedEvents(Integer studentId, Integer page, Integer pageSize);
 }

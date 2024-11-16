@@ -1,9 +1,9 @@
 package com.dutact.web.core.entities.event;
 
 import com.dutact.web.core.entities.EventOrganizer;
-import com.dutact.web.core.entities.EventRegistration;
 import com.dutact.web.core.entities.common.UploadFileConverter;
 import com.dutact.web.core.entities.common.UploadedFile;
+import com.dutact.web.core.entities.eventregistration.EventRegistration;
 import com.dutact.web.core.entities.post.Post;
 import jakarta.annotation.Nonnull;
 import jakarta.persistence.*;

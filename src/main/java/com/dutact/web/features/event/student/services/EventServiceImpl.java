@@ -2,25 +2,28 @@ package com.dutact.web.features.event.student.services;
 
 import com.dutact.web.auth.context.SecurityContextUtils;
 import com.dutact.web.auth.factors.StudentAccountService;
+import com.dutact.web.common.api.PageResponse;
 import com.dutact.web.common.api.exceptions.NotExistsException;
 import com.dutact.web.core.entities.EventFollow;
-import com.dutact.web.core.entities.EventRegistration;
+import com.dutact.web.core.entities.eventregistration.EventRegistration;
 import com.dutact.web.core.entities.Student;
 import com.dutact.web.core.entities.event.Event;
 import com.dutact.web.core.entities.event.EventStatus;
-import com.dutact.web.core.repositories.EventFollowRepository;
-import com.dutact.web.core.repositories.EventRegistrationRepository;
-import com.dutact.web.core.repositories.EventRepository;
+import com.dutact.web.core.repositories.*;
+import com.dutact.web.core.specs.EventCheckInSpecs;
 import com.dutact.web.core.specs.EventFollowSpecs;
 import com.dutact.web.core.specs.EventRegistrationSpecs;
 import com.dutact.web.core.specs.EventSpecs;
-import com.dutact.web.features.event.student.dtos.EventDto;
-import com.dutact.web.features.event.student.dtos.EventFollowDto;
-import com.dutact.web.features.event.student.dtos.EventRegisteredDto;
+import com.dutact.web.features.checkin.admin.services.EventCheckInMapper;
+import com.dutact.web.features.event.student.dtos.*;
 import com.dutact.web.features.event.student.services.exceptions.FollowForbiddenException;
 import com.dutact.web.features.event.student.services.exceptions.RegisterForbiddenException;
 import com.dutact.web.features.event.student.services.exceptions.UnfollowForbiddenException;
 import com.dutact.web.features.event.student.services.exceptions.UnregisterForbiddenException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -38,21 +41,30 @@ public class EventServiceImpl implements EventService {
     private final EventMapper eventMapper;
     private final EventRegistrationMapper eventRegistrationMapper;
     private final EventFollowMapper eventFollowMapper;
+    private final StudentRepository studentRepository;
+    private final EventCheckInRepository checkInRepository;
+    private final EventCheckInMapper eventCheckInMapper;
 
     public EventServiceImpl(EventRepository eventRepository,
                             EventRegistrationRepository eventRegistrationRepository,
                             StudentAccountService studentAccountService,
                             EventMapper eventMapper,
+                            EventCheckInMapper eventCheckInMapper,
+                            EventCheckInRepository eventCheckInRepository,
                             EventRegistrationMapper eventRegistrationMapper,
                             EventFollowRepository eventFollowRepository,
+                            StudentRepository studentRepository,
                             EventFollowMapper eventFollowMapper
     ) {
         this.eventRepository = eventRepository;
+        this.eventCheckInMapper = eventCheckInMapper;
         this.eventRegistrationRepository = eventRegistrationRepository;
         this.studentAccountService = studentAccountService;
         this.eventMapper = eventMapper;
+        this.checkInRepository = eventCheckInRepository;
         this.eventRegistrationMapper = eventRegistrationMapper;
         this.eventFollowRepository = eventFollowRepository;
+        this.studentRepository = studentRepository;
         this.eventFollowMapper = eventFollowMapper;
     }
 
@@ -202,4 +214,72 @@ public class EventServiceImpl implements EventService {
 
         eventFollowRepository.deleteByEventIdAndStudentId(eventId, studentId);
     }
+
+    @Override
+    public PageResponse<EventDetailsDto> getRegisteredEvents(
+            Integer studentId, Integer page, Integer pageSize) {
+        // Verify student exists
+        studentRepository.findById(studentId)
+                .orElseThrow(() -> new RuntimeException("Student not found"));
+
+        // Create pageable request
+        Pageable pageable = PageRequest.of(page - 1, pageSize, Sort.by(Sort.Direction.ASC, "event.createdAt"));
+        
+        // Get paginated registrations
+        Page<EventRegistration> registeredEventsPage = 
+                eventRegistrationRepository.findAllByStudentId(studentId, pageable);
+
+        // Map to DTOs using the existing page
+        return PageResponse.of(
+                registeredEventsPage,
+                registration -> {
+                    var checkIns = checkInRepository.findAll(
+                            EventCheckInSpecs.hasStudent(studentId)
+                                    .and(EventCheckInSpecs.hasEventId(registration.getEvent().getId())));
+                    EventDto eventDto = this.getEvent(registration.getEvent().getId()).get();
+                    EventDetailsDto detailsDto = eventMapper.toDetailsDto(registration);
+                    detailsDto.setEvent(eventDto);
+                    detailsDto.setTotalCheckIn(checkIns.size());
+                    detailsDto.setCertificateStatus(registration.getCertificateStatus());
+                    detailsDto.setCheckIns(checkIns.stream()
+                            .map(eventCheckInMapper::toCheckInHistoryDto)
+                            .toList());
+                    return detailsDto;
+                }
+        );
+    }
+
+    @Override
+    public PageResponse<EventDetailsDto> getFollowedEvents(Integer studentId, Integer page, Integer pageSize) {
+        // Verify student exists
+        studentRepository.findById(studentId)
+                .orElseThrow(() -> new RuntimeException("Student not found"));
+
+        // Create pageable request
+        Pageable pageable = PageRequest.of(page - 1, pageSize, Sort.by(Sort.Direction.DESC, "event.createdAt"));
+        
+        // Get paginated follows
+        Page<EventFollow> followedEventsPage = 
+                eventFollowRepository.findAllByStudentId(studentId, pageable);
+
+        // Map to DTOs using the existing page
+        return PageResponse.of(
+                followedEventsPage,
+                follow -> {
+                    var checkIns = checkInRepository.findAll(
+                            EventCheckInSpecs.hasStudent(studentId)
+                                    .and(EventCheckInSpecs.hasEventId(follow.getEvent().getId())));
+                    
+                    EventDto eventDto = this.getEvent(follow.getEvent().getId()).get();
+                    EventDetailsDto detailsDto = eventMapper.toDetailsDto(follow);
+                    detailsDto.setEvent(eventDto);
+                    detailsDto.setTotalCheckIn(checkIns.size());
+                    detailsDto.setCheckIns(checkIns.stream()
+                            .map(eventCheckInMapper::toCheckInHistoryDto)
+                            .toList());
+                    return detailsDto;
+                }
+        );
+    }
+
 }
