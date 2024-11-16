@@ -17,6 +17,8 @@ public interface EventService {
 
     Optional<EventDto> getEvent(Integer eventId);
 
+    List<EventChangeDto> getEventChangeHistory(Integer eventId);
+
     EventDto updateEvent(Integer eventId, EventUpdateDto eventDto) throws NotExistsException;
 
     EventDto renewEventRegistration(Integer eventId, RenewEventRegistrationDto renewEventRegistrationDto)

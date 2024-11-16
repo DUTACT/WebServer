@@ -15,6 +15,7 @@ import com.dutact.web.core.entities.eventchange.details.RegistrationRenewed;
 import com.dutact.web.core.repositories.EventChangeRepository;
 import com.dutact.web.core.repositories.EventRepository;
 import com.dutact.web.core.repositories.OrganizerRepository;
+import com.dutact.web.core.specs.EventChangeSpecs;
 import com.dutact.web.core.specs.EventSpecs;
 import com.dutact.web.features.event.admin.dtos.event.*;
 import com.dutact.web.storage.StorageService;
@@ -33,6 +34,7 @@ import java.util.Optional;
 @Service("organizerEventService")
 public class EventServiceImpl implements EventService {
     private final EventMapper eventMapper;
+    private final EventChangeMapper eventChangeMapper;
     private final UploadedFileMapper uploadedFileMapper;
     private final EventRepository eventRepository;
     private final OrganizerRepository organizerRepository;
@@ -40,12 +42,14 @@ public class EventServiceImpl implements EventService {
     private final StorageService storageService;
 
     public EventServiceImpl(EventMapper eventMapper,
+                            EventChangeMapper eventChangeMapper,
                             UploadedFileMapper uploadedFileMapper,
                             EventRepository eventRepository,
                             OrganizerRepository organizerRepository,
                             EventChangeRepository eventChangeRepository,
                             StorageService storageService) {
         this.eventMapper = eventMapper;
+        this.eventChangeMapper = eventChangeMapper;
         this.uploadedFileMapper = uploadedFileMapper;
         this.eventRepository = eventRepository;
         this.organizerRepository = organizerRepository;
@@ -103,6 +107,14 @@ public class EventServiceImpl implements EventService {
     @Override
     public Optional<EventDto> getEvent(Integer eventId) {
         return eventRepository.findById(eventId).map(eventMapper::toEventDto);
+    }
+
+    @Override
+    public List<EventChangeDto> getEventChangeHistory(Integer eventId) {
+        return eventChangeRepository.findAll(EventChangeSpecs.hasEventId(eventId))
+                .stream()
+                .map(eventChangeMapper::toDto)
+                .toList();
     }
 
     @Override

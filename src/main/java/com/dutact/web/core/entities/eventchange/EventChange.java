@@ -1,5 +1,6 @@
 package com.dutact.web.core.entities.eventchange;
 
+import com.dutact.web.core.entities.event.Event;
 import com.dutact.web.core.entities.eventchange.details.EventChangeDetails;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -24,6 +25,9 @@ public class EventChange {
 
     @Column(name = "changed_at")
     private LocalDateTime changedAt;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Event event;
 
     @PrePersist
     public void prePersist() {
