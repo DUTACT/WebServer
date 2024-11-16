@@ -15,6 +15,5 @@ import org.springframework.stereotype.Component;
 public interface EventFollowMapper {
     @Mapping(target = "studentId", source = "student.id")
     @Mapping(target = "eventId", source = "event.id")
-//    @Mapping(target = "followedAt", source = "followedAt")
     EventFollowDto toDto(EventFollow eventFollow);
 }
