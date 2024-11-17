@@ -26,6 +26,12 @@ public class EventDto {
     @JsonProperty("endAt")
     private LocalDateTime endAt;
 
+    @JsonProperty("followerNumber")
+    private Integer followerNumber;
+
+    @JsonProperty("registerNumber")
+    private Integer registerNumber;
+
     @JsonProperty("startRegistrationAt")
     private LocalDateTime startRegistrationAt;
 

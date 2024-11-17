@@ -21,6 +21,7 @@ import com.dutact.web.features.event.student.services.exceptions.RegisterForbidd
 import com.dutact.web.features.event.student.services.exceptions.UnfollowForbiddenException;
 import com.dutact.web.features.event.student.services.exceptions.UnregisterForbiddenException;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -94,6 +95,12 @@ public class EventServiceImpl implements EventService {
             eventDto.setFollowedAt(eventFollow.map(EventFollow::getFollowedAt)
                     .orElse(null));
 
+
+            int numberFollower = eventFollowRepository.countByEventId(event.get().getId());
+            int numberRegister = eventRegistrationRepository.countByEventId(event.get().getId());
+            eventDto.setRegisterNumber(numberRegister);
+            eventDto.setFollowerNumber(numberFollower);
+
             return Optional.of(eventDto);
         }
 
@@ -133,6 +140,10 @@ public class EventServiceImpl implements EventService {
                                 .get(event.getId()).getFollowedAt());
                     }
 
+                    int numberFollower = eventFollowRepository.countByEventId(event.getId());
+                    int numberRegister = eventRegistrationRepository.countByEventId(event.getId());
+                    eventDto.setRegisterNumber(numberRegister);
+                    eventDto.setFollowerNumber(numberFollower);
                     return eventDto;
                 })
                 .toList();
@@ -223,11 +234,21 @@ public class EventServiceImpl implements EventService {
                 .orElseThrow(() -> new RuntimeException("Student not found"));
 
         // Create pageable request
-        Pageable pageable = PageRequest.of(page - 1, pageSize, Sort.by(Sort.Direction.ASC, "event.createdAt"));
+        Pageable pageable = PageRequest.of(page - 1, pageSize, 
+                Sort.by(Sort.Direction.ASC, "event.createdAt"));
         
-        // Get paginated registrations
+        // Get paginated registrations (excluding rejected events)
         Page<EventRegistration> registeredEventsPage = 
                 eventRegistrationRepository.findAllByStudentId(studentId, pageable);
+
+        List<EventRegistration> filteredEvent = registeredEventsPage.stream()
+                .filter(e -> !(e.getEvent().getStatus() instanceof EventStatus.Rejected))
+                .toList();
+        registeredEventsPage = new PageImpl<>(
+            filteredEvent,
+            registeredEventsPage.getPageable(),
+            filteredEvent.size()
+        );
 
         // Map to DTOs using the existing page
         return PageResponse.of(

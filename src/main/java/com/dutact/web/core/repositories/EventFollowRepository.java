@@ -6,6 +6,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -19,4 +20,7 @@ public interface EventFollowRepository extends JpaRepository<EventFollow, Intege
     List<EventFollow> findAllByStudentId(Integer studentId);
 
     Page<EventFollow> findAllByStudentId(Integer studentId, Pageable pageable);
+
+    @Query("SELECT COUNT(ef) FROM EventFollow ef WHERE ef.event.id = :eventId")
+    Integer countByEventId(Integer eventId);
 }
