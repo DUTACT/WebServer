@@ -3,11 +3,12 @@ package com.dutact.web.features.feedback.student.dtos;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+import org.springframework.lang.Nullable;
 
 import java.time.LocalDateTime;
 
 @Data
-@Schema(name = "StudentFeedbackDto")
+@Schema(name = "StudentFeedbackDetailsDto")
 public class FeedbackDto {
     @JsonProperty("id")
     private Integer id;
@@ -15,14 +16,18 @@ public class FeedbackDto {
     @JsonProperty("content")
     private String content;
 
+    @JsonProperty("likeNumber")
+    private Integer likeNumber;
+
     @JsonProperty("postedAt")
     private LocalDateTime postedAt;
 
+    @Nullable
+    @JsonProperty("likedAt")
+    private LocalDateTime likedAt;
+
     @JsonProperty("coverPhotoUrl")
     private String coverPhotoUrl;
-
-    @JsonProperty("student")
-    private FeedbackStudentDto student;
 
     @JsonProperty("event")
     private FeedbackEventDto event;

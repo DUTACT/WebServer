@@ -6,4 +6,5 @@ import java.util.List;
 
 public interface NewsfeedService {
     List<NewsfeedItemDto> getFollowedNewsfeed(Integer studentId);
+    List<NewsfeedItemDto> getLikedNewsfeed(Integer studentId);
 }
