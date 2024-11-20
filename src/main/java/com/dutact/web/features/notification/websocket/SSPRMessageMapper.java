@@ -3,9 +3,9 @@ package com.dutact.web.features.notification.websocket;
 import org.springframework.stereotype.Component;
 
 @Component
-public class StompMessageMapper {
-    public StompMessage toStompMessage(String message) {
-        var stompMessage = new StompMessage();
+public class SSPRMessageMapper {
+    public SSPRMessage toSSPRMessage(String message) {
+        var stompMessage = new SSPRMessage();
         var parts = message.split("\n\n");
         var commandAndHeaders = parts[0].split("\n");
 
@@ -21,15 +21,15 @@ public class StompMessageMapper {
         return stompMessage;
     }
 
-    public String fromStompMessage(StompMessage stompMessage) {
+    public String SSPRMessageToString(SSPRMessage message) {
         var builder = new StringBuilder();
-        builder.append(stompMessage.getCommand()).append("\n");
+        builder.append(message.getCommand()).append("\n");
 
-        for (var entry : stompMessage.getHeaders().entrySet()) {
+        for (var entry : message.getHeaders().entrySet()) {
             builder.append(entry.getKey()).append(":").append(entry.getValue()).append("\n");
         }
 
-        builder.append("\n").append(stompMessage.getBody());
+        builder.append("\n").append(message.getBody());
 
         return builder.toString();
     }

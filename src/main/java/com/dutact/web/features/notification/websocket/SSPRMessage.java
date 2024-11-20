@@ -5,7 +5,7 @@ import lombok.Data;
 import java.util.Map;
 
 @Data
-public class StompMessage {
+public class SSPRMessage {
     private String command;
     private Map<String, String> headers;
     private String body;

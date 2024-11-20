@@ -17,15 +17,15 @@ import java.util.Map;
 public class NotificationWebSocketHandler extends TextWebSocketHandler {
     //TODO: Support concurrent access
     private final Map<String, WebSocketSession> sessions = new HashMap<>();
-    private final StompMessageMapper stompMessageMapper;
+    private final SSPRMessageMapper SSPRMessageMapper;
 
-    public NotificationWebSocketHandler(StompMessageMapper stompMessageMapper) {
+    public NotificationWebSocketHandler(SSPRMessageMapper SSPRMessageMapper) {
         super();
-        this.stompMessageMapper = stompMessageMapper;
+        this.SSPRMessageMapper = SSPRMessageMapper;
     }
 
     @Override
-    public void afterConnectionEstablished(WebSocketSession session) throws Exception {
+    public void afterConnectionEstablished(@Nonnull WebSocketSession session) throws Exception {
         sessions.put(session.getId(), session);
         log.debug("Session established: {}", session.getId());
     }
@@ -42,12 +42,12 @@ public class NotificationWebSocketHandler extends TextWebSocketHandler {
     protected void handleTextMessage(@Nonnull WebSocketSession session, @Nonnull TextMessage message) throws Exception {
         var payload = message.getPayload();
 
-        var stompMessage = stompMessageMapper.toStompMessage(payload);
+        var stompMessage = SSPRMessageMapper.toSSPRMessage(payload);
 
     }
 
     @Nullable
-    private String handleMessageInternal(@Nonnull StompMessage stompMessage) {
+    private String handleMessageInternal(@Nonnull SSPRMessage message) {
         return null;
     }
 }
