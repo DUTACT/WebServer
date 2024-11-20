@@ -32,9 +32,6 @@ public class EventDto {
     @JsonProperty("registerNumber")
     private Integer registerNumber;
 
-    @JsonProperty("likeNumber")
-    private Long likeNumber;
-
     @JsonProperty("startRegistrationAt")
     private LocalDateTime startRegistrationAt;
 

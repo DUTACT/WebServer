@@ -8,11 +8,13 @@ import java.util.Collection;
 import java.util.Optional;
 
 public interface PostService {
-    Optional<PostDto> getPost(Integer postId);
+    PostDto getPost(Integer postId) throws NotExistsException;
 
     Collection<PostDto> getPosts(@Nullable Integer eventId);
 
     void likePost(Integer studentId, Integer postId) throws NotExistsException;
 
     void unlikePost(Integer studentId, Integer postId) throws NotExistsException;
+
+    Collection<PostDto> getLikedPosts(Integer studentId);
 }

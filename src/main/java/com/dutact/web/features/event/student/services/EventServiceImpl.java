@@ -101,11 +101,9 @@ public class EventServiceImpl implements EventService {
 
             int numberFollower = eventFollowRepository.countByEventId(event.get().getId());
             int numberRegister = eventRegistrationRepository.countByEventId(event.get().getId());
-            long numberLikes = postLikeRepository.countByPost_EventId(event.get().getId());
             
             eventDto.setRegisterNumber(numberRegister);
             eventDto.setFollowerNumber(numberFollower);
-            eventDto.setLikeNumber(numberLikes);
 
             return Optional.of(eventDto);
         }
@@ -148,11 +146,9 @@ public class EventServiceImpl implements EventService {
 
                     int numberFollower = eventFollowRepository.countByEventId(event.getId());
                     int numberRegister = eventRegistrationRepository.countByEventId(event.getId());
-                    long numberLikes = postLikeRepository.countByPost_EventId(event.getId());
                     
                     eventDto.setRegisterNumber(numberRegister);
                     eventDto.setFollowerNumber(numberFollower);
-                    eventDto.setLikeNumber(numberLikes);
                     return eventDto;
                 })
                 .toList();
