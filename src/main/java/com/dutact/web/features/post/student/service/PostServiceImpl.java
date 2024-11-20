@@ -30,9 +30,24 @@ public class PostServiceImpl implements PostService {
     private final StudentRepository studentRepository;
 
     @Override
-    public Optional<PostDto> getPost(Integer postId) {
-        return postRepository.findById(postId)
+    public PostDto getPost(Integer postId) throws NotExistsException {
+        Optional<PostDto> post = postRepository.findById(postId)
                 .flatMap(this::filterAndMapPost);
+        if (post.isEmpty()) {
+            throw new NotExistsException();
+        }
+        
+        PostDto postDto = post.get();
+        postDto.setLikeNumber(postLikeRepository.countByPostId(postId));
+        
+        // Get current student's like information
+        String username = SecurityContextUtils.getUsername();
+        studentRepository.findByUsername(username).ifPresent(student -> {
+            postLikeRepository.findByPostIdAndStudentId(postId, student.getId())
+                    .ifPresent(like -> postDto.setLikedAt(like.getLikedAt()));
+        });
+        
+        return postDto;
     }
 
     @Override
@@ -45,10 +60,27 @@ public class PostServiceImpl implements PostService {
             posts = postRepository.findAllByEventId(eventId, sort);
         }
 
+        // Get current student for like information
+        Integer currentStudentId = null;
+        try {
+            currentStudentId = studentRepository.findByUsername(SecurityContextUtils.getUsername())
+                    .map(Student::getId)
+                    .orElse(null);
+        } catch (Exception ignored) {}
+
+        final Integer studentId = currentStudentId;
+        
         return posts.stream()
                 .map(this::filterAndMapPost)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
+                .peek(postDto -> {
+                    postDto.setLikeNumber(postLikeRepository.countByPostId(postDto.getId()));
+                    if (studentId != null) {
+                        postLikeRepository.findByPostIdAndStudentId(postDto.getId(), studentId)
+                                .ifPresent(like -> postDto.setLikedAt(like.getLikedAt()));
+                    }
+                })
                 .collect(Collectors.toList());
     }
 
@@ -85,5 +117,27 @@ public class PostServiceImpl implements PostService {
         }
         
         postLikeRepository.deleteByPostIdAndStudentId(postId, studentId);
+    }
+
+    @Override
+    public Collection<PostDto> getLikedPosts(Integer studentId) {
+        Sort sort = Sort.by(Sort.Direction.DESC, "likedAt");
+        Collection<PostLike> likes = postLikeRepository.findAllByStudentId(studentId, sort);
+        
+        return likes.stream()
+                .map(like -> {
+                    Post post = like.getPost();
+                    Optional<PostDto> postDto = filterAndMapPost(post);
+                    if (postDto.isPresent()) {
+                        PostDto dto = postDto.get();
+                        dto.setLikeNumber(postLikeRepository.countByPostId(post.getId()));
+                        dto.setLikedAt(like.getLikedAt());
+                        return Optional.of(dto);
+                    }
+                    return Optional.<PostDto>empty();
+                })
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toList());
     }
 }
