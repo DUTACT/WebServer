@@ -48,14 +48,30 @@ public class NewsfeedServiceImpl implements NewsfeedService {
         List<Post> posts = postRepository.findAllByEventIdIn(followedEventIds.stream().map(f -> f.getEvent().getId()).toList());
         List<Feedback> feedbacks = feedbackRepository.findAllByEventIdIn(followedEventIds.stream().map(f -> f.getEvent().getId()).toList());
         List<NewsfeedItemDto> newsfeedItemDtos = new ArrayList<>();
-        
+
+        Collection<PostLike> postLikes = postLikeRepository.findAllByStudentId(studentId,
+                Sort.by(Sort.Direction.DESC, "likedAt"));
+        Collection<FeedbackLike> feedbackLikes = feedbackLikeRepository.findAllByStudentId(studentId,
+                Sort.by(Sort.Direction.DESC, "likedAt"));
         for (Post post : posts) {
             NewsfeedItemDto newsfeedItemDto = newsfeedMapper.toPostDto(post);
+            List<PostLike> postLike = postLikes.stream().filter(p -> p.getPost().getId().equals(post.getId())).toList();
+            List<PostLike> postLikeOfUser = postLikes.stream().filter(p -> p.getPost().getId().equals(post.getId()) && p.getStudent().getId().equals(studentId)).toList();
+            newsfeedItemDto.setLikeNumber(postLike.size());
+            if(!postLikeOfUser.isEmpty()){
+                newsfeedItemDto.setLikedAt(postLikeOfUser.get(0).getLikedAt());
+            }
             newsfeedItemDtos.add(newsfeedItemDto);
         }
         
         for (Feedback feedback : feedbacks) {
             NewsfeedItemDto newsfeedItemDto = newsfeedMapper.toFeedbackDto(feedback);
+            List<FeedbackLike> feedbackLike = feedbackLikes.stream().filter(p -> p.getFeedback().getId().equals(feedback.getId())).toList();
+            List<FeedbackLike> feedbackLikeOfUser = feedbackLike.stream().filter(p -> p.getFeedback().getId().equals(feedback.getId()) && p.getStudent().getId().equals(studentId)).toList();
+            newsfeedItemDto.setLikeNumber(feedbackLike.size());
+            if(!feedbackLikeOfUser.isEmpty()){
+                newsfeedItemDto.setLikedAt(feedbackLikeOfUser.get(0).getLikedAt());
+            }
             newsfeedItemDtos.add(newsfeedItemDto);
         }
         
@@ -75,6 +91,7 @@ public class NewsfeedServiceImpl implements NewsfeedService {
             Post post = like.getPost();
             NewsfeedItemDto.NewsfeedPostDto postDto = newsfeedMapper.toPostDto(post);
             postDto.setLikedAt(like.getLikedAt());
+            postDto.setLikeNumber(postLikeRepository.countByPostId(postDto.getId()));
             newsfeedItemDtos.add(postDto);
         }
 
@@ -85,6 +102,7 @@ public class NewsfeedServiceImpl implements NewsfeedService {
             Feedback feedback = like.getFeedback();
             NewsfeedItemDto.NewsfeedFeedbackDto feedbackDto = newsfeedMapper.toFeedbackDto(feedback);
             feedbackDto.setLikedAt(like.getLikedAt());
+            feedbackDto.setLikeNumber(feedbackLikeRepository.countByFeedbackId(feedbackDto.getId()));
             newsfeedItemDtos.add(feedbackDto);
         }
 

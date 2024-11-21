@@ -21,6 +21,19 @@ public abstract class NewsfeedItemDto implements Comparable<NewsfeedItemDto> {
     @JsonProperty("likedAt")
     protected LocalDateTime likedAt;
 
+    @Nullable
+    public Integer getLikeNumber() {
+        return likeNumber;
+    }
+
+    public void setLikeNumber(@Nullable Integer likeNumber) {
+        this.likeNumber = likeNumber;
+    }
+
+    @Nullable
+    @JsonProperty("likedNumber")
+    protected Integer likeNumber;
+
     @EqualsAndHashCode(callSuper = true)
     @Data
     @Schema(name = "StudentNewsfeedPostDto")
