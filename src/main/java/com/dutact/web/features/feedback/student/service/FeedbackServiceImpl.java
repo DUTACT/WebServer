@@ -1,5 +1,7 @@
 package com.dutact.web.features.feedback.student.service;
 
+import com.dutact.web.auth.context.SecurityContextUtils;
+import com.dutact.web.auth.factors.StudentAccountService;
 import com.dutact.web.common.api.exceptions.NotExistsException;
 import com.dutact.web.common.mapper.UploadedFileMapper;
 import com.dutact.web.core.entities.Student;
@@ -35,6 +37,7 @@ public class FeedbackServiceImpl implements FeedbackService {
     private final UploadedFileMapper uploadedFileMapper;
     private final StorageService storageService;
     private final PostLikeRepository postLikeRepository;
+    private final StudentAccountService studentAccountService;
     private final FeedbackLikeRepository feedbackLikeRepository;
 
     @Override
@@ -74,17 +77,40 @@ public class FeedbackServiceImpl implements FeedbackService {
         spec = spec.and(FeedbackSpecs.joinEvent());
         spec = spec.and(FeedbackSpecs.joinStudent());
         spec = spec.and(FeedbackSpecs.orderByPostedAt(false));
+        var studentId = studentAccountService.getStudentId(SecurityContextUtils.getUsername())
+                .orElseThrow(() -> new RuntimeException("The request is associated with a non-existent student"));
 
         return feedbackRepository.findAll(spec)
                 .stream()
                 .map(feedbackMapper::toDto)
+                .peek(f -> {
+                    f.setLikeNumber(feedbackLikeRepository.countByFeedbackId(f.getId()));
+                    Optional<FeedbackLike> like = feedbackLikeRepository.findByFeedbackIdAndStudentId(f.getId(), studentId);
+                    if (like.isPresent()){
+                        f.setLikedAt(like.get().getLikedAt());
+                    } else {
+                        f.setLikedAt(null);
+                    }
+                })
                 .toList();
     }
 
     @Override
     public Optional<FeedbackDto> getFeedback(Integer feedbackId) {
-        return feedbackRepository.findById(feedbackId)
+        Optional<FeedbackDto> feedbackDto = feedbackRepository.findById(feedbackId)
                 .map(feedbackMapper::toDto);
+        var studentId = studentAccountService.getStudentId(SecurityContextUtils.getUsername())
+                .orElseThrow(() -> new RuntimeException("The request is associated with a non-existent student"));
+        if (feedbackDto.isPresent()){
+            feedbackDto.get().setLikeNumber(feedbackLikeRepository.countByFeedbackId(feedbackId));
+            Optional<FeedbackLike> like = feedbackLikeRepository.findByFeedbackIdAndStudentId(feedbackId, studentId);
+            if (like.isPresent()){
+                feedbackDto.get().setLikedAt(like.get().getLikedAt());
+            } else {
+                feedbackDto.get().setLikedAt(null);
+            }
+        }
+        return feedbackDto;
     }
 
     @Override
