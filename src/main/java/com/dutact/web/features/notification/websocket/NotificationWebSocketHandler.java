@@ -1,6 +1,7 @@
 package com.dutact.web.features.notification.websocket;
 
 import com.dutact.web.features.notification.messaging.ConnectionHandler;
+import com.dutact.web.features.notification.subscription.AccountSubscriptionRegistry;
 import jakarta.annotation.Nonnull;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Component;
@@ -8,27 +9,21 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import static com.dutact.web.features.notification.websocket.SSPRMessageCommand.SUBSCRIBE;
-import static com.dutact.web.features.notification.websocket.SSPRMessageCommand.UNSUBSCRIBE;
+import static com.dutact.web.features.notification.websocket.SSPRMessageCommand.*;
 
 @Log4j2
 @Component
 public class NotificationWebSocketHandler extends TextWebSocketHandler {
-    //TODO: Support concurrent access
-    private final Map<String, WebSocketSession> sessions = new HashMap<>();
     private final SSPRMessageMapper SSPRMessageMapper;
-    private final SubscriptionHandler subscriptionHandler;
+    private final AccountSubscriptionRegistry subscriptionRegistry;
     private final ConnectionHandler connectionHandler;
 
     public NotificationWebSocketHandler(SSPRMessageMapper SSPRMessageMapper,
-                                        SubscriptionHandler subscriptionHandler,
+                                        AccountSubscriptionRegistry subscriptionRegistry,
                                         ConnectionHandler connectionHandler) {
         super();
         this.SSPRMessageMapper = SSPRMessageMapper;
-        this.subscriptionHandler = subscriptionHandler;
+        this.subscriptionRegistry = subscriptionRegistry;
         this.connectionHandler = connectionHandler;
     }
 
@@ -37,27 +32,34 @@ public class NotificationWebSocketHandler extends TextWebSocketHandler {
         var payload = message.getPayload();
 
         var ssprMessage = SSPRMessageMapper.toSSPRMessage(payload);
-
-        switch (ssprMessage.getCommand()) {
+        var ssprSession = new SSPRWebsocketSession(session, SSPRMessageMapper);
+        var response = switch (ssprMessage.getCommand()) {
             case SUBSCRIBE -> handleSubscribe(session, ssprMessage);
             case UNSUBSCRIBE -> handleUnsubscribe(session, ssprMessage);
-            default -> log.warn("Unsupported command {}", ssprMessage.getCommand());
-        }
-        ;
+            default -> unsupportedCommand();
+        };
+
+        ssprSession.send(response);
     }
 
-    private void handleSubscribe(WebSocketSession session, SSPRMessage ssprMessage) {
+    private SSPRMessage handleSubscribe(WebSocketSession session, SSPRMessage ssprMessage) {
         var headers = ssprMessage.getHeaders();
-        headers.get("Authorization");
-        var subscriptionToken = subscriptionHandler.subscribe(subscriptionInfo);
+        var deviceId = headers.get("device-id");
+        var accountId = Integer.parseInt(headers.get("account-id"));
+        var subscriptionToken = subscriptionRegistry.subscribe(deviceId, accountId);
 
-        sessions.put(subscriptionToken, session);
     }
 
-    private void handleUnsubscribe(WebSocketSession session, SSPRMessage ssprMessage) {
+    private SSPRMessage handleUnsubscribe(WebSocketSession session, SSPRMessage ssprMessage) {
         var subscriptionToken = ssprMessage.getSubscriptionToken();
         subscriptionHandler.unsubscribe(subscriptionToken);
 
         sessions.remove(subscriptionToken);
+    }
+
+    private SSPRMessage unsupportedCommand() {
+        var response = new SSPRMessage();
+        response.setCommand(ERROR);
+        response.setBody("Unsupported command");
     }
 }
