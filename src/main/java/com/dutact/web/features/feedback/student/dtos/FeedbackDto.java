@@ -31,4 +31,7 @@ public class FeedbackDto {
 
     @JsonProperty("event")
     private FeedbackEventDto event;
+
+    @JsonProperty("student")
+    private FeedbackStudentDto student;
 }
