@@ -2,7 +2,7 @@ package com.dutact.web.features.notification.websocket;
 
 import com.dutact.web.features.notification.messaging.ConnectionHandler;
 import com.dutact.web.features.notification.messaging.exceptions.TokenAlreadyConnectException;
-import com.dutact.web.features.notification.subscription.AccountSubscriptionRegistry;
+import com.dutact.web.features.notification.subscription.AccountSubscriptionHandler;
 import jakarta.annotation.Nonnull;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Component;
@@ -16,15 +16,15 @@ import static com.dutact.web.features.notification.websocket.SSPRMessageCommand.
 @Component
 public class NotificationWebSocketHandler extends TextWebSocketHandler {
     private final SSPRMessageMapper SSPRMessageMapper;
-    private final AccountSubscriptionRegistry subscriptionRegistry;
+    private final AccountSubscriptionHandler accountSubscriptionHandler;
     private final ConnectionHandler connectionHandler;
 
     public NotificationWebSocketHandler(SSPRMessageMapper SSPRMessageMapper,
-                                        AccountSubscriptionRegistry subscriptionRegistry,
+                                        AccountSubscriptionHandler accountSubscriptionHandler,
                                         ConnectionHandler connectionHandler) {
         super();
         this.SSPRMessageMapper = SSPRMessageMapper;
-        this.subscriptionRegistry = subscriptionRegistry;
+        this.accountSubscriptionHandler = accountSubscriptionHandler;
         this.connectionHandler = connectionHandler;
     }
 
@@ -54,14 +54,13 @@ public class NotificationWebSocketHandler extends TextWebSocketHandler {
 
             ssprSession.send(response);
         }
-
     }
 
     private SSPRMessage handleSubscribe(SSPRMessage ssprMessage) {
         var headers = ssprMessage.getHeaders();
         var deviceId = headers.get("device-id");
-        var accountId = Integer.parseInt(headers.get("account-id"));
-        var subscriptionToken = subscriptionRegistry.subscribe(deviceId, accountId);
+        var accessToken = headers.get("access-token");
+        var subscriptionToken = accountSubscriptionHandler.subscribe(deviceId, accessToken);
 
         var response = new SSPRMessage();
         response.setCommand(OK);
@@ -72,7 +71,7 @@ public class NotificationWebSocketHandler extends TextWebSocketHandler {
 
     private SSPRMessage handleUnsubscribe(SSPRMessage ssprMessage) {
         var subscriptionToken = ssprMessage.getHeaders().get("subscription-token");
-        subscriptionRegistry.unsubscribe(subscriptionToken);
+        accountSubscriptionHandler.unsubscribe(subscriptionToken);
 
         var response = new SSPRMessage();
         response.setCommand(OK);

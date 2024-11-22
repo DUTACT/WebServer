@@ -97,6 +97,14 @@ public class AccountServiceImpl implements AccountService {
         accountRepository.save(account);
     }
 
+    @Override
+    public Integer getAccountId(String token) {
+        var username = jwtProcessor.getVerifiedJWT(token).getUsername();
+        return accountRepository
+                .findByUsername(username).map(Account::getId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid token"));
+    }
+
     private boolean isLoginUserAdmin() {
         Optional<Admin> admin = adminRepository.findByUsername(SecurityContextUtils.getUsername());
         return admin.isPresent();

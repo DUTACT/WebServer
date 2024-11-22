@@ -13,4 +13,6 @@ public interface AccountService {
     ResponseToken login(LoginDto loginDto) throws InvalidLoginCredentialsException, AccountNotEnabledException;
 
     void changePassword(Integer accountId, NewPasswordDto newPasswordDto) throws NoPermissionException, InvalidCredentialsException;
+
+    Integer getAccountId(String token);
 }
