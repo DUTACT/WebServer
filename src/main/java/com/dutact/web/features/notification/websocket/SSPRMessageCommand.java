@@ -9,5 +9,7 @@ public class SSPRMessageCommand {
     public static final String ERROR = "ERROR";
     public static final String SUBSCRIBE = "SUBSCRIBE";
     public static final String UNSUBSCRIBE = "UNSUBSCRIBE";
+    public static final String CONNECT = "CONNECT";
+    public static final String DISCONNECT = "DISCONNECT";
     public static final String MESSAGE = "MESSAGE";
 }

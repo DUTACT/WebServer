@@ -1,6 +1,7 @@
 package com.dutact.web.features.notification.websocket;
 
 import com.dutact.web.features.notification.messaging.ConnectionHandler;
+import com.dutact.web.features.notification.messaging.exceptions.TokenAlreadyConnectException;
 import com.dutact.web.features.notification.subscription.AccountSubscriptionRegistry;
 import jakarta.annotation.Nonnull;
 import lombok.extern.log4j.Log4j2;
@@ -33,33 +34,86 @@ public class NotificationWebSocketHandler extends TextWebSocketHandler {
 
         var ssprMessage = SSPRMessageMapper.toSSPRMessage(payload);
         var ssprSession = new SSPRWebsocketSession(session, SSPRMessageMapper);
-        var response = switch (ssprMessage.getCommand()) {
-            case SUBSCRIBE -> handleSubscribe(session, ssprMessage);
-            case UNSUBSCRIBE -> handleUnsubscribe(session, ssprMessage);
-            default -> unsupportedCommand();
-        };
 
-        ssprSession.send(response);
+        try {
+            var response = switch (ssprMessage.getCommand()) {
+                case SUBSCRIBE -> handleSubscribe(ssprMessage);
+                case UNSUBSCRIBE -> handleUnsubscribe(ssprMessage);
+                case CONNECT -> handleConnect(ssprSession, ssprMessage);
+                case DISCONNECT -> handleDisconnect(ssprMessage);
+                default -> unsupportedCommand();
+            };
+
+            ssprSession.send(response);
+        } catch (Exception e) {
+            log.error("Error handling message", e);
+
+            var response = new SSPRMessage();
+            response.setCommand(ERROR);
+            response.setBody("Something went wrong: " + e.getMessage());
+
+            ssprSession.send(response);
+        }
+
     }
 
-    private SSPRMessage handleSubscribe(WebSocketSession session, SSPRMessage ssprMessage) {
+    private SSPRMessage handleSubscribe(SSPRMessage ssprMessage) {
         var headers = ssprMessage.getHeaders();
         var deviceId = headers.get("device-id");
         var accountId = Integer.parseInt(headers.get("account-id"));
         var subscriptionToken = subscriptionRegistry.subscribe(deviceId, accountId);
 
+        var response = new SSPRMessage();
+        response.setCommand(OK);
+        response.getHeaders().put("subscription-token", subscriptionToken);
+
+        return response;
     }
 
-    private SSPRMessage handleUnsubscribe(WebSocketSession session, SSPRMessage ssprMessage) {
-        var subscriptionToken = ssprMessage.getSubscriptionToken();
-        subscriptionHandler.unsubscribe(subscriptionToken);
+    private SSPRMessage handleUnsubscribe(SSPRMessage ssprMessage) {
+        var subscriptionToken = ssprMessage.getHeaders().get("subscription-token");
+        subscriptionRegistry.unsubscribe(subscriptionToken);
 
-        sessions.remove(subscriptionToken);
+        var response = new SSPRMessage();
+        response.setCommand(OK);
+
+        return response;
+    }
+
+    private SSPRMessage handleConnect(SSPRSession session, SSPRMessage ssprMessage) {
+        var headers = ssprMessage.getHeaders();
+        var subscriptionToken = headers.get("subscription-token");
+        try {
+            connectionHandler.connect(session, subscriptionToken);
+        } catch (TokenAlreadyConnectException e) {
+            var response = new SSPRMessage();
+            response.setCommand(ERROR);
+            response.setBody("Token already connected");
+
+            return response;
+        }
+
+        var response = new SSPRMessage();
+        response.setCommand(OK);
+
+        return response;
+    }
+
+    private SSPRMessage handleDisconnect(SSPRMessage ssprMessage) {
+        var subscriptionToken = ssprMessage.getHeaders().get("subscription-token");
+        connectionHandler.disconnect(subscriptionToken);
+
+        var response = new SSPRMessage();
+        response.setCommand(OK);
+
+        return response;
     }
 
     private SSPRMessage unsupportedCommand() {
         var response = new SSPRMessage();
         response.setCommand(ERROR);
         response.setBody("Unsupported command");
+
+        return response;
     }
 }
