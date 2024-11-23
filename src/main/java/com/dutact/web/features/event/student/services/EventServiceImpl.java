@@ -321,7 +321,10 @@ public class EventServiceImpl implements EventService {
             studentRegistrations.stream()
                 .filter(r -> r.getEvent().getId().equals(eventId))
                 .findFirst()
-                .ifPresent(reg -> eventDetails.getEvent().setRegisteredAt(reg.getRegisteredAt()));
+                .ifPresent(reg -> {
+                    eventDetails.getEvent().setRegisteredAt(reg.getRegisteredAt());
+                    eventDetails.setCertificateStatus(reg.getCertificateStatus());
+                });
                 
             allFollows.stream()
                 .filter(f -> f.getEvent().getId().equals(eventId) && f.getStudent().getId().equals(studentId))
@@ -350,6 +353,8 @@ public class EventServiceImpl implements EventService {
                     .anyMatch(id -> id.equals(i.getCheckInCode().getId()))
                     && i.getStudent().getId().equals(studentId))
                 .toList();
+
+
 
             eventDetails.setTotalCheckIn(studentCheckIns.size());
             eventDetails.setCheckIns(studentCheckIns.stream()
