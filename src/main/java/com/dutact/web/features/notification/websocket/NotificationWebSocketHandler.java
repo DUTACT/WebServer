@@ -5,11 +5,12 @@ import com.dutact.web.features.notification.subscription.AccountSubscriptionHand
 import jakarta.annotation.Nonnull;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Component;
+import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
-import static com.dutact.web.features.notification.websocket.SSPRMessageCommand.*;
+import static com.dutact.web.features.notification.constants.SSPRMessageCommand.*;
 
 @Log4j2
 @Component
@@ -59,6 +60,11 @@ public class NotificationWebSocketHandler extends TextWebSocketHandler {
         }
     }
 
+    @Override
+    public void afterConnectionClosed(WebSocketSession session, @Nonnull CloseStatus status) throws Exception {
+        connectionHandler.disconnect(session.getId());
+    }
+
     private SSPRMessage handleSubscribe(SSPRMessage ssprMessage) {
         var headers = ssprMessage.getHeaders();
         var deviceId = headers.get("device-id");
@@ -87,7 +93,6 @@ public class NotificationWebSocketHandler extends TextWebSocketHandler {
         var subscriptionToken = headers.get("subscription-token");
 
         connectionHandler.connect(session, subscriptionToken);
-
 
         var response = new SSPRMessage();
         response.setCommand(OK);

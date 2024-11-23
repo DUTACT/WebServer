@@ -5,6 +5,7 @@ import com.dutact.web.features.notification.websocket.SSPRSession;
 import jakarta.annotation.Nullable;
 import org.springframework.stereotype.Component;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,5 +31,10 @@ public class ConnectionRegistryImpl implements ConnectionRegistry {
     @Override
     public SSPRSession getSession(String subscriptionToken) {
         return connections.get(subscriptionToken);
+    }
+
+    @Override
+    public Collection<SSPRSession> getSessions() {
+        return connections.values();
     }
 }

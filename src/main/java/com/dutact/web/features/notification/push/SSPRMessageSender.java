@@ -1,9 +1,9 @@
 package com.dutact.web.features.notification.push;
 
 import com.dutact.web.features.notification.connection.ConnectionRegistry;
+import com.dutact.web.features.notification.constants.SSPRMessageCommand;
 import com.dutact.web.features.notification.push.exceptions.NotConnectedException;
 import com.dutact.web.features.notification.websocket.SSPRMessage;
-import com.dutact.web.features.notification.websocket.SSPRMessageCommand;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Component;
 

@@ -4,6 +4,8 @@ import com.dutact.web.features.notification.push.exceptions.TokenAlreadyConnectE
 import com.dutact.web.features.notification.websocket.SSPRSession;
 import jakarta.annotation.Nullable;
 
+import java.util.Collection;
+
 public interface ConnectionRegistry {
     void addConnection(SSPRSession session, String subscriptionToken) throws TokenAlreadyConnectException;
 
@@ -11,4 +13,6 @@ public interface ConnectionRegistry {
 
     @Nullable
     SSPRSession getSession(String subscriptionToken);
+
+    Collection<SSPRSession> getSessions();
 }

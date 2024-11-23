@@ -1,4 +1,4 @@
-package com.dutact.web.features.notification.websocket;
+package com.dutact.web.features.notification.constants;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -12,4 +12,5 @@ public class SSPRMessageCommand {
     public static final String CONNECT = "CONNECT";
     public static final String DISCONNECT = "DISCONNECT";
     public static final String MESSAGE = "MESSAGE";
+    public static final String PING = "PING";
 }
