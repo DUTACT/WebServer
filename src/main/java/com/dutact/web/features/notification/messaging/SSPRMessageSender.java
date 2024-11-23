@@ -20,7 +20,7 @@ public class SSPRMessageSender implements MessageSender {
     @Override
     public void sendMessage(String subscriptionToken, String message) throws NotConnectedException {
         var session = connectionRegistry.getSession(subscriptionToken);
-        if (session == null) {
+        if (session == null || !session.isOpen()) {
             throw new NotConnectedException();
         }
 
