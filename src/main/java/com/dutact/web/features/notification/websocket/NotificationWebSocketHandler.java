@@ -32,10 +32,11 @@ public class NotificationWebSocketHandler extends TextWebSocketHandler {
     protected void handleTextMessage(@Nonnull WebSocketSession session, @Nonnull TextMessage message) throws Exception {
         var payload = message.getPayload();
 
-        var ssprMessage = SSPRMessageMapper.toSSPRMessage(payload);
         var ssprSession = new SSPRWebsocketSession(session, SSPRMessageMapper);
 
         try {
+            var ssprMessage = SSPRMessageMapper.toSSPRMessage(payload);
+            
             var response = switch (ssprMessage.getCommand()) {
                 case SUBSCRIBE -> handleSubscribe(ssprMessage);
                 case UNSUBSCRIBE -> handleUnsubscribe(ssprMessage);
