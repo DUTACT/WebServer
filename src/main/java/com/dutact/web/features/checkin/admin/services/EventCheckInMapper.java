@@ -6,6 +6,7 @@ import com.dutact.web.core.projections.CheckInPreview;
 import com.dutact.web.features.checkin.admin.dtos.CheckInCodeInfo;
 import com.dutact.web.features.checkin.admin.dtos.CheckInHistoryDto;
 import com.dutact.web.features.checkin.admin.dtos.CheckInPreviewDto;
+import com.dutact.web.features.checkin.student.dtos.StudentCheckInDetailDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingConstants;
 import org.mapstruct.Mapping;
@@ -13,7 +14,7 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface EventCheckInMapper {
     CheckInPreviewDto toDto(CheckInPreview checkInPreview);
-    
+
     @Mapping(target = "id", source = "id")
     @Mapping(target = "checkInTime", source = "checkInTime")
     @Mapping(target = "checkInCode", source = "checkInCode")
@@ -24,4 +25,6 @@ public interface EventCheckInMapper {
     @Mapping(target = "startAt", source = "startAt")
     @Mapping(target = "endAt", source = "endAt")
     CheckInCodeInfo toCheckInCodeInfo(EventCheckInCode checkInCode);
+
+    StudentCheckInDetailDto.CheckInHistoryDto toDto(EventCheckIn eventCheckIn);
 }

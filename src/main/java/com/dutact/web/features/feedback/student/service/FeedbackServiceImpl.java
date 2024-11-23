@@ -77,6 +77,7 @@ public class FeedbackServiceImpl implements FeedbackService {
         spec = spec.and(FeedbackSpecs.joinEvent());
         spec = spec.and(FeedbackSpecs.joinStudent());
         spec = spec.and(FeedbackSpecs.orderByPostedAt(false));
+
         var studentId = studentAccountService.getStudentId(SecurityContextUtils.getUsername())
                 .orElseThrow(() -> new RuntimeException("The request is associated with a non-existent student"));
 

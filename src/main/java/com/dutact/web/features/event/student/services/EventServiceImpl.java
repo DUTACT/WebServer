@@ -4,11 +4,14 @@ import com.dutact.web.auth.context.SecurityContextUtils;
 import com.dutact.web.auth.factors.StudentAccountService;
 import com.dutact.web.common.api.PageResponse;
 import com.dutact.web.common.api.exceptions.NotExistsException;
+import com.dutact.web.core.entities.EventCheckIn;
+import com.dutact.web.core.entities.EventCheckInCode;
 import com.dutact.web.core.entities.EventFollow;
 import com.dutact.web.core.entities.eventregistration.EventRegistration;
 import com.dutact.web.core.entities.Student;
 import com.dutact.web.core.entities.event.Event;
 import com.dutact.web.core.entities.event.EventStatus;
+import com.dutact.web.core.entities.feedback.Feedback;
 import com.dutact.web.core.repositories.*;
 import com.dutact.web.core.specs.EventCheckInSpecs;
 import com.dutact.web.core.specs.EventFollowSpecs;
@@ -20,11 +23,13 @@ import com.dutact.web.features.event.student.services.exceptions.FollowForbidden
 import com.dutact.web.features.event.student.services.exceptions.RegisterForbiddenException;
 import com.dutact.web.features.event.student.services.exceptions.UnfollowForbiddenException;
 import com.dutact.web.features.event.student.services.exceptions.UnregisterForbiddenException;
+import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -34,6 +39,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@AllArgsConstructor
 public class EventServiceImpl implements EventService {
     private final EventRepository eventRepository;
     private final EventRegistrationRepository eventRegistrationRepository;
@@ -46,31 +52,7 @@ public class EventServiceImpl implements EventService {
     private final EventCheckInRepository checkInRepository;
     private final EventCheckInMapper eventCheckInMapper;
     private final PostLikeRepository postLikeRepository;
-
-    public EventServiceImpl(EventRepository eventRepository,
-                            EventRegistrationRepository eventRegistrationRepository,
-                            StudentAccountService studentAccountService,
-                            EventMapper eventMapper,
-                            EventCheckInMapper eventCheckInMapper,
-                            EventCheckInRepository eventCheckInRepository,
-                            EventRegistrationMapper eventRegistrationMapper,
-                            EventFollowRepository eventFollowRepository,
-                            StudentRepository studentRepository,
-                            EventFollowMapper eventFollowMapper,
-                            PostLikeRepository postLikeRepository
-    ) {
-        this.eventRepository = eventRepository;
-        this.eventCheckInMapper = eventCheckInMapper;
-        this.eventRegistrationRepository = eventRegistrationRepository;
-        this.studentAccountService = studentAccountService;
-        this.eventMapper = eventMapper;
-        this.checkInRepository = eventCheckInRepository;
-        this.eventRegistrationMapper = eventRegistrationMapper;
-        this.eventFollowRepository = eventFollowRepository;
-        this.studentRepository = studentRepository;
-        this.eventFollowMapper = eventFollowMapper;
-        this.postLikeRepository = postLikeRepository;
-    }
+    private final EventCheckInCodeRepository eventCheckInCodeRepository;
 
     @Override
     public Optional<EventDto> getEvent(Integer id) {
@@ -232,47 +214,76 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public PageResponse<EventDetailsDto> getRegisteredEvents(
-            Integer studentId, Integer page, Integer pageSize) {
-        // Verify student exists
-        studentRepository.findById(studentId)
-                .orElseThrow(() -> new RuntimeException("Student not found"));
-
-        // Create pageable request
-        Pageable pageable = PageRequest.of(page - 1, pageSize, 
-                Sort.by(Sort.Direction.ASC, "event.createdAt"));
+    public PageResponse<EventDetailsDto> getRegisteredEvents(Integer studentId, Integer page, Integer pageSize) {
+        // Create pageable request with proper sorting
+        Pageable pageable = PageRequest.of(page - 1, pageSize, Sort.by(Sort.Direction.ASC, "event.createdAt"));
         
-        // Get paginated registrations (excluding rejected events)
-        Page<EventRegistration> registeredEventsPage = 
-                eventRegistrationRepository.findAllByStudentId(studentId, pageable);
+        // Get paginated registrations with all necessary joins and filters in a single query
+        Page<EventRegistration> registeredEventsPage = eventRegistrationRepository.findAll(
+            EventRegistrationSpecs.joinEvent()
+                .and(EventRegistrationSpecs.joinStudent())
+                .and(EventRegistrationSpecs.joinOrganizer())
+                .and(EventRegistrationSpecs.hasStudentId(studentId))
+                .and(EventRegistrationSpecs.hasEventStatus(EventStatus.Approved.TYPE_NAME))
+                .and(EventRegistrationSpecs.orderByRegisteredAt(true)),
+            pageable
+        );
 
-        List<EventRegistration> filteredEvent = registeredEventsPage.stream()
-                .filter(e -> !(e.getEvent().getStatus() instanceof EventStatus.Rejected))
+        // Fetch all related data in bulk to avoid N+1 queries
+        List<EventRegistration> allStudentRegistrations = eventRegistrationRepository.findAllByStudentId(studentId);
+        List<EventRegistration> allRegistrations = eventRegistrationRepository.findAll();
+        List<EventFollow> allFollows = eventFollowRepository.findAll();
+        List<EventFollow> studentFollows = eventFollowRepository.findAllByStudentId(studentId);
+        List<EventCheckInCode> checkInCodes = eventCheckInCodeRepository.findAll();
+        List<EventCheckIn> checkIns = checkInRepository.findAll();
+
+        // Transform to DTOs with all necessary data
+        PageResponse<EventDetailsDto> response = PageResponse.of(registeredEventsPage, eventMapper::toDetailsDto);
+        
+        response.getData().forEach(eventDetails -> {
+            Integer eventId = eventDetails.getEvent().getId();
+            
+            // Set registration and follow dates
+            allStudentRegistrations.stream()
+                .filter(r -> r.getEvent().getId().equals(eventId))
+                .findFirst()
+                .ifPresent(reg -> eventDetails.getEvent().setRegisteredAt(reg.getRegisteredAt()));
+                
+            studentFollows.stream()
+                .filter(f -> f.getEvent().getId().equals(eventId))
+                .findFirst()
+                .ifPresent(follow -> eventDetails.getEvent().setFollowedAt(follow.getFollowedAt()));
+
+            // Set counts
+            long registerCount = allRegistrations.stream()
+                .filter(r -> r.getEvent().getId().equals(eventId))
+                .count();
+            long followCount = allFollows.stream()
+                .filter(f -> f.getEvent().getId().equals(eventId))
+                .count();
+                
+            eventDetails.getEvent().setRegisterNumber((int) registerCount);
+            eventDetails.getEvent().setFollowerNumber((int) followCount);
+
+            // Set check-in information
+            List<EventCheckInCode> eventCheckInCodes = checkInCodes.stream()
+                .filter(c -> c.getEvent().getId().equals(eventId))
                 .toList();
-        registeredEventsPage = new PageImpl<>(
-            filteredEvent,
-            registeredEventsPage.getPageable(),
-            filteredEvent.size()
-        );
+                
+            List<EventCheckIn> studentCheckIns = checkIns.stream()
+                .filter(i -> eventCheckInCodes.stream()
+                    .map(EventCheckInCode::getId)
+                    .anyMatch(id -> id.equals(i.getCheckInCode().getId()))
+                    && i.getStudent().getId().equals(studentId))
+                .toList();
 
-        // Map to DTOs using the existing page
-        return PageResponse.of(
-                registeredEventsPage,
-                registration -> {
-                    var checkIns = checkInRepository.findAll(
-                            EventCheckInSpecs.hasStudent(studentId)
-                                    .and(EventCheckInSpecs.hasEventId(registration.getEvent().getId())));
-                    EventDto eventDto = this.getEvent(registration.getEvent().getId()).get();
-                    EventDetailsDto detailsDto = eventMapper.toDetailsDto(registration);
-                    detailsDto.setEvent(eventDto);
-                    detailsDto.setTotalCheckIn(checkIns.size());
-                    detailsDto.setCertificateStatus(registration.getCertificateStatus());
-                    detailsDto.setCheckIns(checkIns.stream()
-                            .map(eventCheckInMapper::toCheckInHistoryDto)
-                            .toList());
-                    return detailsDto;
-                }
-        );
+            eventDetails.setTotalCheckIn(studentCheckIns.size());
+            eventDetails.setCheckIns(studentCheckIns.stream()
+                .map(eventCheckInMapper::toCheckInHistoryDto)
+                .toList());
+        });
+
+        return response;
     }
 
     @Override
@@ -281,31 +292,72 @@ public class EventServiceImpl implements EventService {
         studentRepository.findById(studentId)
                 .orElseThrow(() -> new RuntimeException("Student not found"));
 
-        // Create pageable request
+        // Create pageable request with proper sorting
         Pageable pageable = PageRequest.of(page - 1, pageSize, Sort.by(Sort.Direction.DESC, "event.createdAt"));
         
-        // Get paginated follows
-        Page<EventFollow> followedEventsPage = 
-                eventFollowRepository.findAllByStudentId(studentId, pageable);
-
-        // Map to DTOs using the existing page
-        return PageResponse.of(
-                followedEventsPage,
-                follow -> {
-                    var checkIns = checkInRepository.findAll(
-                            EventCheckInSpecs.hasStudent(studentId)
-                                    .and(EventCheckInSpecs.hasEventId(follow.getEvent().getId())));
-                    
-                    EventDto eventDto = this.getEvent(follow.getEvent().getId()).get();
-                    EventDetailsDto detailsDto = eventMapper.toDetailsDto(follow);
-                    detailsDto.setEvent(eventDto);
-                    detailsDto.setTotalCheckIn(checkIns.size());
-                    detailsDto.setCheckIns(checkIns.stream()
-                            .map(eventCheckInMapper::toCheckInHistoryDto)
-                            .toList());
-                    return detailsDto;
-                }
+        // Get paginated follows with all necessary joins and filters in a single query
+        Page<EventFollow> followedEventsPage = eventFollowRepository.findAll(
+            EventFollowSpecs.joinEvent()
+                .and(EventFollowSpecs.joinStudent())
+                .and(EventFollowSpecs.hasStudentId(studentId))
+                .and(EventFollowSpecs.hasEventStatus(EventStatus.Approved.TYPE_NAME)),
+            pageable
         );
+
+        // Fetch all related data in bulk to avoid N+1 queries
+        List<EventRegistration> allRegistrations = eventRegistrationRepository.findAll();
+        List<EventFollow> allFollows = eventFollowRepository.findAll();
+        List<EventRegistration> studentRegistrations = eventRegistrationRepository.findAllByStudentId(studentId);
+        List<EventCheckInCode> checkInCodes = eventCheckInCodeRepository.findAll();
+        List<EventCheckIn> checkIns = checkInRepository.findAll();
+
+        // Transform to DTOs with all necessary data
+        PageResponse<EventDetailsDto> response = PageResponse.of(followedEventsPage, eventMapper::toDetailsDto);
+        
+        response.getData().forEach(eventDetails -> {
+            Integer eventId = eventDetails.getEvent().getId();
+            
+            // Set registration and follow dates
+            studentRegistrations.stream()
+                .filter(r -> r.getEvent().getId().equals(eventId))
+                .findFirst()
+                .ifPresent(reg -> eventDetails.getEvent().setRegisteredAt(reg.getRegisteredAt()));
+                
+            allFollows.stream()
+                .filter(f -> f.getEvent().getId().equals(eventId) && f.getStudent().getId().equals(studentId))
+                .findFirst()
+                .ifPresent(follow -> eventDetails.getEvent().setFollowedAt(follow.getFollowedAt()));
+
+            // Set counts
+            long registerCount = allRegistrations.stream()
+                .filter(r -> r.getEvent().getId().equals(eventId))
+                .count();
+            long followCount = allFollows.stream()
+                .filter(f -> f.getEvent().getId().equals(eventId))
+                .count();
+                
+            eventDetails.getEvent().setRegisterNumber((int) registerCount);
+            eventDetails.getEvent().setFollowerNumber((int) followCount);
+
+            // Set check-in information
+            List<EventCheckInCode> eventCheckInCodes = checkInCodes.stream()
+                .filter(c -> c.getEvent().getId().equals(eventId))
+                .toList();
+                
+            List<EventCheckIn> studentCheckIns = checkIns.stream()
+                .filter(i -> eventCheckInCodes.stream()
+                    .map(EventCheckInCode::getId)
+                    .anyMatch(id -> id.equals(i.getCheckInCode().getId()))
+                    && i.getStudent().getId().equals(studentId))
+                .toList();
+
+            eventDetails.setTotalCheckIn(studentCheckIns.size());
+            eventDetails.setCheckIns(studentCheckIns.stream()
+                .map(eventCheckInMapper::toCheckInHistoryDto)
+                .toList());
+        });
+
+        return response;
     }
 
 }
