@@ -14,5 +14,7 @@ import org.springframework.stereotype.Component;
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface PostMapper {
     @Mapping(target = "coverPhotoUrl", source = "coverPhoto.fileUrl")
+    @Mapping(target = "likedAt", ignore = true)
+    @Mapping(target = "likeNumber", ignore = true)
     PostDto toDto(Post post);
 }

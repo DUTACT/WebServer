@@ -17,6 +17,8 @@ public interface NewsfeedMapper {
     @Mapping(target = "organizer.avatarUrl", source = "event.organizer.avatar.fileUrl")
     @Mapping(target = "event", source = "event")
     @Mapping(target = "event.coverPhotoUrl", source = "event.coverPhoto.fileUrl")
+    @Mapping(target = "likedAt", ignore = true)
+    @Mapping(target = "likeNumber", ignore = true)
     NewsfeedItemDto.NewsfeedPostDto toPostDto(Post post);
 
     @Mapping(target = "coverPhotoUrl", source = "coverPhoto.fileUrl")
@@ -25,5 +27,7 @@ public interface NewsfeedMapper {
     @Mapping(target = "student.name", source = "student.fullName")
     @Mapping(target = "event", source = "event")
     @Mapping(target = "event.coverPhotoUrl", source = "event.coverPhoto.fileUrl")
+    @Mapping(target = "likedAt", ignore = true)
+    @Mapping(target = "likeNumber", ignore = true)
     NewsfeedItemDto.NewsfeedFeedbackDto toFeedbackDto(Feedback feedback);
 }

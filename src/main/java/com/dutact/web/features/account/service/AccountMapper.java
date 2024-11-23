@@ -17,5 +17,12 @@ public interface AccountMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "enabled", ignore = true)
+    @Mapping(target = "role", ignore = true)
+    @Mapping(target = "name", ignore = true)
+    @Mapping(target = "avatar", ignore = true)
+    @Mapping(target = "phone", ignore = true)
+    @Mapping(target = "address", ignore = true)
+    @Mapping(target = "personInChargeName", ignore = true)
+    @Mapping(target = "events", ignore = true)
     EventOrganizer toOrganizer(CreateOrganizerAccountDto eventDto);
 }

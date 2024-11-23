@@ -23,6 +23,8 @@ public interface FeedbackMapper {
     @Mapping(target = "coverPhotoUrl", source = "coverPhoto.fileUrl")
     @Mapping(target = "event.coverPhotoUrl", source = "event.coverPhoto.fileUrl")
     @Mapping(target = "student.avatarUrl", source = "student.avatar.fileUrl")
+    @Mapping(target = "likedAt", ignore = true)
+    @Mapping(target = "likeNumber", ignore = true)
     FeedbackDto toDto(Feedback feedback);
 
     @Mapping(target = "id", ignore = true)
