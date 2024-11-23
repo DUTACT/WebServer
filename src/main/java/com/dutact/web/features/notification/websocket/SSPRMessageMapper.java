@@ -1,7 +1,9 @@
 package com.dutact.web.features.notification.websocket;
 
+import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Component;
 
+@Log4j2
 @Component
 public class SSPRMessageMapper {
     public SSPRMessage toSSPRMessage(String message) {
@@ -27,6 +29,10 @@ public class SSPRMessageMapper {
         builder.append(message.getCommand()).append("\n");
 
         for (var entry : message.getHeaders().entrySet()) {
+            if (entry.getValue() == null) {
+                continue;
+            }
+
             builder.append(entry.getKey()).append(":").append(entry.getValue()).append("\n");
         }
 

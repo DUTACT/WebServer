@@ -1,7 +1,6 @@
 package com.dutact.web.features.notification.websocket;
 
 import com.dutact.web.features.notification.connection.ConnectionHandler;
-import com.dutact.web.features.notification.push.exceptions.TokenAlreadyConnectException;
 import com.dutact.web.features.notification.subscription.AccountSubscriptionHandler;
 import jakarta.annotation.Nonnull;
 import lombok.extern.log4j.Log4j2;
@@ -34,9 +33,10 @@ public class NotificationWebSocketHandler extends TextWebSocketHandler {
 
         var ssprSession = new SSPRWebsocketSession(session, SSPRMessageMapper);
 
-        try {
-            var ssprMessage = SSPRMessageMapper.toSSPRMessage(payload);
+        var ssprMessage = SSPRMessageMapper.toSSPRMessage(payload);
+        var receipt = ssprMessage.getHeaders().get("receipt");
 
+        try {
             var response = switch (ssprMessage.getCommand()) {
                 case SUBSCRIBE -> handleSubscribe(ssprMessage);
                 case UNSUBSCRIBE -> handleUnsubscribe(ssprMessage);
@@ -45,12 +45,14 @@ public class NotificationWebSocketHandler extends TextWebSocketHandler {
                 default -> unsupportedCommand();
             };
 
+            response.getHeaders().put("receipt", receipt);
             ssprSession.send(response);
         } catch (Exception e) {
             log.error("Error handling message", e);
 
             var response = new SSPRMessage();
             response.setCommand(ERROR);
+            response.getHeaders().put("receipt", receipt);
             response.setBody("Something went wrong: " + e.getMessage());
 
             ssprSession.send(response);
@@ -83,15 +85,9 @@ public class NotificationWebSocketHandler extends TextWebSocketHandler {
     private SSPRMessage handleConnect(SSPRSession session, SSPRMessage ssprMessage) {
         var headers = ssprMessage.getHeaders();
         var subscriptionToken = headers.get("subscription-token");
-        try {
-            connectionHandler.connect(session, subscriptionToken);
-        } catch (TokenAlreadyConnectException e) {
-            var response = new SSPRMessage();
-            response.setCommand(ERROR);
-            response.setBody("Token already connected");
 
-            return response;
-        }
+        connectionHandler.connect(session, subscriptionToken);
+
 
         var response = new SSPRMessage();
         response.setCommand(OK);

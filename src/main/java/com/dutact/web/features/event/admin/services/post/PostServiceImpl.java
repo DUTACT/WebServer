@@ -12,6 +12,7 @@ import com.dutact.web.features.event.events.PostCreatedEvent;
 import com.dutact.web.storage.StorageService;
 import com.dutact.web.storage.UploadFileResult;
 import lombok.SneakyThrows;
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.Collection;
 import java.util.Optional;
 
+@Log4j2
 @Service("adminPostService")
 public class PostServiceImpl implements PostService {
     private final PostMapper postMapper;
@@ -50,7 +52,11 @@ public class PostServiceImpl implements PostService {
 
         postRepository.save(post);
 
-        eventPublisher.publishEvent(new PostCreatedEvent(post.getId()));
+        try {
+            eventPublisher.publishEvent(new PostCreatedEvent(post.getId()));
+        } catch (Exception e) {
+            log.error("Failed to publish PostCreatedEvent", e);
+        }
 
         return postMapper.toPostDto(post);
     }

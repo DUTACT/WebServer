@@ -1,11 +1,9 @@
 package com.dutact.web.features.notification.push;
 
-import com.dutact.web.features.notification.connection.ConnectionEstablishedEvent;
 import com.dutact.web.features.notification.push.data.SendFailedNotification;
 import com.dutact.web.features.notification.push.data.SendFailedNotificationRepository;
 import com.dutact.web.features.notification.push.data.SendFailedNotificationSpecs;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -42,9 +40,8 @@ public class PushNotificationWorkerImpl implements PushNotificationWorker {
         sendFailedNotificationRepository.saveAll(sendFailedNotifications);
     }
 
-    @EventListener
-    public void onConnectionEstablished(ConnectionEstablishedEvent event) {
-        var subscriptionToken = event.subscriptionToken();
+    @Override
+    public void retryFailedNotifications(String subscriptionToken) {
         var failedNotifications = sendFailedNotificationRepository
                 .findAll(SendFailedNotificationSpecs.hasSubscriptionToken(subscriptionToken));
 

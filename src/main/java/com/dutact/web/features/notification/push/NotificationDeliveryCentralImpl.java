@@ -1,10 +1,10 @@
 package com.dutact.web.features.notification.push;
 
+import com.dutact.web.common.mapper.ObjectMapperUtils;
 import com.dutact.web.features.notification.subscription.data.AccountSubscription;
 import com.dutact.web.features.notification.subscription.data.AccountSubscriptionRepository;
 import com.dutact.web.features.notification.subscription.data.AccountSubscriptionSpecs;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Data;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Component;
@@ -29,10 +29,10 @@ public class NotificationDeliveryCentralImpl implements NotificationDeliveryCent
                 .findAll(AccountSubscriptionSpecs.hasAccountIdIn(accountIds))
                 .stream().map(AccountSubscription::getSubscriptionToken).toList();
         var message = new PushNotificationMessage();
-        message.setContent(details);
+        message.setDetails(details);
         message.setNotificationType(notificationType);
 
-        var objectMapper = new ObjectMapper();
+        var objectMapper = ObjectMapperUtils.createObjectMapper();
         var messageJson = objectMapper.writeValueAsString(message);
 
         pushNotificationWorker.sendNotification(subscriptionTokens, messageJson);
@@ -40,8 +40,8 @@ public class NotificationDeliveryCentralImpl implements NotificationDeliveryCent
 
     @Data
     static class PushNotificationMessage {
-        @JsonProperty("content")
-        private Object content;
+        @JsonProperty("details")
+        private Object details;
 
         @JsonProperty("notificationType")
         private String notificationType;

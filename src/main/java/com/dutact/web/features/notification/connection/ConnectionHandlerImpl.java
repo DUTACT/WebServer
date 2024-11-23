@@ -22,12 +22,21 @@ public class ConnectionHandlerImpl implements ConnectionHandler {
     }
 
     @Override
-    public void connect(SSPRSession session, String subscriptionToken) throws TokenAlreadyConnectException {
+    public void connect(SSPRSession session, String subscriptionToken) {
         if (subscriptionRepository.findById(subscriptionToken).isEmpty()) {
             throw new InvalidSubscriptionTokenException();
         }
 
-        connectionRegistry.addConnection(session, subscriptionToken);
+        try {
+            connectionRegistry.addConnection(session, subscriptionToken);
+        } catch (TokenAlreadyConnectException e) {
+            connectionRegistry.removeConnection(subscriptionToken);
+            try {
+                connectionRegistry.addConnection(session, subscriptionToken);
+            } catch (TokenAlreadyConnectException ex) {
+                throw new RuntimeException(ex);
+            }
+        }
 
         eventPublisher.publishEvent(new ConnectionEstablishedEvent(subscriptionToken));
     }

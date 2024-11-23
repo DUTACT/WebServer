@@ -7,9 +7,11 @@ import com.dutact.web.features.event.events.PostCreatedEvent;
 import com.dutact.web.features.notification.constants.NotificationType;
 import com.dutact.web.features.notification.push.NotificationDeliveryCentral;
 import com.dutact.web.features.post.student.service.PostMapper;
+import jakarta.transaction.Transactional;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 @Log4j2
@@ -30,8 +32,10 @@ public class StudentPostEventListener {
         this.notificationDeliveryCentral = notificationDeliveryCentral;
     }
 
+    @Async
     @SneakyThrows
     @EventListener
+    @Transactional
     public void onPostCreated(PostCreatedEvent event) {
         var postOpt = postRepository.findById(event.postId());
         if (postOpt.isEmpty()) {
