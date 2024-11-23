@@ -30,4 +30,15 @@ public class NewsfeedController {
 
         return ResponseEntity.ok(newsfeedService.getFollowedNewsfeed(studentId));
     }
+
+    @GetMapping("/liked")
+    public ResponseEntity<List<NewsfeedItemDto>> getLikedNewsfeed() {
+        try {
+            var studentId = studentAccountService.getStudentId(SecurityContextUtils.getUsername())
+                    .orElseThrow(() -> new RuntimeException("The request is associated with a non-existent student"));
+            return ResponseEntity.ok(newsfeedService.getLikedNewsfeed(studentId));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
 }

@@ -45,6 +45,7 @@ public class EventServiceImpl implements EventService {
     private final StudentRepository studentRepository;
     private final EventCheckInRepository checkInRepository;
     private final EventCheckInMapper eventCheckInMapper;
+    private final PostLikeRepository postLikeRepository;
 
     public EventServiceImpl(EventRepository eventRepository,
                             EventRegistrationRepository eventRegistrationRepository,
@@ -55,7 +56,8 @@ public class EventServiceImpl implements EventService {
                             EventRegistrationMapper eventRegistrationMapper,
                             EventFollowRepository eventFollowRepository,
                             StudentRepository studentRepository,
-                            EventFollowMapper eventFollowMapper
+                            EventFollowMapper eventFollowMapper,
+                            PostLikeRepository postLikeRepository
     ) {
         this.eventRepository = eventRepository;
         this.eventCheckInMapper = eventCheckInMapper;
@@ -67,6 +69,7 @@ public class EventServiceImpl implements EventService {
         this.eventFollowRepository = eventFollowRepository;
         this.studentRepository = studentRepository;
         this.eventFollowMapper = eventFollowMapper;
+        this.postLikeRepository = postLikeRepository;
     }
 
     @Override
@@ -98,6 +101,7 @@ public class EventServiceImpl implements EventService {
 
             int numberFollower = eventFollowRepository.countByEventId(event.get().getId());
             int numberRegister = eventRegistrationRepository.countByEventId(event.get().getId());
+            
             eventDto.setRegisterNumber(numberRegister);
             eventDto.setFollowerNumber(numberFollower);
 
@@ -142,6 +146,7 @@ public class EventServiceImpl implements EventService {
 
                     int numberFollower = eventFollowRepository.countByEventId(event.getId());
                     int numberRegister = eventRegistrationRepository.countByEventId(event.getId());
+                    
                     eventDto.setRegisterNumber(numberRegister);
                     eventDto.setFollowerNumber(numberFollower);
                     return eventDto;

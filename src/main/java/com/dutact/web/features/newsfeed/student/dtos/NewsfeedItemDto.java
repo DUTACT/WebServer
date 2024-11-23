@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.annotation.Nullable;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -16,6 +17,23 @@ import java.time.LocalDateTime;
         @JsonSubTypes.Type(value = NewsfeedItemDto.NewsfeedFeedbackDto.class, name = NewsfeedItemDto.NewsfeedFeedbackDto.TYPE_NAME),
 })
 public abstract class NewsfeedItemDto implements Comparable<NewsfeedItemDto> {
+    @Nullable
+    @JsonProperty("likedAt")
+    protected LocalDateTime likedAt;
+
+    @Nullable
+    public Integer getLikeNumber() {
+        return likeNumber;
+    }
+
+    public void setLikeNumber(@Nullable Integer likeNumber) {
+        this.likeNumber = likeNumber;
+    }
+
+    @Nullable
+    @JsonProperty("likedNumber")
+    protected Integer likeNumber;
+
     @EqualsAndHashCode(callSuper = true)
     @Data
     @Schema(name = "StudentNewsfeedPostDto")
@@ -86,5 +104,14 @@ public abstract class NewsfeedItemDto implements Comparable<NewsfeedItemDto> {
                 return this.postedAt.compareTo(postCompareTo.postedAt);
             }
         }
+    }
+
+    // Getter and setter for likedAt
+    public LocalDateTime getLikedAt() {
+        return likedAt;
+    }
+
+    public void setLikedAt(LocalDateTime likedAt) {
+        this.likedAt = likedAt;
     }
 }

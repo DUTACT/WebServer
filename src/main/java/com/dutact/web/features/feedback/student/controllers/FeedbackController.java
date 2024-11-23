@@ -67,4 +67,39 @@ public class FeedbackController {
         feedbackService.deleteFeedback(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping("/{feedbackId}/like")
+    public ResponseEntity<Void> likeFeedback(@PathVariable Integer feedbackId) {
+        try {
+            var studentId = studentAccountService.getStudentId(SecurityContextUtils.getUsername())
+                    .orElseThrow(() -> new RuntimeException("The request is associated with a non-existent student"));
+            feedbackService.likeFeedback(studentId, feedbackId);
+            return ResponseEntity.ok().build();
+        } catch (NotExistsException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @DeleteMapping("/{feedbackId}/like")
+    public ResponseEntity<Void> unlikeFeedback(@PathVariable Integer feedbackId) {
+        try {
+            var studentId = studentAccountService.getStudentId(SecurityContextUtils.getUsername())
+                    .orElseThrow(() -> new RuntimeException("The request is associated with a non-existent student"));
+            feedbackService.unlikeFeedback(studentId, feedbackId);
+            return ResponseEntity.ok().build();
+        } catch (NotExistsException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @GetMapping("/liked")
+    public ResponseEntity<?> getLikedFeedbacks() {
+        try {
+            var studentId = studentAccountService.getStudentId(SecurityContextUtils.getUsername())
+                    .orElseThrow(() -> new RuntimeException("The request is associated with a non-existent student"));
+            return ResponseEntity.ok(feedbackService.getLikedFeedbacks(studentId));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
 }
