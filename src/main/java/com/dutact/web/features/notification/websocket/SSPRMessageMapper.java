@@ -30,7 +30,7 @@ public class SSPRMessageMapper {
             builder.append(entry.getKey()).append(":").append(entry.getValue()).append("\n");
         }
 
-        builder.append("\n").append(message.getBody());
+        builder.append("\n").append(message.getBody() != null ? message.getBody() : "");
 
         return builder.toString();
     }
