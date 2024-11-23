@@ -27,7 +27,6 @@ public interface EventMapper {
     @Mapping(target = "studentId", source = "student.id")
     @Mapping(target = "totalCheckIn", ignore = true)
     @Mapping(target = "checkIns", ignore = true)
-    @Mapping(target = "certificateStatus", ignore = true)
     EventDetailsDto toDetailsDto(EventRegistration eventRegistration);
 
     @Mapping(target = "studentId", source = "student.id")
