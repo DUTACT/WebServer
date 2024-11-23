@@ -35,14 +35,14 @@ public class EventFollowSpecs {
 
     public static Specification<EventFollow> joinEvent() {
         return (root, query, criteriaBuilder) -> {
-            root.fetch("event");
+            root.join("event");
             return criteriaBuilder.conjunction();
         };
     }
 
     public static Specification<EventFollow> joinStudent() {
         return (root, query, criteriaBuilder) -> {
-            root.fetch("student");
+            root.join("student");
             return criteriaBuilder.conjunction();
         };
     }
