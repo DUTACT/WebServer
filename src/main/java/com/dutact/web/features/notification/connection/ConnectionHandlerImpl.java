@@ -1,20 +1,24 @@
-package com.dutact.web.features.notification.messaging;
+package com.dutact.web.features.notification.connection;
 
 import com.dutact.web.features.notification.messaging.exceptions.InvalidSubscriptionTokenException;
 import com.dutact.web.features.notification.messaging.exceptions.TokenAlreadyConnectException;
 import com.dutact.web.features.notification.subscription.data.AccountSubscriptionRepository;
 import com.dutact.web.features.notification.websocket.SSPRSession;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 @Component
 public class ConnectionHandlerImpl implements ConnectionHandler {
     private final ConnectionRegistry connectionRegistry;
     private final AccountSubscriptionRepository subscriptionRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     public ConnectionHandlerImpl(ConnectionRegistry connectionRegistry,
-                                 AccountSubscriptionRepository subscriptionRepository) {
+                                 AccountSubscriptionRepository subscriptionRepository,
+                                 ApplicationEventPublisher eventPublisher) {
         this.connectionRegistry = connectionRegistry;
         this.subscriptionRepository = subscriptionRepository;
+        this.eventPublisher = eventPublisher;
     }
 
     @Override
@@ -24,6 +28,8 @@ public class ConnectionHandlerImpl implements ConnectionHandler {
         }
 
         connectionRegistry.addConnection(session, subscriptionToken);
+
+        eventPublisher.publishEvent(new ConnectionEstablishedEvent(subscriptionToken));
     }
 
     @Override

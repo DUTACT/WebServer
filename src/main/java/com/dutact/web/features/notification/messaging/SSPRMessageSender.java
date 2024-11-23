@@ -1,5 +1,6 @@
 package com.dutact.web.features.notification.messaging;
 
+import com.dutact.web.features.notification.connection.ConnectionRegistry;
 import com.dutact.web.features.notification.messaging.exceptions.NotConnectedException;
 import com.dutact.web.features.notification.websocket.SSPRMessage;
 import com.dutact.web.features.notification.websocket.SSPRMessageCommand;

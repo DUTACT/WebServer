@@ -1,6 +1,6 @@
 package com.dutact.web.features.notification.websocket;
 
-import com.dutact.web.features.notification.messaging.ConnectionHandler;
+import com.dutact.web.features.notification.connection.ConnectionHandler;
 import com.dutact.web.features.notification.messaging.exceptions.TokenAlreadyConnectException;
 import com.dutact.web.features.notification.subscription.AccountSubscriptionHandler;
 import jakarta.annotation.Nonnull;
@@ -36,7 +36,7 @@ public class NotificationWebSocketHandler extends TextWebSocketHandler {
 
         try {
             var ssprMessage = SSPRMessageMapper.toSSPRMessage(payload);
-            
+
             var response = switch (ssprMessage.getCommand()) {
                 case SUBSCRIBE -> handleSubscribe(ssprMessage);
                 case UNSUBSCRIBE -> handleUnsubscribe(ssprMessage);

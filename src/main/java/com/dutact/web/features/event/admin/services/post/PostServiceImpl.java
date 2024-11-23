@@ -8,10 +8,12 @@ import com.dutact.web.core.repositories.PostRepository;
 import com.dutact.web.features.event.admin.dtos.post.PostCreateDto;
 import com.dutact.web.features.event.admin.dtos.post.PostDto;
 import com.dutact.web.features.event.admin.dtos.post.PostUpdateDto;
+import com.dutact.web.features.event.events.PostCreatedEvent;
 import com.dutact.web.storage.StorageService;
 import com.dutact.web.storage.UploadFileResult;
 import lombok.SneakyThrows;
 import org.apache.commons.io.FilenameUtils;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -24,15 +26,18 @@ public class PostServiceImpl implements PostService {
     private final UploadedFileMapper uploadedFileMapper;
     private final PostRepository postRepository;
     private final StorageService storageService;
+    private final ApplicationEventPublisher eventPublisher;
 
     public PostServiceImpl(PostMapper postMapper,
                            UploadedFileMapper uploadedFileMapper,
                            PostRepository postRepository,
-                           StorageService storageService) {
+                           StorageService storageService,
+                           ApplicationEventPublisher eventPublisher) {
         this.postMapper = postMapper;
         this.uploadedFileMapper = uploadedFileMapper;
         this.postRepository = postRepository;
         this.storageService = storageService;
+        this.eventPublisher = eventPublisher;
     }
 
     @Override
@@ -43,7 +48,11 @@ public class PostServiceImpl implements PostService {
         UploadFileResult uploadedFile = uploadFile(postDto.getCoverPhoto());
         post.setCoverPhoto(uploadedFileMapper.toUploadedFile(uploadedFile));
 
-        return postMapper.toPostDto(postRepository.save(post));
+        postRepository.save(post);
+
+        eventPublisher.publishEvent(new PostCreatedEvent(post.getId()));
+
+        return postMapper.toPostDto(post);
     }
 
     @Override

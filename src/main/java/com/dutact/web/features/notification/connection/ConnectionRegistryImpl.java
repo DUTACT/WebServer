@@ -1,4 +1,4 @@
-package com.dutact.web.features.notification.messaging;
+package com.dutact.web.features.notification.connection;
 
 import com.dutact.web.features.notification.messaging.exceptions.TokenAlreadyConnectException;
 import com.dutact.web.features.notification.websocket.SSPRSession;
