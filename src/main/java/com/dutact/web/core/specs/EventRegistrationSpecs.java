@@ -81,21 +81,21 @@ public class EventRegistrationSpecs {
 
     public static Specification<EventRegistration> joinEvent() {
         return (root, query, criteriaBuilder) -> {
-            root.fetch("event");
+            root.join("event");
             return criteriaBuilder.conjunction();
         };
     }
 
     public static Specification<EventRegistration> joinStudent() {
         return (root, query, criteriaBuilder) -> {
-            root.fetch("student");
+            root.join("student");
             return criteriaBuilder.conjunction();
         };
     }
 
     public static Specification<EventRegistration> joinOrganizer() {
         return (root, query, criteriaBuilder) -> {
-            root.fetch("event").fetch("organizer");
+            root.join("event").join("organizer");
             return criteriaBuilder.conjunction();
         };
     }
