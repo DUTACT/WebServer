@@ -36,8 +36,6 @@ public class PushNotificationWorkerImpl implements PushNotificationWorker {
                 sendFailedNotification.setSubscriptionToken(subscriptionToken);
                 sendFailedNotification.setMessage(message);
                 sendFailedNotifications.add(sendFailedNotification);
-
-                log.error("Failed to send message to subscription token {}", subscriptionToken, e);
             }
         }
 
@@ -63,7 +61,6 @@ public class PushNotificationWorkerImpl implements PushNotificationWorker {
                 } else {
                     failedNotificationsToDelete.add(failedNotification);
                 }
-                log.error("Failed to resend message to subscription token {}", subscriptionToken, e);
             }
         }
 
