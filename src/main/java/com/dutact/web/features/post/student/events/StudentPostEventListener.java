@@ -5,7 +5,7 @@ import com.dutact.web.core.repositories.PostRepository;
 import com.dutact.web.core.specs.EventFollowSpecs;
 import com.dutact.web.features.event.events.PostCreatedEvent;
 import com.dutact.web.features.notification.constants.NotificationType;
-import com.dutact.web.features.notification.messaging.NotificationDeliveryCentral;
+import com.dutact.web.features.notification.push.NotificationDeliveryCentral;
 import com.dutact.web.features.post.student.service.PostMapper;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;

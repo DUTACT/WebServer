@@ -1,9 +1,9 @@
-package com.dutact.web.features.notification.messaging;
+package com.dutact.web.features.notification.push;
 
 import com.dutact.web.features.notification.connection.ConnectionEstablishedEvent;
-import com.dutact.web.features.notification.messaging.data.SendFailedNotification;
-import com.dutact.web.features.notification.messaging.data.SendFailedNotificationRepository;
-import com.dutact.web.features.notification.messaging.data.SendFailedNotificationSpecs;
+import com.dutact.web.features.notification.push.data.SendFailedNotification;
+import com.dutact.web.features.notification.push.data.SendFailedNotificationRepository;
+import com.dutact.web.features.notification.push.data.SendFailedNotificationSpecs;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;

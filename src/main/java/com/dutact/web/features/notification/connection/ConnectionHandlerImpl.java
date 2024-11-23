@@ -1,7 +1,7 @@
 package com.dutact.web.features.notification.connection;
 
-import com.dutact.web.features.notification.messaging.exceptions.InvalidSubscriptionTokenException;
-import com.dutact.web.features.notification.messaging.exceptions.TokenAlreadyConnectException;
+import com.dutact.web.features.notification.push.exceptions.InvalidSubscriptionTokenException;
+import com.dutact.web.features.notification.push.exceptions.TokenAlreadyConnectException;
 import com.dutact.web.features.notification.subscription.data.AccountSubscriptionRepository;
 import com.dutact.web.features.notification.websocket.SSPRSession;
 import org.springframework.context.ApplicationEventPublisher;

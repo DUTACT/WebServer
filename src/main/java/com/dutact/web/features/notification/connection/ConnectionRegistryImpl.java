@@ -1,6 +1,6 @@
 package com.dutact.web.features.notification.connection;
 
-import com.dutact.web.features.notification.messaging.exceptions.TokenAlreadyConnectException;
+import com.dutact.web.features.notification.push.exceptions.TokenAlreadyConnectException;
 import com.dutact.web.features.notification.websocket.SSPRSession;
 import jakarta.annotation.Nullable;
 import org.springframework.stereotype.Component;

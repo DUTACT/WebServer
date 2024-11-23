@@ -1,4 +1,4 @@
-package com.dutact.web.features.notification.messaging;
+package com.dutact.web.features.notification.push;
 
 import com.dutact.web.features.notification.subscription.data.AccountSubscription;
 import com.dutact.web.features.notification.subscription.data.AccountSubscriptionRepository;

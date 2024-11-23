@@ -1,7 +1,7 @@
 package com.dutact.web.features.notification.websocket;
 
 import com.dutact.web.features.notification.connection.ConnectionHandler;
-import com.dutact.web.features.notification.messaging.exceptions.TokenAlreadyConnectException;
+import com.dutact.web.features.notification.push.exceptions.TokenAlreadyConnectException;
 import com.dutact.web.features.notification.subscription.AccountSubscriptionHandler;
 import jakarta.annotation.Nonnull;
 import lombok.extern.log4j.Log4j2;

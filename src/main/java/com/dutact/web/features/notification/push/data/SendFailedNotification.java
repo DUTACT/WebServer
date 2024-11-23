@@ -1,4 +1,4 @@
-package com.dutact.web.features.notification.messaging.data;
+package com.dutact.web.features.notification.push.data;
 
 import jakarta.persistence.*;
 import lombok.Getter;
