@@ -14,14 +14,14 @@ import static com.dutact.web.features.notification.constants.SSPRMessageCommand.
 
 @Log4j2
 @Component
-public class NotificationWebSocketHandler extends TextWebSocketHandler {
+public class SSPRNotificationWebSocketHandler extends TextWebSocketHandler {
     private final SSPRMessageMapper SSPRMessageMapper;
     private final AccountSubscriptionHandler accountSubscriptionHandler;
     private final ConnectionHandler connectionHandler;
 
-    public NotificationWebSocketHandler(SSPRMessageMapper SSPRMessageMapper,
-                                        AccountSubscriptionHandler accountSubscriptionHandler,
-                                        ConnectionHandler connectionHandler) {
+    public SSPRNotificationWebSocketHandler(SSPRMessageMapper SSPRMessageMapper,
+                                            AccountSubscriptionHandler accountSubscriptionHandler,
+                                            ConnectionHandler connectionHandler) {
         super();
         this.SSPRMessageMapper = SSPRMessageMapper;
         this.accountSubscriptionHandler = accountSubscriptionHandler;
@@ -73,7 +73,7 @@ public class NotificationWebSocketHandler extends TextWebSocketHandler {
 
         var response = new SSPRMessage();
         response.setCommand(OK);
-        response.getHeaders().put("subscription-token", subscriptionToken);
+        response.getHeaders().put("subscri   ption-token", subscriptionToken);
 
         return response;
     }
