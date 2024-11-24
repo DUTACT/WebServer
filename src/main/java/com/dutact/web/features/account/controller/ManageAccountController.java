@@ -6,7 +6,11 @@ import com.dutact.web.common.api.PageResponse;
 import com.dutact.web.common.api.exceptions.NotExistsException;
 import com.dutact.web.features.account.dto.AccountDto;
 import com.dutact.web.features.account.dto.CreateOrganizerAccountDto;
+import com.dutact.web.features.account.dto.OrganizerAccountDto;
+import com.dutact.web.features.account.dto.StudentAccountDto;
+import com.dutact.web.features.account.service.AccountQueryParams;
 import com.dutact.web.features.account.service.ManageAccountService;
+import com.dutact.web.features.account.service.RoleSpecifiedAccountQueryParams;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -37,6 +41,32 @@ public class ManageAccountController {
         queryParams.setPageSize(pageSize);
 
         return ResponseEntity.ok(manageAccountService.getAllAccount(queryParams));
+    }
+
+    @GetMapping("/students")
+    public ResponseEntity<PageResponse<StudentAccountDto>> getAllStudentAccount(
+            @RequestParam(required = false) @Nullable String searchQuery,
+            @RequestParam(required = false, defaultValue = "1") @Min(1) Integer page,
+            @RequestParam(required = false, defaultValue = "10") @Min(1) Integer pageSize) {
+        var queryParams = new RoleSpecifiedAccountQueryParams();
+        queryParams.setSearchQuery(searchQuery);
+        queryParams.setPage(page);
+        queryParams.setPageSize(pageSize);
+
+        return ResponseEntity.ok(manageAccountService.getAllStudentAccount(queryParams));
+    }
+
+    @GetMapping("/organizers")
+    public ResponseEntity<PageResponse<OrganizerAccountDto>> getAllOrganizerAccount(
+            @RequestParam(required = false) @Nullable String searchQuery,
+            @RequestParam(required = false, defaultValue = "1") @Min(1) Integer page,
+            @RequestParam(required = false, defaultValue = "10") @Min(1) Integer pageSize) {
+        var queryParams = new RoleSpecifiedAccountQueryParams();
+        queryParams.setSearchQuery(searchQuery);
+        queryParams.setPage(page);
+        queryParams.setPageSize(pageSize);
+
+        return ResponseEntity.ok(manageAccountService.getAllOrganizerAccount(queryParams));
     }
 
     @PostMapping("/organizers")

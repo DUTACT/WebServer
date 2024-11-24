@@ -1,4 +1,4 @@
-package com.dutact.web.features.account.controller;
+package com.dutact.web.features.account.service;
 
 import com.dutact.web.auth.factors.Role;
 import jakarta.annotation.Nonnull;

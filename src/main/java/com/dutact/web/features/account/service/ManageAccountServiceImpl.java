@@ -8,11 +8,14 @@ import com.dutact.web.common.api.PageResponse;
 import com.dutact.web.common.api.exceptions.NotExistsException;
 import com.dutact.web.core.entities.EventOrganizer;
 import com.dutact.web.core.repositories.OrganizerRepository;
+import com.dutact.web.core.repositories.StudentRepository;
 import com.dutact.web.core.specs.AccountSpecs;
-import com.dutact.web.features.account.controller.AccountQueryParams;
+import com.dutact.web.core.specs.OrganizerSpecs;
+import com.dutact.web.core.specs.StudentSpecs;
 import com.dutact.web.features.account.dto.AccountDto;
 import com.dutact.web.features.account.dto.CreateOrganizerAccountDto;
 import com.dutact.web.features.account.dto.OrganizerAccountDto;
+import com.dutact.web.features.account.dto.StudentAccountDto;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -26,6 +29,7 @@ import java.util.Optional;
 public class ManageAccountServiceImpl implements ManageAccountService {
     private final PasswordEncoder passwordEncoder;
     private final AccountRepository accountRepository;
+    private final StudentRepository studentRepository;
     private final OrganizerRepository organizerRepository;
     private final AccountMapper accountMapper;
 
@@ -45,6 +49,40 @@ public class ManageAccountServiceImpl implements ManageAccountService {
         }
 
         var accountsPage = accountRepository.findAll(spec, pageable);
+
+        return PageResponse.of(accountsPage, accountMapper::toDto);
+    }
+
+    @Override
+    public PageResponse<StudentAccountDto> getAllStudentAccount(RoleSpecifiedAccountQueryParams params) {
+        var pageable = PageRequest.of(params.getPage() - 1,
+                params.getPageSize(),
+                Sort.by(Sort.Direction.ASC, "username"));
+
+        var spec = StudentSpecs.emtpy();
+
+        if (params.getSearchQuery() != null) {
+            spec = spec.and(StudentSpecs.usernameContains(params.getSearchQuery()));
+        }
+
+        var accountsPage = studentRepository.findAll(spec, pageable);
+
+        return PageResponse.of(accountsPage, accountMapper::toDto);
+    }
+
+    @Override
+    public PageResponse<OrganizerAccountDto> getAllOrganizerAccount(RoleSpecifiedAccountQueryParams params) {
+        var pageable = PageRequest.of(params.getPage() - 1,
+                params.getPageSize(),
+                Sort.by(Sort.Direction.ASC, "username"));
+
+        var spec = OrganizerSpecs.emtpy();
+
+        if (params.getSearchQuery() != null) {
+            spec = spec.and(OrganizerSpecs.usernameContains(params.getSearchQuery()));
+        }
+
+        var accountsPage = organizerRepository.findAll(spec, pageable);
 
         return PageResponse.of(accountsPage, accountMapper::toDto);
     }
