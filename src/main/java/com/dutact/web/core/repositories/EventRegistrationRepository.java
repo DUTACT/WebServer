@@ -34,6 +34,7 @@ public interface EventRegistrationRepository extends JpaRepository<EventRegistra
 
     Page<EventRegistration> findAllByStudentId(Integer studentId, Pageable pageable);
 
+    List<EventRegistration> findAllByStudentId(Integer studentId);
     @Query("SELECT COUNT(er) FROM EventRegistration er WHERE er.event.id = :eventId")
     Integer countByEventId(Integer eventId);
 }

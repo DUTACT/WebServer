@@ -20,11 +20,18 @@ public interface EventMapper {
     @Mapping(target = "followedAt", ignore = true)
     @Mapping(target = "coverPhotoUrl", source = "coverPhoto.fileUrl")
     @Mapping(target = "organizer.avatarUrl", source = "organizer.avatar.fileUrl")
+    @Mapping(target = "followerNumber", ignore = true)
+    @Mapping(target = "registerNumber", ignore = true)
     EventDto toDto(Event event);
 
     @Mapping(target = "studentId", source = "student.id")
+    @Mapping(target = "totalCheckIn", ignore = true)
+    @Mapping(target = "checkIns", ignore = true)
     EventDetailsDto toDetailsDto(EventRegistration eventRegistration);
 
     @Mapping(target = "studentId", source = "student.id")
+    @Mapping(target = "totalCheckIn", ignore = true)
+    @Mapping(target = "certificateStatus", ignore = true)
+    @Mapping(target = "checkIns", ignore = true)
     EventDetailsDto toDetailsDto(EventFollow eventFollow);
 }
