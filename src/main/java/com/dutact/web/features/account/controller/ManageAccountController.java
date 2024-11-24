@@ -39,7 +39,7 @@ public class ManageAccountController {
         return ResponseEntity.ok(manageAccountService.getAllAccount(queryParams));
     }
 
-    @PostMapping()
+    @PostMapping("/organizers")
     @ApiResponses({
             @ApiResponse(
                     responseCode = "200",
