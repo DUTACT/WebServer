@@ -95,45 +95,39 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public List<EventDto> getEvents() {
-        Integer requestStudentId = studentAccountService
-                .getStudentId(SecurityContextUtils.getUsername())
-                .orElseThrow(() -> new IllegalStateException("Student not found"));
+        // Get all approved events with necessary joins in a single query
+        List<Event> events = eventRepository.findAll(
+            EventSpecs.joinOrganizer()
+                .and(EventSpecs.hasStatus(EventStatus.Approved.TYPE_NAME))
+                .and(EventSpecs.orderByCreatedAt(true))
+        );
 
-        List<Event> events = eventRepository
-                .findAll(EventSpecs.hasStatus(EventStatus.Approved.TYPE_NAME)
-                        .and(EventSpecs.joinOrganizer()));
+        // Fetch all related data in bulk to avoid N+1 queries
+        List<EventRegistration> allRegistrations = eventRegistrationRepository.findAll();
+        List<EventFollow> allFollows = eventFollowRepository.findAll();
+        
+        // Transform to DTOs with all necessary data
+        List<EventDto> eventDtos = events.stream()
+            .map(eventMapper::toDto)
+            .toList();
 
-        Map<Integer, EventRegistration> eventRegistrations = eventRegistrationRepository
-                .findAll(EventRegistrationSpecs.hasStudentId(requestStudentId))
-                .stream()
-                .collect(Collectors.toMap(r -> r.getEvent().getId(), r -> r));
+        // Enrich DTOs with counts
+        eventDtos.forEach(eventDto -> {
+            Integer eventId = eventDto.getId();
+            
+            // Set counts
+            long registerCount = allRegistrations.stream()
+                .filter(r -> r.getEvent().getId().equals(eventId))
+                .count();
+            long followCount = allFollows.stream()
+                .filter(f -> f.getEvent().getId().equals(eventId))
+                .count();
+                
+            eventDto.setRegisterNumber((int) registerCount);
+            eventDto.setFollowerNumber((int) followCount);
+        });
 
-        Map<Integer, EventFollow> eventFollows = eventFollowRepository
-                .findAll(EventFollowSpecs.hasStudentId(requestStudentId))
-                .stream()
-                .collect(Collectors.toMap(f -> f.getEvent().getId(), f -> f));
-
-        return events.stream()
-                .map(event -> {
-                    EventDto eventDto = eventMapper.toDto(event);
-                    if (eventRegistrations.containsKey(event.getId())) {
-                        eventDto.setRegisteredAt(eventRegistrations
-                                .get(event.getId()).getRegisteredAt());
-                    }
-
-                    if (eventFollows.containsKey(event.getId())) {
-                        eventDto.setFollowedAt(eventFollows
-                                .get(event.getId()).getFollowedAt());
-                    }
-
-                    int numberFollower = eventFollowRepository.countByEventId(event.getId());
-                    int numberRegister = eventRegistrationRepository.countByEventId(event.getId());
-                    
-                    eventDto.setRegisterNumber(numberRegister);
-                    eventDto.setFollowerNumber(numberFollower);
-                    return eventDto;
-                })
-                .toList();
+        return eventDtos;
     }
 
     @Override
