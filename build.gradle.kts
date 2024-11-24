@@ -30,6 +30,7 @@ dependencies {
     implementation("com.azure:azure-identity")
     implementation("com.azure:azure-storage-blob")
     implementation("org.apache.tika:tika-core:3.0.0")
+    implementation("org.springframework.boot:spring-boot-starter-websocket")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-authorization-server")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")

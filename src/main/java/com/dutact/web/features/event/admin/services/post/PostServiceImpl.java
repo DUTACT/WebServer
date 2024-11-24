@@ -8,31 +8,38 @@ import com.dutact.web.core.repositories.PostRepository;
 import com.dutact.web.features.event.admin.dtos.post.PostCreateDto;
 import com.dutact.web.features.event.admin.dtos.post.PostDto;
 import com.dutact.web.features.event.admin.dtos.post.PostUpdateDto;
+import com.dutact.web.features.event.events.PostCreatedEvent;
 import com.dutact.web.storage.StorageService;
 import com.dutact.web.storage.UploadFileResult;
 import lombok.SneakyThrows;
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.io.FilenameUtils;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Collection;
 import java.util.Optional;
 
+@Log4j2
 @Service("adminPostService")
 public class PostServiceImpl implements PostService {
     private final PostMapper postMapper;
     private final UploadedFileMapper uploadedFileMapper;
     private final PostRepository postRepository;
     private final StorageService storageService;
+    private final ApplicationEventPublisher eventPublisher;
 
     public PostServiceImpl(PostMapper postMapper,
                            UploadedFileMapper uploadedFileMapper,
                            PostRepository postRepository,
-                           StorageService storageService) {
+                           StorageService storageService,
+                           ApplicationEventPublisher eventPublisher) {
         this.postMapper = postMapper;
         this.uploadedFileMapper = uploadedFileMapper;
         this.postRepository = postRepository;
         this.storageService = storageService;
+        this.eventPublisher = eventPublisher;
     }
 
     @Override
@@ -43,7 +50,15 @@ public class PostServiceImpl implements PostService {
         UploadFileResult uploadedFile = uploadFile(postDto.getCoverPhoto());
         post.setCoverPhoto(uploadedFileMapper.toUploadedFile(uploadedFile));
 
-        return postMapper.toPostDto(postRepository.save(post));
+        postRepository.save(post);
+
+        try {
+            eventPublisher.publishEvent(new PostCreatedEvent(post.getId()));
+        } catch (Exception e) {
+            log.error("Failed to publish PostCreatedEvent", e);
+        }
+
+        return postMapper.toPostDto(post);
     }
 
     @Override
