@@ -12,6 +12,7 @@ import com.dutact.web.core.specs.AccountSpecs;
 import com.dutact.web.features.account.controller.AccountQueryParams;
 import com.dutact.web.features.account.dto.AccountDto;
 import com.dutact.web.features.account.dto.CreateOrganizerAccountDto;
+import com.dutact.web.features.account.dto.OrganizerAccountDto;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -45,11 +46,11 @@ public class ManageAccountServiceImpl implements ManageAccountService {
 
         var accountsPage = accountRepository.findAll(spec, pageable);
 
-        return PageResponse.of(accountsPage, accountMapper::toAccountDto);
+        return PageResponse.of(accountsPage, accountMapper::toDto);
     }
 
     @Override
-    public AccountDto createOrganizer(CreateOrganizerAccountDto dto) throws UsernameOrEmailAlreadyExistException {
+    public OrganizerAccountDto createOrganizer(CreateOrganizerAccountDto dto) throws UsernameOrEmailAlreadyExistException {
         Optional<Account> account = accountRepository.findByUsername(dto.getUsername());
         if (account.isPresent()) {
             throw new UsernameOrEmailAlreadyExistException();
@@ -59,7 +60,7 @@ public class ManageAccountServiceImpl implements ManageAccountService {
         organizer.setEnabled(true);
         organizer.setPassword(passwordEncoder.encode(dto.getPassword()));
         organizer.setRole(Role.EVENT_ORGANIZER);
-        return accountMapper.toAccountDto(organizerRepository.save(organizer));
+        return accountMapper.toDto(organizerRepository.save(organizer));
     }
 
     @Override
