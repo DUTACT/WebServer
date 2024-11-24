@@ -73,7 +73,7 @@ public class SSPRNotificationWebSocketHandler extends TextWebSocketHandler {
 
         var response = new SSPRMessage();
         response.setCommand(OK);
-        response.getHeaders().put("subscri   ption-token", subscriptionToken);
+        response.getHeaders().put("subscription-token", subscriptionToken);
 
         return response;
     }
