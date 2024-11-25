@@ -34,4 +34,6 @@ public interface EventService {
     PageResponse<EventDetailsDto> getRegisteredEvents(Integer studentId, Integer page, Integer pageSize);
 
     PageResponse<EventDetailsDto> getFollowedEvents(Integer studentId, Integer page, Integer pageSize);
+
+    PageResponse<EventDetailsDto> getConfirmedEvents(Integer studentId, Integer page, Integer pageSize);
 }

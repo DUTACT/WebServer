@@ -132,4 +132,15 @@ public class StudentEventController {
                         new RuntimeException("The account is not associated with any student profile"));
         return eventService.getFollowedEvents(requestStudentId, page, pageSize);
     }
+
+    @GetMapping("/confirmed")
+    public PageResponse<EventDetailsDto> getConfirmedEvents(
+            @RequestParam(required = false, defaultValue = "1") @Min(1) Integer page,
+            @RequestParam(required = false, defaultValue = "10") @Min(1) Integer pageSize) {
+        Integer requestStudentId = studentAccountService
+                .getStudentId(SecurityContextUtils.getUsername())
+                .orElseThrow(() ->
+                        new RuntimeException("The account is not associated with any student profile"));
+        return eventService.getConfirmedEvents(requestStudentId, page, pageSize);
+    }
 }

@@ -11,6 +11,7 @@ import com.dutact.web.core.entities.eventregistration.EventRegistration;
 import com.dutact.web.core.entities.Student;
 import com.dutact.web.core.entities.event.Event;
 import com.dutact.web.core.entities.event.EventStatus;
+import com.dutact.web.core.entities.eventregistration.participationcert.ParticipationCertificateStatus;
 import com.dutact.web.core.entities.feedback.Feedback;
 import com.dutact.web.core.repositories.*;
 import com.dutact.web.core.specs.EventCheckInSpecs;
@@ -349,6 +350,82 @@ public class EventServiceImpl implements EventService {
                 .toList();
 
 
+
+            eventDetails.setTotalCheckIn(studentCheckIns.size());
+            eventDetails.setCheckIns(studentCheckIns.stream()
+                .map(eventCheckInMapper::toCheckInHistoryDto)
+                .toList());
+        });
+
+        return response;
+    }
+
+    @Override
+    public PageResponse<EventDetailsDto> getConfirmedEvents(Integer studentId, Integer page, Integer pageSize) {
+        // Verify student exists
+        studentRepository.findById(studentId)
+                .orElseThrow(() -> new RuntimeException("Student not found"));
+
+        // Create pageable request with proper sorting
+        Pageable pageable = PageRequest.of(page - 1, pageSize, Sort.by(Sort.Direction.DESC, "event.createdAt"));
+        
+        // Get paginated registrations with all necessary joins and filters in a single query
+        Page<EventRegistration> registeredEventsPage = eventRegistrationRepository.findAll(
+            EventRegistrationSpecs.joinEvent()
+                .and(EventRegistrationSpecs.joinStudent())
+                .and(EventRegistrationSpecs.hasStudentId(studentId))
+                .and(EventRegistrationSpecs.hasEventStatus(EventStatus.Approved.TYPE_NAME))
+                .and(EventRegistrationSpecs.hasCertificateStatus(ParticipationCertificateStatus.Confirmed.TYPE_NAME)),
+            pageable
+        );
+
+        // Fetch all related data in bulk to avoid N+1 queries
+        List<EventRegistration> allRegistrations = eventRegistrationRepository.findAll();
+        List<EventFollow> allFollows = eventFollowRepository.findAll();
+        List<EventFollow> studentFollows = eventFollowRepository.findAllByStudentId(studentId);
+        List<EventCheckInCode> checkInCodes = eventCheckInCodeRepository.findAll();
+        List<EventCheckIn> checkIns = checkInRepository.findAll();
+
+        // Transform to DTOs with all necessary data
+        PageResponse<EventDetailsDto> response = PageResponse.of(registeredEventsPage, eventMapper::toDetailsDto);
+        
+        response.getData().forEach(eventDetails -> {
+            Integer eventId = eventDetails.getEvent().getId();
+            
+            // Set registration and follow dates
+            eventDetails.getEvent().setRegisteredAt(registeredEventsPage.getContent().stream()
+                .filter(r -> r.getEvent().getId().equals(eventId))
+                .findFirst()
+                .map(EventRegistration::getRegisteredAt)
+                .orElse(null));
+                
+            studentFollows.stream()
+                .filter(f -> f.getEvent().getId().equals(eventId))
+                .findFirst()
+                .ifPresent(follow -> eventDetails.getEvent().setFollowedAt(follow.getFollowedAt()));
+
+            // Set counts
+            long registerCount = allRegistrations.stream()
+                .filter(r -> r.getEvent().getId().equals(eventId))
+                .count();
+            long followCount = allFollows.stream()
+                .filter(f -> f.getEvent().getId().equals(eventId))
+                .count();
+                
+            eventDetails.getEvent().setRegisterNumber((int) registerCount);
+            eventDetails.getEvent().setFollowerNumber((int) followCount);
+
+            // Set check-in information
+            List<EventCheckInCode> eventCheckInCodes = checkInCodes.stream()
+                .filter(c -> c.getEvent().getId().equals(eventId))
+                .toList();
+                
+            List<EventCheckIn> studentCheckIns = checkIns.stream()
+                .filter(i -> eventCheckInCodes.stream()
+                    .map(EventCheckInCode::getId)
+                    .anyMatch(id -> id.equals(i.getCheckInCode().getId()))
+                    && i.getStudent().getId().equals(studentId))
+                .toList();
 
             eventDetails.setTotalCheckIn(studentCheckIns.size());
             eventDetails.setCheckIns(studentCheckIns.stream()
