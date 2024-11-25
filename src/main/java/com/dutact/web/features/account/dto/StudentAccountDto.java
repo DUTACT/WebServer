@@ -8,7 +8,7 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class StudentAccountDto extends AccountDto {
-    @JsonProperty("fullName")
+    @JsonProperty("name")
     private String fullName;
 
     @Nullable

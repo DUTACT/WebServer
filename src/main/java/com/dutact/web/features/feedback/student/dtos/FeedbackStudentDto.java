@@ -11,7 +11,7 @@ public class FeedbackStudentDto {
     @JsonProperty("id")
     private Integer id;
 
-    @JsonProperty("fullName")
+    @JsonProperty("name")
     private String fullName;
 
     @Nullable

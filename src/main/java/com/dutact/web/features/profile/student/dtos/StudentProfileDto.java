@@ -11,7 +11,7 @@ public class StudentProfileDto {
     @JsonProperty("studentEmail")
     private String studentEmail;
 
-    @JsonProperty("fullName")
+    @JsonProperty("name")
     private String fullName;
 
     @Nullable
