@@ -96,6 +96,11 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public List<EventDto> getEvents() {
+        // Get current student ID
+        Integer requestStudentId = studentAccountService
+                .getStudentId(SecurityContextUtils.getUsername())
+                .orElseThrow(() -> new IllegalStateException("Student not found"));
+
         // Get all approved events with necessary joins in a single query
         List<Event> events = eventRepository.findAll(
             EventSpecs.joinOrganizer()
@@ -107,14 +112,33 @@ public class EventServiceImpl implements EventService {
         List<EventRegistration> allRegistrations = eventRegistrationRepository.findAll();
         List<EventFollow> allFollows = eventFollowRepository.findAll();
         
+        // Get current student's registrations and follows
+        List<EventRegistration> studentRegistrations = allRegistrations.stream()
+            .filter(r -> r.getStudent().getId().equals(requestStudentId))
+            .toList();
+        List<EventFollow> studentFollows = allFollows.stream()
+            .filter(f -> f.getStudent().getId().equals(requestStudentId))
+            .toList();
+        
         // Transform to DTOs with all necessary data
         List<EventDto> eventDtos = events.stream()
             .map(eventMapper::toDto)
             .toList();
 
-        // Enrich DTOs with counts
+        // Enrich DTOs with counts and dates
         eventDtos.forEach(eventDto -> {
             Integer eventId = eventDto.getId();
+            
+            // Set registration and follow dates for current student
+            studentRegistrations.stream()
+                .filter(r -> r.getEvent().getId().equals(eventId))
+                .findFirst()
+                .ifPresent(reg -> eventDto.setRegisteredAt(reg.getRegisteredAt()));
+                
+            studentFollows.stream()
+                .filter(f -> f.getEvent().getId().equals(eventId))
+                .findFirst()
+                .ifPresent(follow -> eventDto.setFollowedAt(follow.getFollowedAt()));
             
             // Set counts
             long registerCount = allRegistrations.stream()
