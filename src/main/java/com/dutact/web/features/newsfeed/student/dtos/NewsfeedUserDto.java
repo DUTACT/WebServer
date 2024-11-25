@@ -10,7 +10,7 @@ public class NewsfeedUserDto {
     @JsonProperty("id")
     private Integer id;
 
-    @JsonProperty("name")
+    @JsonProperty("fullName")
     private String name;
 
     @JsonProperty("avatarUrl")

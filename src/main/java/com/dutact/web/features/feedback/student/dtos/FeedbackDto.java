@@ -16,7 +16,7 @@ public class FeedbackDto {
     @JsonProperty("content")
     private String content;
 
-    @JsonProperty("likeNumber")
+    @JsonProperty("likedNumber")
     private Integer likeNumber;
 
     @JsonProperty("postedAt")
