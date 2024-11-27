@@ -15,6 +15,7 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING,
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface AccountMapper {
+    @Mapping(target = "avatarUrl", source = "avatar.fileUrl")
     OrganizerAccountDto toDto(EventOrganizer organizer);
 
     @Mapping(target = "avatarUrl", source = "avatar.fileUrl")

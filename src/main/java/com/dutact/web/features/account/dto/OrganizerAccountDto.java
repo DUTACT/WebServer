@@ -18,4 +18,7 @@ public class OrganizerAccountDto extends AccountDto {
 
     @JsonProperty("personInChargeName")
     private String personInChargeName;
+
+    @JsonProperty("avatarUrl")
+    private String avatarUrl;
 }
