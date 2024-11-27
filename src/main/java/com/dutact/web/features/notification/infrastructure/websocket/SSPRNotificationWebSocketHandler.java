@@ -1,5 +1,6 @@
 package com.dutact.web.features.notification.infrastructure.websocket;
 
+import com.dutact.web.auth.factors.AccountService;
 import com.dutact.web.features.notification.infrastructure.connection.ConnectionHandler;
 import com.dutact.web.features.notification.subscription.AccountSubscriptionHandler;
 import jakarta.annotation.Nonnull;
@@ -24,14 +25,17 @@ public class SSPRNotificationWebSocketHandler extends TextWebSocketHandler {
     private final SSPRMessageMapper SSPRMessageMapper;
     private final AccountSubscriptionHandler accountSubscriptionHandler;
     private final ConnectionHandler connectionHandler;
+    private final AccountService accountService;
 
     public SSPRNotificationWebSocketHandler(SSPRMessageMapper SSPRMessageMapper,
                                             AccountSubscriptionHandler accountSubscriptionHandler,
-                                            ConnectionHandler connectionHandler) {
+                                            ConnectionHandler connectionHandler,
+                                            AccountService accountService) {
         super();
         this.SSPRMessageMapper = SSPRMessageMapper;
         this.accountSubscriptionHandler = accountSubscriptionHandler;
         this.connectionHandler = connectionHandler;
+        this.accountService = accountService;
     }
 
     @Override
@@ -92,7 +96,8 @@ public class SSPRNotificationWebSocketHandler extends TextWebSocketHandler {
         var headersAccessor = new SSPRMessageHeaderAccessor(ssprMessage);
         var deviceId = headersAccessor.getRequired(HEADER_DEVICE_ID);
         var accessToken = headersAccessor.getRequired(HEADER_ACCESS_TOKEN);
-        var subscriptionToken = accountSubscriptionHandler.subscribe(deviceId, accessToken);
+        var accountId = accountService.getAccountIdByToken(accessToken);
+        var subscriptionToken = accountSubscriptionHandler.subscribe(deviceId, accountId);
 
         var response = new SSPRMessage();
         response.setCommand(OK);

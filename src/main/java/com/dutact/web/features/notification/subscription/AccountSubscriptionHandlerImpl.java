@@ -20,9 +20,7 @@ public class AccountSubscriptionHandlerImpl implements AccountSubscriptionHandle
     }
 
     @Override
-    public String subscribe(String deviceId, String accessToken) {
-        var accountId = accountService.getAccountId(accessToken);
-
+    public String subscribe(String deviceId, Integer accountId) {
         var existingSubscription = subscriptionRepository.findOne(AccountSubscriptionSpecs.hasAccountId(accountId)
                 .and(AccountSubscriptionSpecs.hasDeviceId(deviceId)));
 
