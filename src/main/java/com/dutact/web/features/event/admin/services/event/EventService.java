@@ -13,6 +13,8 @@ public interface EventService {
 
     List<EventDto> getEvents();
 
+    List<EventDto> getEvents(EventSearchParams searchParams);
+
     List<EventDto> getEvents(Integer orgId) throws NotExistsException;
 
     Optional<EventDto> getEvent(Integer eventId);

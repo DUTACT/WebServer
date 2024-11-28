@@ -90,6 +90,16 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    public List<EventDto> getEvents(EventSearchParams searchParams) {
+        Specification<Event> spec = EventSpecs.fromSearchParams(searchParams);
+
+        return eventRepository.findAll(spec)
+                .stream()
+                .map(eventMapper::toEventDto)
+                .toList();
+    }
+
+    @Override
     public List<EventDto> getEvents(Integer orgId) throws NotExistsException {
         if (!organizerRepository.existsById(orgId)) {
             throw new NotExistsException("Organizer not found");
