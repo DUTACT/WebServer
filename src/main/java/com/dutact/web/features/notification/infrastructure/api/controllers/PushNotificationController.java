@@ -2,6 +2,7 @@ package com.dutact.web.features.notification.infrastructure.api.controllers;
 
 import com.dutact.web.auth.context.SecurityContextUtils;
 import com.dutact.web.auth.factors.AccountService;
+import com.dutact.web.common.api.exceptions.ForbiddenException;
 import com.dutact.web.common.mapper.ObjectMapperUtils;
 import com.dutact.web.features.notification.infrastructure.api.dtos.SubscribeDto;
 import com.dutact.web.features.notification.infrastructure.api.dtos.SubscribeResponseDto;
@@ -16,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/push-notification")
+@RequestMapping("/api/push-notification")
 @AllArgsConstructor
 public class PushNotificationController {
     private final ObjectMapper objectMapper = ObjectMapperUtils.createObjectMapper();
@@ -25,7 +26,11 @@ public class PushNotificationController {
     private final PushNotificationQueue pushNotificationQueue;
 
     @PostMapping("subscribe")
-    public ResponseEntity<SubscribeResponseDto> subscribe(SubscribeDto subscribeDto) {
+    public ResponseEntity<SubscribeResponseDto> subscribe(SubscribeDto subscribeDto) throws ForbiddenException {
+        if (!SecurityContextUtils.hasAuthentication()) {
+            throw new ForbiddenException();
+        }
+
         var accountId = accountService.getAccountIdByUsername(SecurityContextUtils.getUsername());
         var subscriptionToken = accountSubscriptionHandler.subscribe(
                 subscribeDto.getDeviceId(), accountId);
