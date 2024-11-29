@@ -4,7 +4,7 @@ public interface AccountSubscriptionHandler {
     /**
      * @return subscription token
      */
-    String subscribe(String deviceId, String accessToken);
+    String subscribe(String deviceId, Integer accountId);
 
     void unsubscribe(String subscriptionToken);
 }

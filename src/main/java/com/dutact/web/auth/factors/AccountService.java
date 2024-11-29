@@ -14,5 +14,7 @@ public interface AccountService {
 
     void changePassword(Integer accountId, NewPasswordDto newPasswordDto) throws NoPermissionException, InvalidCredentialsException;
 
-    Integer getAccountId(String token);
+    Integer getAccountIdByToken(String token);
+
+    Integer getAccountIdByUsername(String username);
 }
