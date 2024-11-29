@@ -76,22 +76,25 @@ public class NotificationDeliveryCentralImpl implements NotificationDeliveryCent
         var accountIdTokenMap = subscriptionRepository
                 .findAll(AccountSubscriptionSpecs.hasAccountIdIn(accountIds))
                 .stream()
-                .collect(Collectors.toMap(AccountSubscription::getAccountId, AccountSubscription::getSubscriptionToken));
+                .collect(Collectors.groupingBy(AccountSubscription::getAccountId,
+                        Collectors.mapping(AccountSubscription::getSubscriptionToken, Collectors.toList())));
 
         var pushNotifications = new ArrayList<PushNotification>();
         for (var notification : notifications) {
-            try {
-                var message = pushNotificationMapper.toMessage(notification);
-                var pushNotification = new PushNotification();
-                pushNotification.setSubscriptionToken(accountIdTokenMap.get(notification.getAccountId()));
-                pushNotification.setMessage(objectMapper.writeValueAsString(message));
-                pushNotifications.add(pushNotification);
-            } catch (Exception e) {
-                log.error("Failed to create push notification for notification with id: {}", notification.getId(), e);
+            for (var subscriptionToken : accountIdTokenMap.get(notification.getAccountId())) {
+                try {
+                    var message = pushNotificationMapper.toMessage(notification);
+                    var pushNotification = new PushNotification();
+                    pushNotification.setSubscriptionToken(subscriptionToken);
+                    pushNotification.setMessage(objectMapper.writeValueAsString(message));
+                    pushNotifications.add(pushNotification);
+                } catch (Exception e) {
+                    log.error("Failed to create push notification for notification with id: {}", notification.getId(), e);
+                }
             }
+
         }
 
         return pushNotifications;
     }
-
 }

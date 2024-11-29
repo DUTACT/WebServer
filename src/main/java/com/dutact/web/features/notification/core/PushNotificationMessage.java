@@ -7,11 +7,8 @@ import java.time.LocalDateTime;
 
 @Data
 public class PushNotificationMessage {
-    @JsonProperty("id")
-    private Object id;
-
-    @JsonProperty
-    private Integer accountId;
+    @JsonProperty("notificationId")
+    private Object notificationId;
 
     @JsonProperty("details")
     private Object details;

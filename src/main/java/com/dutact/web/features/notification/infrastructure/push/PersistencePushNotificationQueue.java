@@ -17,6 +17,7 @@ public class PersistencePushNotificationQueue implements PushNotificationQueue {
     }
 
     @Override
+    @Transactional(Transactional.TxType.REQUIRES_NEW)
     public void push(List<PushNotification> pushNotifications) {
         var pushNotificationEntities = pushNotifications.stream()
                 .map(pushNotification -> {

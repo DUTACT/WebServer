@@ -16,9 +16,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/notification")
+@RequestMapping("/push-notification")
 @AllArgsConstructor
-public class NotificationController {
+public class PushNotificationController {
     private final ObjectMapper objectMapper = ObjectMapperUtils.createObjectMapper();
     private final AccountSubscriptionHandler accountSubscriptionHandler;
     private final AccountService accountService;
@@ -42,8 +42,8 @@ public class NotificationController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Object>> getNotifications(@RequestParam String subscriptionId) {
-        var notifications = pushNotificationQueue.popAll(subscriptionId);
+    public ResponseEntity<List<Object>> getPushNotifications(@RequestParam String subscriptionToken) {
+        var notifications = pushNotificationQueue.popAll(subscriptionToken);
 
         return ResponseEntity.ok(notifications.stream()
                 .map(n -> mapNotificationMessage(n.getMessage()))
