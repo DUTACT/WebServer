@@ -10,10 +10,12 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface EventFollowRepository extends JpaRepository<EventFollow, Integer>, JpaSpecificationExecutor<EventFollow> {
     boolean existsByEventIdAndStudentId(Integer eventId, Integer studentId);
+    Optional<EventFollow> findByStudentIdAndEventId(Integer studentId, Integer eventId);
 
     void deleteByEventIdAndStudentId(Integer eventId, Integer studentId);
     

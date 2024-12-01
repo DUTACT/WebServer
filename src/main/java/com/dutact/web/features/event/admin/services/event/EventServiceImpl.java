@@ -2,9 +2,11 @@ package com.dutact.web.features.event.admin.services.event;
 
 import com.dutact.web.auth.context.SecurityContextUtils;
 import com.dutact.web.auth.factors.Role;
+import com.dutact.web.auth.factors.StudentAccountService;
 import com.dutact.web.common.api.exceptions.ConflictException;
 import com.dutact.web.common.api.exceptions.NotExistsException;
 import com.dutact.web.common.mapper.UploadedFileMapper;
+import com.dutact.web.core.entities.StudentActivity;
 import com.dutact.web.core.entities.event.CannotChangeStatusException;
 import com.dutact.web.core.entities.event.Event;
 import com.dutact.web.core.entities.event.EventStatus;
@@ -17,9 +19,12 @@ import com.dutact.web.core.repositories.EventRepository;
 import com.dutact.web.core.repositories.OrganizerRepository;
 import com.dutact.web.core.specs.EventChangeSpecs;
 import com.dutact.web.core.specs.EventSpecs;
+import com.dutact.web.features.activity.dto.ActivityType;
+import com.dutact.web.features.activity.services.StudentActivityService;
 import com.dutact.web.features.event.admin.dtos.event.*;
 import com.dutact.web.storage.StorageService;
 import com.dutact.web.storage.UploadFileResult;
+import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.data.jpa.domain.Specification;
@@ -32,6 +37,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service("organizerEventService")
+@AllArgsConstructor
 public class EventServiceImpl implements EventService {
     private final EventMapper eventMapper;
     private final EventChangeMapper eventChangeMapper;
@@ -40,22 +46,7 @@ public class EventServiceImpl implements EventService {
     private final OrganizerRepository organizerRepository;
     private final EventChangeRepository eventChangeRepository;
     private final StorageService storageService;
-
-    public EventServiceImpl(EventMapper eventMapper,
-                            EventChangeMapper eventChangeMapper,
-                            UploadedFileMapper uploadedFileMapper,
-                            EventRepository eventRepository,
-                            OrganizerRepository organizerRepository,
-                            EventChangeRepository eventChangeRepository,
-                            StorageService storageService) {
-        this.eventMapper = eventMapper;
-        this.eventChangeMapper = eventChangeMapper;
-        this.uploadedFileMapper = uploadedFileMapper;
-        this.eventRepository = eventRepository;
-        this.organizerRepository = organizerRepository;
-        this.eventChangeRepository = eventChangeRepository;
-        this.storageService = storageService;
-    }
+    private final StudentActivityService studentActivityService;
 
     @Override
     public EventDto createEvent(Integer organizerId, EventCreateDto eventDto)
