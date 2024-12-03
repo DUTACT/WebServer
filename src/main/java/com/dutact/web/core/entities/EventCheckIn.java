@@ -1,5 +1,6 @@
 package com.dutact.web.core.entities;
 
+import com.dutact.web.core.entities.checkincode.EventCheckInCode;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
