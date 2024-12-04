@@ -1,6 +1,6 @@
 package com.dutact.web.core.specs;
 
-import com.dutact.web.core.entities.EventCheckInCode;
+import com.dutact.web.core.entities.checkincode.EventCheckInCode;
 import org.springframework.data.jpa.domain.Specification;
 
 public class EventCheckInCodeSpecs {
