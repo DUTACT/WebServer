@@ -100,7 +100,7 @@ public class SSPRNotificationWebSocketHandler extends TextWebSocketHandler {
         var subscriptionToken = accountSubscriptionHandler.subscribe(deviceId, accountId);
 
         var response = new SSPRMessage();
-        response.setCommand(OK);
+        response.setCommand(SUBSCRIBE_ACK);
         response.getHeaders().put(HEADER_SUBSCRIPTION_TOKEN, subscriptionToken);
 
         return response;
