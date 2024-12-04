@@ -4,11 +4,8 @@ import com.dutact.web.auth.context.SecurityContextUtils;
 import com.dutact.web.auth.factors.StudentAccountService;
 import com.dutact.web.common.api.PageResponse;
 import com.dutact.web.common.api.exceptions.NotExistsException;
-import com.dutact.web.core.entities.EventCheckIn;
-import com.dutact.web.core.entities.EventCheckInCode;
-import com.dutact.web.core.entities.EventFollow;
+import com.dutact.web.core.entities.*;
 import com.dutact.web.core.entities.eventregistration.EventRegistration;
-import com.dutact.web.core.entities.Student;
 import com.dutact.web.core.entities.event.Event;
 import com.dutact.web.core.entities.event.EventStatus;
 import com.dutact.web.core.entities.eventregistration.participationcert.ParticipationCertificateStatus;
@@ -18,6 +15,8 @@ import com.dutact.web.core.specs.EventCheckInSpecs;
 import com.dutact.web.core.specs.EventFollowSpecs;
 import com.dutact.web.core.specs.EventRegistrationSpecs;
 import com.dutact.web.core.specs.EventSpecs;
+import com.dutact.web.features.activity.dto.ActivityType;
+import com.dutact.web.features.activity.services.StudentActivityService;
 import com.dutact.web.features.checkin.admin.services.EventCheckInMapper;
 import com.dutact.web.features.event.student.dtos.*;
 import com.dutact.web.features.event.student.services.exceptions.FollowForbiddenException;
@@ -54,6 +53,7 @@ public class EventServiceImpl implements EventService {
     private final EventCheckInMapper eventCheckInMapper;
     private final PostLikeRepository postLikeRepository;
     private final EventCheckInCodeRepository eventCheckInCodeRepository;
+    private final StudentActivityService studentActivityService;
 
     @Override
     public Optional<EventDto> getEvent(Integer id) {
@@ -157,7 +157,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public EventRegisteredDto register(Integer eventId, Integer studentId)
-            throws RegisterForbiddenException, NotExistsException {
+            throws RegisterForbiddenException, NotExistsException, FollowForbiddenException {
         Optional<Event> eventOpt = eventRepository
                 .findOne(EventSpecs.hasId(eventId)
                         .and(EventSpecs.hasStatus(EventStatus.Approved.TYPE_NAME)));
@@ -183,8 +183,15 @@ public class EventServiceImpl implements EventService {
         EventRegistration eventRegistration = new EventRegistration();
         eventRegistration.setEvent(new Event(eventId));
         eventRegistration.setStudent(new Student(studentId));
+        eventRegistration = eventRegistrationRepository.save(eventRegistration);
 
-        return eventRegistrationMapper.toDto(eventRegistrationRepository.save(eventRegistration));
+        StudentActivity activity = new StudentActivity();
+        activity.setType(ActivityType.EVENT_REGISTER);
+        activity.setEvent(eventRegistration.getEvent());
+        studentActivityService.recordActivity(studentId, activity);
+
+        follow(eventId, studentId);
+        return eventRegistrationMapper.toDto(eventRegistration);
     }
 
     @Override
@@ -204,7 +211,7 @@ public class EventServiceImpl implements EventService {
     @Override
     public EventFollowDto follow(Integer eventId, Integer studentId) throws FollowForbiddenException, NotExistsException {
         if (eventFollowRepository.existsByEventIdAndStudentId(eventId, studentId)) {
-            throw new FollowForbiddenException("You are already following this event.");
+            return eventFollowMapper.toDto(eventFollowRepository.findByStudentIdAndEventId(studentId, eventId).get());
         }
 
         if (!eventRepository.existsById(eventId)) {
@@ -215,7 +222,14 @@ public class EventServiceImpl implements EventService {
         eventFollow.setEvent(new Event(eventId));
         eventFollow.setStudent(new Student(studentId));
 
-        return eventFollowMapper.toDto(eventFollowRepository.save(eventFollow));
+        eventFollow = eventFollowRepository.save(eventFollow);
+
+        StudentActivity activity = new StudentActivity();
+        activity.setType(ActivityType.EVENT_FOLLOW);
+        activity.setEvent(eventFollow.getEvent());
+        studentActivityService.recordActivity(studentId, activity);
+
+        return eventFollowMapper.toDto(eventFollow);
     }
 
     @Override

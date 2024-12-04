@@ -57,7 +57,7 @@ public class StudentEventController {
 
         try {
             return ResponseEntity.ok(eventService.register(id, requestStudentId));
-        } catch (RegisterForbiddenException e) {
+        } catch (RegisterForbiddenException | FollowForbiddenException e) {
             throw new ConflictException(e.getMessage());
         }
     }

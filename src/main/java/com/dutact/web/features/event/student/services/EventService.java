@@ -18,7 +18,7 @@ public interface EventService {
     List<EventDto> getEvents();
 
     EventRegisteredDto register(Integer eventId, Integer studentId)
-            throws RegisterForbiddenException, NotExistsException;
+            throws RegisterForbiddenException, NotExistsException, FollowForbiddenException;
 
     @Transactional
     void unregister(Integer eventId, Integer studentId)

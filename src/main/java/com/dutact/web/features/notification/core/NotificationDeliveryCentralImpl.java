@@ -81,7 +81,12 @@ public class NotificationDeliveryCentralImpl implements NotificationDeliveryCent
 
         var pushNotifications = new ArrayList<PushNotification>();
         for (var notification : notifications) {
-            for (var subscriptionToken : accountIdTokenMap.get(notification.getAccountId())) {
+            var accountTokens = accountIdTokenMap.get(notification.getAccountId());
+            if (accountTokens == null) {
+                continue;
+            }
+
+            for (var subscriptionToken : accountTokens) {
                 try {
                     var message = pushNotificationMapper.toMessage(notification);
                     var pushNotification = new PushNotification();
