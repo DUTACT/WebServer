@@ -1,24 +1,20 @@
 package com.dutact.web.features.checkin.student.services;
 
 import com.dutact.web.auth.factors.StudentAccountService;
-import com.dutact.web.common.api.PageResponse;
 import com.dutact.web.common.api.exceptions.NotExistsException;
 import com.dutact.web.core.entities.EventCheckIn;
-import com.dutact.web.core.entities.Student;
-import com.dutact.web.core.entities.eventregistration.EventRegistration;
 import com.dutact.web.core.repositories.*;
 import com.dutact.web.core.specs.EventCheckInSpecs;
+import com.dutact.web.features.checkin.student.dtos.EventCheckInParams;
 import com.dutact.web.features.checkin.student.dtos.EventCheckInResult;
 import com.dutact.web.features.checkin.student.dtos.StudentCheckInDetailDto;
-import com.dutact.web.features.checkin.student.dtos.StudentRegistrationDto;
 import com.dutact.web.features.checkin.student.services.exceptions.AlreadyCheckInException;
 import com.dutact.web.features.checkin.student.services.exceptions.EarlyCheckInAttemptException;
 import com.dutact.web.features.checkin.student.services.exceptions.LateCheckInAttemptException;
-import org.springframework.data.domain.PageRequest;
+import com.dutact.web.features.checkin.student.services.exceptions.OutOfRangeException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -33,14 +29,14 @@ public class EventCheckInServiceImpl implements EventCheckInService {
     private final StudentEventMapper mapper;
 
     public EventCheckInServiceImpl(EventCheckInCodeRepository checkInCodeRepository,
-                                    EventCheckInRepository checkInRepository,
-                                    StudentRepository studentRepository,
-                                    StudentAccountService studentAccountService,
-                                    EventRegistrationRepository registrationRepository,
-                                    EventRepository eventRepository,
-                                    EventFollowRepository eventFollowRepository,
-                                    StudentEventMapper mapper
-                                   ) {
+                                   EventCheckInRepository checkInRepository,
+                                   StudentRepository studentRepository,
+                                   StudentAccountService studentAccountService,
+                                   EventRegistrationRepository registrationRepository,
+                                   EventRepository eventRepository,
+                                   EventFollowRepository eventFollowRepository,
+                                   StudentEventMapper mapper
+    ) {
         this.checkInCodeRepository = checkInCodeRepository;
         this.checkInRepository = checkInRepository;
         this.studentRepository = studentRepository;
@@ -52,11 +48,15 @@ public class EventCheckInServiceImpl implements EventCheckInService {
     }
 
     @Override
-    public EventCheckInResult checkIn(String code, Integer studentId)
+    public EventCheckInResult checkIn(EventCheckInParams params)
             throws EarlyCheckInAttemptException,
             AlreadyCheckInException,
             LateCheckInAttemptException,
-            NotExistsException {
+            NotExistsException, OutOfRangeException {
+        var studentId = params.getStudentId();
+        var code = params.getCode();
+        var geoPosition = params.getGeoPosition();
+
         UUID codeUUID;
         try {
             codeUUID = UUID.fromString(code);
@@ -86,6 +86,17 @@ public class EventCheckInServiceImpl implements EventCheckInService {
 
         if (now.isAfter(checkInCode.getEndAt())) {
             throw new LateCheckInAttemptException();
+        }
+
+        if (checkInCode.getLocation() != null) {
+            if (geoPosition == null) {
+                throw new OutOfRangeException();
+            }
+
+            var distance = checkInCode.getLocation().distance(geoPosition);
+            if (distance > checkInCode.getRange()) {
+                throw new NotExistsException("Out of range");
+            }
         }
 
         var checkIn = new EventCheckIn();
