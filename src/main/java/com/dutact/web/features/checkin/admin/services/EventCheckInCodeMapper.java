@@ -1,6 +1,6 @@
 package com.dutact.web.features.checkin.admin.services;
 
-import com.dutact.web.core.entities.EventCheckInCode;
+import com.dutact.web.core.entities.checkincode.EventCheckInCode;
 import com.dutact.web.features.checkin.admin.dtos.CreateEventCheckInCodeDto;
 import com.dutact.web.features.checkin.admin.dtos.EventCheckInCodeDto;
 import org.mapstruct.Mapper;

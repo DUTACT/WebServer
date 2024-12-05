@@ -1,6 +1,8 @@
 package com.dutact.web.features.checkin.admin.dtos;
 
+import com.dutact.web.core.entities.checkincode.CheckInLocation;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.annotation.Nullable;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -22,4 +24,8 @@ public class EventCheckInCodeDto {
 
     @JsonProperty("endAt")
     private LocalDateTime endAt;
+
+    @Nullable
+    @JsonProperty("location")
+    private CheckInLocation location;
 }
