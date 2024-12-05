@@ -1,9 +1,11 @@
 package com.dutact.web.features.checkin.student.services;
 
-import com.dutact.web.auth.factors.StudentAccountService;
 import com.dutact.web.common.api.exceptions.NotExistsException;
+import com.dutact.web.common.utils.GeoUtils;
 import com.dutact.web.core.entities.EventCheckIn;
-import com.dutact.web.core.repositories.*;
+import com.dutact.web.core.repositories.EventCheckInCodeRepository;
+import com.dutact.web.core.repositories.EventCheckInRepository;
+import com.dutact.web.core.repositories.StudentRepository;
 import com.dutact.web.core.specs.EventCheckInSpecs;
 import com.dutact.web.features.checkin.student.dtos.EventCheckInParams;
 import com.dutact.web.features.checkin.student.dtos.EventCheckInResult;
@@ -12,40 +14,22 @@ import com.dutact.web.features.checkin.student.services.exceptions.AlreadyCheckI
 import com.dutact.web.features.checkin.student.services.exceptions.EarlyCheckInAttemptException;
 import com.dutact.web.features.checkin.student.services.exceptions.LateCheckInAttemptException;
 import com.dutact.web.features.checkin.student.services.exceptions.OutOfRangeException;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class EventCheckInServiceImpl implements EventCheckInService {
     private final EventCheckInCodeRepository checkInCodeRepository;
     private final EventCheckInRepository checkInRepository;
     private final StudentRepository studentRepository;
-    private final StudentAccountService studentAccountService;
-    private final EventRegistrationRepository registrationRepository;
-    private final EventFollowRepository eventFollowRepository;
-    private final EventRepository eventRepository;
-    private final StudentEventMapper mapper;
 
-    public EventCheckInServiceImpl(EventCheckInCodeRepository checkInCodeRepository,
-                                   EventCheckInRepository checkInRepository,
-                                   StudentRepository studentRepository,
-                                   StudentAccountService studentAccountService,
-                                   EventRegistrationRepository registrationRepository,
-                                   EventRepository eventRepository,
-                                   EventFollowRepository eventFollowRepository,
-                                   StudentEventMapper mapper
-    ) {
-        this.checkInCodeRepository = checkInCodeRepository;
-        this.checkInRepository = checkInRepository;
-        this.studentRepository = studentRepository;
-        this.studentAccountService = studentAccountService;
-        this.registrationRepository = registrationRepository;
-        this.eventRepository = eventRepository;
-        this.eventFollowRepository = eventFollowRepository;
-        this.mapper = mapper;
-    }
+    @Value("${event.checkin.radius_meters}")
+    private double checkInRadiusMeters;
 
     @Override
     public EventCheckInResult checkIn(EventCheckInParams params)
@@ -93,9 +77,17 @@ public class EventCheckInServiceImpl implements EventCheckInService {
                 throw new OutOfRangeException();
             }
 
-            var distance = checkInCode.getLocation().distance(geoPosition);
-            if (distance > checkInCode.getRange()) {
-                throw new NotExistsException("Out of range");
+            var distance = GeoUtils.distance(
+                    checkInCode.getLocation().getGeoPosition().getLat(),
+                    checkInCode.getLocation().getGeoPosition().getLng(),
+                    geoPosition.getLat(),
+                    geoPosition.getLng()
+            );
+            var distanceInMeters = distance * 1000;
+
+            if (distanceInMeters > checkInRadiusMeters) {
+                throw new OutOfRangeException(String.format("Distance is %.2f meters, greater than %.2f meters",
+                        distanceInMeters, checkInRadiusMeters));
             }
         }
 

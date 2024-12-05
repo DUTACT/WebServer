@@ -3,6 +3,8 @@ package com.dutact.web.features.checkin.student.controllers;
 import com.dutact.web.auth.context.SecurityContextUtils;
 import com.dutact.web.auth.factors.StudentAccountService;
 import com.dutact.web.common.api.exceptions.NotExistsException;
+import com.dutact.web.core.entities.checkincode.GeoPosition;
+import com.dutact.web.features.checkin.student.dtos.EventCheckInParams;
 import com.dutact.web.features.checkin.student.dtos.EventCheckInResult;
 import com.dutact.web.features.checkin.student.dtos.StudentCheckInDetailDto;
 import com.dutact.web.features.checkin.student.services.EventCheckInService;
@@ -14,6 +16,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.annotation.Nullable;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.http.HttpStatus;
@@ -41,12 +44,22 @@ public class EventCheckInController {
             @ApiResponse(responseCode = "409", description = "Conflict - Check-in failed",
                     content = @Content(schema = @Schema(implementation = CheckInFailedResponse.class)))
     })
-    public ResponseEntity<?> checkIn(@RequestParam String code) throws NotExistsException {
+    public ResponseEntity<?> checkIn(@RequestParam String code,
+                                     @RequestParam @Nullable Double lat,
+                                     @RequestParam @Nullable Double lng) throws NotExistsException {
         var studentId = studentAccountService
                 .getStudentId(SecurityContextUtils.getUsername())
                 .orElseThrow(() -> new RuntimeException("Student not found"));
         try {
-            return ResponseEntity.ok(eventCheckInService.checkIn(code, studentId));
+            var checkInParams = new EventCheckInParams(code, studentId);
+            if (lat != null && lng != null) {
+                var geoPosition = new GeoPosition();
+                geoPosition.setLat(lat);
+                geoPosition.setLng(lng);
+
+                checkInParams.setGeoPosition(geoPosition);
+            }
+            return ResponseEntity.ok(eventCheckInService.checkIn(checkInParams));
         } catch (AlreadyCheckInException e) {
             return ResponseEntity
                     .status(HttpStatus.CONFLICT)
