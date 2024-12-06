@@ -206,6 +206,7 @@ public class EventServiceImpl implements EventService {
             throw new NotExistsException();
         }
 
+        studentActivityService.removeActivity(studentId, ActivityType.EVENT_REGISTER, eventId);
         eventRegistrationRepository.deleteByEventIdAndStudentId(eventId, studentId);
     }
 
@@ -243,6 +244,8 @@ public class EventServiceImpl implements EventService {
         if (!eventRepository.existsById(eventId)) {
             throw new NotExistsException();
         }
+
+        studentActivityService.removeActivity(studentId, ActivityType.EVENT_FOLLOW, eventId);
 
         eventFollowRepository.deleteByEventIdAndStudentId(eventId, studentId);
     }

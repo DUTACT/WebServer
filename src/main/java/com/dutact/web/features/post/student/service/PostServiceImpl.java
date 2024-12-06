@@ -126,7 +126,8 @@ public class PostServiceImpl implements PostService {
         if (!studentRepository.existsById(studentId)) {
             throw new NotExistsException("Student not found");
         }
-        
+
+        studentActivityService.removePostLikeActivity(studentId, postId);
         postLikeRepository.deleteByPostIdAndStudentId(postId, studentId);
     }
 
