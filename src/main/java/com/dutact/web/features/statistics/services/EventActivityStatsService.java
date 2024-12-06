@@ -2,8 +2,8 @@ package com.dutact.web.features.statistics.services;
 
 import com.dutact.web.features.statistics.dto.DailyActivityStatsDto;
 import com.dutact.web.features.statistics.dto.MonthlyActivityStatsDto;
-import com.dutact.web.features.statistics.repositories.DateCountProjection;
-import com.dutact.web.features.statistics.repositories.EventActivityStatsRepository;
+import com.dutact.web.core.repositories.DateCountProjection;
+import com.dutact.web.core.repositories.EventActivityStatsRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
