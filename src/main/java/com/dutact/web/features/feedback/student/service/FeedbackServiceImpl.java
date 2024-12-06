@@ -203,7 +203,8 @@ public void unlikeFeedback(Integer studentId, Integer feedbackId) throws NotExis
     if (!studentRepository.existsById(studentId)) {
         throw new NotExistsException("Student not found");
     }
-    
+
+    studentActivityService.removeFeedbackLikeActivity(studentId, feedbackId);
     feedbackLikeRepository.deleteByFeedbackIdAndStudentId(feedbackId, studentId);
 }
 
