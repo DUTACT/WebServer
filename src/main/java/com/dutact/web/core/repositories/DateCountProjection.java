@@ -1,4 +1,4 @@
-package com.dutact.web.features.statistics.repositories;
+package com.dutact.web.core.repositories;
 
 import java.time.LocalDate;
 
