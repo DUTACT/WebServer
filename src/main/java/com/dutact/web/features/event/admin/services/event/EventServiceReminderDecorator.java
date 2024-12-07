@@ -57,6 +57,10 @@ public class EventServiceReminderDecorator implements EventService {
 
     @Override
     public EventDto updateEvent(Integer eventId, EventUpdateDto eventDto) throws NotExistsException {
+        if (eventDto.getStartAt() == null) {
+            return delegateService.updateEvent(eventId, eventDto);
+        }
+
         var oldStartAt = delegateService.getEvent(eventId).map(EventDto::getStartAt).orElse(null);
 
         var event = delegateService.updateEvent(eventId, eventDto);
@@ -77,6 +81,10 @@ public class EventServiceReminderDecorator implements EventService {
 
     @Override
     public EventDto changeEventTime(Integer eventId, ChangeEventTimeDto changeEventTimeDto) throws NotExistsException {
+        if (changeEventTimeDto.getStartAt() == null) {
+            return delegateService.changeEventTime(eventId, changeEventTimeDto);
+        }
+
         var oldStartAt = delegateService.getEvent(eventId).map(EventDto::getStartAt).orElse(null);
 
         var event = delegateService.changeEventTime(eventId, changeEventTimeDto);
