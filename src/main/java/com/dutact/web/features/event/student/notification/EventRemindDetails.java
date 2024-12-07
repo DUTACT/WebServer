@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.time.LocalDateTime;
+
 @Data
 @EqualsAndHashCode
 class EventRemindDetails {
@@ -12,4 +14,7 @@ class EventRemindDetails {
 
     @JsonProperty("type")
     private String type;
+
+    @JsonProperty("expireAt")
+    private LocalDateTime expireAt;
 }

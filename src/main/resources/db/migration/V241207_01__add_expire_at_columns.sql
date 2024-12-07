@@ -16,7 +16,7 @@ CREATE INDEX idx_push_notification_expire_at
 
 -- notification table
 ALTER TABLE notification.notification
-    ADD COLUMN expire_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;
+    ADD COLUMN expire_at TIMESTAMP WITH TIME ZONE;
 
 CREATE INDEX idx_notification_expire_at
     ON notification.notification (expire_at);

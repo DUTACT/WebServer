@@ -58,7 +58,7 @@ public class EventRemindListener {
         var scheduledJobs = new ArrayList<ScheduledJob>();
         var compareStr = calculateCompareStr(eventId, startAt);
         var minsToStart = LocalDateTime.now().until(startAt, java.time.temporal.ChronoUnit.MINUTES);
-        
+
         for (int i = 0; i < remindMins.length; i++) {
             if (remindMins[i] >= minsToStart) {
                 break;
@@ -67,15 +67,17 @@ public class EventRemindListener {
             try {
                 var remindAt = startAt.minusMinutes(remindMins[i]);
                 var expireAt = i == 0 ? startAt : startAt.minusMinutes(remindMins[i - 1]);
-                var data = new EventRemindDetails();
-                data.setEventId(eventId);
-                data.setType(EventRemindType.EVENT_START);
+
+                var details = new EventRemindDetails();
+                details.setEventId(eventId);
+                details.setType(EventRemindType.EVENT_START);
+                details.setExpireAt(expireAt);
 
                 var scheduledJob = new ScheduledJob();
                 scheduledJob.setType(ScheduledJobType.EVENT_REMINDER);
                 scheduledJob.setFireAt(remindAt);
                 scheduledJob.setExpireAt(expireAt);
-                scheduledJob.setDetails(objectMapper.writeValueAsString(data));
+                scheduledJob.setDetails(objectMapper.writeValueAsString(details));
                 scheduledJob.setCompareString(compareStr);
 
                 scheduledJobs.add(scheduledJob);

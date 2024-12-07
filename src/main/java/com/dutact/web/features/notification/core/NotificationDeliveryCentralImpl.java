@@ -10,11 +10,11 @@ import com.dutact.web.features.notification.subscription.data.AccountSubscriptio
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,6 +27,9 @@ public class NotificationDeliveryCentralImpl implements NotificationDeliveryCent
     private final PushNotificationMapper pushNotificationMapper;
     private final PushNotificationQueue pushNotificationQueue;
     private final ApplicationEventPublisher eventPublisher;
+
+    @Value("${notification.push.lifespan-secs.default}")
+    private int defaultPushNotificationLifespanSecs;
 
     public NotificationDeliveryCentralImpl(AccountSubscriptionRepository subscriptionRepository,
                                            NotificationRepository notificationRepository,
@@ -42,18 +45,8 @@ public class NotificationDeliveryCentralImpl implements NotificationDeliveryCent
 
     @SneakyThrows
     @Override
-    public void sendNotification(Collection<Integer> accountIds, Object details, String notificationType) {
-        var notifications = accountIds.stream()
-                .map(accountId -> {
-                    var notification = new Notification();
-                    notification.setAccountId(accountId);
-                    notification.setDetails(details);
-                    notification.setNotificationType(notificationType);
-
-                    return notification;
-                })
-                .toList();
-
+    public void sendNotification(NotificationData data) {
+        var notifications = getNotifications(data);
         notificationRepository.saveAll(notifications);
 
         var pushNotifications = getPushNotifications(notifications);
@@ -66,6 +59,20 @@ public class NotificationDeliveryCentralImpl implements NotificationDeliveryCent
         for (var subscriptionToken : subscriptionTokens) {
             eventPublisher.publishEvent(new NotificationPushedEvent(subscriptionToken));
         }
+    }
+
+    private List<Notification> getNotifications(NotificationData data) {
+        return data.getAccountIds().stream()
+                .map(accountId -> {
+                    var notification = new Notification();
+                    notification.setAccountId(accountId);
+                    notification.setDetails(data.getDetails());
+                    notification.setNotificationType(data.getNotificationType());
+                    notification.setExpireAt(data.getExpireAt());
+
+                    return notification;
+                })
+                .toList();
     }
 
     private List<PushNotification> getPushNotifications(List<Notification> notifications) {
@@ -92,6 +99,10 @@ public class NotificationDeliveryCentralImpl implements NotificationDeliveryCent
                     var pushNotification = new PushNotification();
                     pushNotification.setSubscriptionToken(subscriptionToken);
                     pushNotification.setMessage(objectMapper.writeValueAsString(message));
+                    pushNotification.setExpireAt(notification.getExpireAt() != null ?
+                            notification.getExpireAt() :
+                            notification.getCreatedAt().plusSeconds(defaultPushNotificationLifespanSecs));
+
                     pushNotifications.add(pushNotification);
                 } catch (Exception e) {
                     log.error("Failed to create push notification for notification with id: {}", notification.getId(), e);
