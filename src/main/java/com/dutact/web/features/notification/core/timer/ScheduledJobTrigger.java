@@ -6,9 +6,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.concurrent.TimeUnit;
 
 @Log4j2
@@ -21,10 +19,9 @@ public class ScheduledJobTrigger {
     @Transactional
     @Scheduled(fixedRateString = "${notification.scheduled-job.interval-secs}", timeUnit = TimeUnit.SECONDS)
     public void schedule() {
-        var now = System.currentTimeMillis();
-        var nowLocalDateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(now), ZoneId.systemDefault());
+        var now = LocalDateTime.now();
         var scheduledJobs = scheduledJobRepository
-                .getAllByFireAtBeforeAndExpireAtAfter(nowLocalDateTime, nowLocalDateTime);
+                .getAllByFireAtBeforeAndExpireAtAfter(now, now);
         var delegateScheduledJobs = scheduledJobs.stream().map((scheduledJob) ->
         {
             var delegateScheduledJob = new DelegateScheduledJob();
@@ -43,9 +40,8 @@ public class ScheduledJobTrigger {
     @Transactional
     @Scheduled(cron = "${notification.scheduled-job.cleanup-cron}")
     public void cleanupExpiredJobs() {
-        var now = System.currentTimeMillis();
-        var nowLocalDateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(now), ZoneId.systemDefault());
-        scheduledJobRepository.deleteAllByExpireAtBefore(nowLocalDateTime);
+        var now = LocalDateTime.now();
+        scheduledJobRepository.deleteAllByExpireAtBefore(now);
         log.trace("Deleted expired scheduled jobs");
     }
 }

@@ -18,7 +18,7 @@ import java.util.Optional;
 @Primary
 @Service("organizerEventReminderService")
 @AllArgsConstructor
-public class EventReminderServiceDecorator implements EventService {
+public class EventServiceReminderDecorator implements EventService {
     private final EventServiceImpl delegateService;
     private final ApplicationEventPublisher eventPublisher;
 
