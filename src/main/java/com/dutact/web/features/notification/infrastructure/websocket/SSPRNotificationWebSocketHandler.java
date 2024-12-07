@@ -112,7 +112,7 @@ public class SSPRNotificationWebSocketHandler extends TextWebSocketHandler {
         accountSubscriptionHandler.unsubscribe(subscriptionToken);
 
         var response = new SSPRMessage();
-        response.setCommand(OK);
+        response.setCommand(UNSUBSCRIBE_ACK);
 
         return response;
     }

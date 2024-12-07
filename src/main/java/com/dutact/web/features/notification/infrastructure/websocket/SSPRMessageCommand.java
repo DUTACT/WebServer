@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 public class SSPRMessageCommand {
     public static final String OK = "OK";
     public static final String SUBSCRIBE_ACK = "SUBSCRIBE_ACK";
+    public static final String UNSUBSCRIBE_ACK = "UNSUBSCRIBE_ACK";
     public static final String ERROR = "ERROR";
     public static final String SUBSCRIBE = "SUBSCRIBE";
     public static final String UNSUBSCRIBE = "UNSUBSCRIBE";
