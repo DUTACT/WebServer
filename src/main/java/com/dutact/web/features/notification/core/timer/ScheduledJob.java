@@ -27,4 +27,7 @@ public class ScheduledJob {
 
     @Column(name = "fire_at")
     private LocalDateTime fireAt;
+
+    @Column(name = "expire_at")
+    private LocalDateTime expireAt;
 }

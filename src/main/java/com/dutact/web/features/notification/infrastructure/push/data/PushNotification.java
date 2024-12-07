@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "push_notification", schema = "notification")
 @Getter
@@ -20,4 +22,7 @@ public class PushNotification {
 
     @JsonProperty("subscription_token")
     private String subscriptionToken;
+
+    @Column(name = "expire_at")
+    private LocalDateTime expireAt;
 }

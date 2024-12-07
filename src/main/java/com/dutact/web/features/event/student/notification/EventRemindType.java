@@ -1,4 +1,4 @@
-package com.dutact.web.features.event.student.notification.reminder;
+package com.dutact.web.features.event.student.notification;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;

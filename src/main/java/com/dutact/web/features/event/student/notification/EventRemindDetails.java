@@ -1,4 +1,4 @@
-package com.dutact.web.features.event.student.notification.reminder;
+package com.dutact.web.features.event.student.notification;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;

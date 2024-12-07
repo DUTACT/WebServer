@@ -23,7 +23,8 @@ public class ScheduledJobTrigger {
     public void schedule() {
         var now = System.currentTimeMillis();
         var nowLocalDateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(now), ZoneId.systemDefault());
-        var scheduledJobs = scheduledJobRepository.getAllByFireAtBefore(nowLocalDateTime);
+        var scheduledJobs = scheduledJobRepository
+                .getAllByFireAtBeforeAndExpireAtAfter(nowLocalDateTime, nowLocalDateTime);
         var delegateScheduledJobs = scheduledJobs.stream().map((scheduledJob) ->
         {
             var delegateScheduledJob = new DelegateScheduledJob();
@@ -37,5 +38,14 @@ public class ScheduledJobTrigger {
 
         delegateScheduledJobs.forEach(scheduledJobDelegator::executeScheduledJob);
         log.trace("Scheduled job trigger executed, {} jobs executed", scheduledJobs.size());
+    }
+
+    @Transactional
+    @Scheduled(cron = "${notification.scheduled-job.cleanup-cron}")
+    public void cleanupExpiredJobs() {
+        var now = System.currentTimeMillis();
+        var nowLocalDateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(now), ZoneId.systemDefault());
+        scheduledJobRepository.deleteAllByExpireAtBefore(nowLocalDateTime);
+        log.trace("Deleted expired scheduled jobs");
     }
 }

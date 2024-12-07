@@ -1,4 +1,4 @@
-package com.dutact.web.features.event.student.notification.reminder;
+package com.dutact.web.features.event.student.notification;
 
 import com.dutact.web.common.mapper.ObjectMapperUtils;
 import com.dutact.web.features.event.events.PublishedEventStartTimeUpdatedEvent;
@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 @Log4j2
 @Component
@@ -32,6 +33,8 @@ public class EventRemindListener {
         for (int i = 0; i < remindMins.length; i++) {
             this.remindMins[i] = Integer.parseInt(remindMins[i]);
         }
+
+        Arrays.sort(this.remindMins);
     }
 
     @Async
@@ -54,10 +57,16 @@ public class EventRemindListener {
     private void createRemindJobs(Integer eventId, LocalDateTime startAt) {
         var scheduledJobs = new ArrayList<ScheduledJob>();
         var compareStr = calculateCompareStr(eventId, startAt);
+        var minsToStart = LocalDateTime.now().until(startAt, java.time.temporal.ChronoUnit.MINUTES);
+        
+        for (int i = 0; i < remindMins.length; i++) {
+            if (remindMins[i] >= minsToStart) {
+                break;
+            }
 
-        for (var remindMin : remindMins) {
             try {
-                var remindAt = startAt.minusMinutes(remindMin);
+                var remindAt = startAt.minusMinutes(remindMins[i]);
+                var expireAt = i == 0 ? startAt : startAt.minusMinutes(remindMins[i - 1]);
                 var data = new EventRemindDetails();
                 data.setEventId(eventId);
                 data.setType(EventRemindType.EVENT_START);
@@ -65,15 +74,15 @@ public class EventRemindListener {
                 var scheduledJob = new ScheduledJob();
                 scheduledJob.setType(ScheduledJobType.EVENT_REMINDER);
                 scheduledJob.setFireAt(remindAt);
+                scheduledJob.setExpireAt(expireAt);
                 scheduledJob.setDetails(objectMapper.writeValueAsString(data));
                 scheduledJob.setCompareString(compareStr);
 
                 scheduledJobs.add(scheduledJob);
             } catch (Exception e) {
-                log.error("Failed to create remind job for event {} at {}", eventId, remindMin, e);
+                log.error("Failed to create remind job for event {} at {}", eventId, remindMins[i], e);
             }
         }
-
         scheduledJobRepository.saveAll(scheduledJobs);
     }
 

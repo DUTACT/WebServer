@@ -1,6 +1,6 @@
 package com.dutact.web.configuration;
 
-import com.dutact.web.features.event.student.notification.reminder.EventRemindExecutor;
+import com.dutact.web.features.event.student.notification.EventRemindExecutor;
 import com.dutact.web.features.notification.core.timer.ScheduledJobDelegator;
 import com.dutact.web.features.notification.core.timer.ScheduledJobDelegatorImpl;
 import com.dutact.web.features.notification.core.timer.ScheduledJobExecutor;

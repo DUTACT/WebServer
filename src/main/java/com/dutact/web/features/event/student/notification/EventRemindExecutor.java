@@ -1,4 +1,4 @@
-package com.dutact.web.features.event.student.notification.reminder;
+package com.dutact.web.features.event.student.notification;
 
 import com.dutact.web.common.mapper.ObjectMapperUtils;
 import com.dutact.web.core.repositories.EventFollowRepository;
@@ -43,9 +43,8 @@ public class EventRemindExecutor implements ScheduledJobExecutor {
         notification.setEventName(event.getName());
         notification.setStartAt(event.getStartAt());
 
-        var notificationDetails = objectMapper.writeValueAsString(notification);
         var studentIds = eventFollowRepository.findStudentIdsByEventId(event.getId());
 
-        notificationDeliveryCentral.sendNotification(studentIds, notificationDetails, NotificationType.EVENT_START_REMIND);
+        notificationDeliveryCentral.sendNotification(studentIds, notification, NotificationType.EVENT_START_REMIND);
     }
 }
