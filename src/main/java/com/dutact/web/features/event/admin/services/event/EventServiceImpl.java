@@ -17,12 +17,12 @@ import com.dutact.web.core.repositories.EventRepository;
 import com.dutact.web.core.repositories.OrganizerRepository;
 import com.dutact.web.core.specs.EventChangeSpecs;
 import com.dutact.web.core.specs.EventSpecs;
-import com.dutact.web.features.activity.services.StudentActivityService;
 import com.dutact.web.features.event.admin.dtos.event.*;
 import com.dutact.web.storage.StorageService;
 import com.dutact.web.storage.UploadFileResult;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -33,6 +33,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+@Log4j2
 @Service("organizerEventService")
 @AllArgsConstructor
 public class EventServiceImpl implements EventService {
@@ -43,7 +44,6 @@ public class EventServiceImpl implements EventService {
     private final OrganizerRepository organizerRepository;
     private final EventChangeRepository eventChangeRepository;
     private final StorageService storageService;
-    private final StudentActivityService studentActivityService;
 
     @Override
     public EventDto createEvent(Integer organizerId, EventCreateDto eventDto)
