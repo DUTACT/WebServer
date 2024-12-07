@@ -10,4 +10,6 @@ public interface ScheduledJobRepository
     Collection<ScheduledJob> getAllByFireAtBefore(LocalDateTime time);
 
     void deleteAllByIdIn(Collection<Integer> ids);
+
+    void deleteAllByCompareStringAndType(String compareString, String type);
 }

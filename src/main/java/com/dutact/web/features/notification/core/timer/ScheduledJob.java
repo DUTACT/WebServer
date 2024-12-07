@@ -16,8 +16,8 @@ public class ScheduledJob {
     @Column(name = "id")
     private Integer id;
 
-    @Column(name = "hash")
-    private String hash;
+    @Column(name = "compare_string")
+    private String compareString;
 
     @Column(name = "details")
     private String details;
