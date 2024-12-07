@@ -1,8 +1,10 @@
 package com.dutact.web.features.event.student.notification.reminder;
 
 import com.dutact.web.common.mapper.ObjectMapperUtils;
+import com.dutact.web.core.repositories.EventFollowRepository;
 import com.dutact.web.core.repositories.EventRepository;
 import com.dutact.web.features.notification.core.NotificationDeliveryCentral;
+import com.dutact.web.features.notification.core.NotificationType;
 import com.dutact.web.features.notification.core.timer.DelegateScheduledJob;
 import com.dutact.web.features.notification.core.timer.ScheduledJobExecutor;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -17,6 +19,7 @@ import org.springframework.stereotype.Component;
 public class EventRemindExecutor implements ScheduledJobExecutor {
     private final ObjectMapper objectMapper = ObjectMapperUtils.createObjectMapper();
     private final EventRepository eventRepository;
+    private final EventFollowRepository eventFollowRepository;
     private final NotificationDeliveryCentral notificationDeliveryCentral;
 
     @SneakyThrows
@@ -31,13 +34,18 @@ public class EventRemindExecutor implements ScheduledJobExecutor {
         }
     }
 
+    @SneakyThrows
     private void remindEventStart(EventRemindDetails details) {
         var event = eventRepository.findById(details.getEventId()).orElseThrow();
-        // Send notification to remind event start
 
         var notification = new EventRemindNotification.EventStart();
         notification.setEventId(event.getId());
         notification.setEventName(event.getName());
         notification.setStartAt(event.getStartAt());
+
+        var notificationDetails = objectMapper.writeValueAsString(notification);
+        var studentIds = eventFollowRepository.findStudentIdsByEventId(event.getId());
+
+        notificationDeliveryCentral.sendNotification(studentIds, notificationDetails, NotificationType.EVENT_START_REMIND);
     }
 }

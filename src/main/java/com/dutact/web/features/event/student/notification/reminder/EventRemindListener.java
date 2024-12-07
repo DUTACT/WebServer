@@ -21,7 +21,7 @@ import java.util.ArrayList;
 public class EventRemindListener {
     private final ObjectMapper objectMapper = ObjectMapperUtils.createObjectMapper();
     private final ScheduledJobRepository scheduledJobRepository;
-    private int[] remindMins;
+    private final int[] remindMins;
 
     public EventRemindListener(@Value("${notification.remind.event.mins}") String remindMinsStr,
                                ScheduledJobRepository scheduledJobRepository) {
@@ -60,7 +60,7 @@ public class EventRemindListener {
                 var remindAt = startAt.minusMinutes(remindMin);
                 var data = new EventRemindDetails();
                 data.setEventId(eventId);
-                data.setStartAt(startAt);
+                data.setType(EventRemindType.EVENT_START);
 
                 var scheduledJob = new ScheduledJob();
                 scheduledJob.setType(ScheduledJobType.EVENT_REMINDER);

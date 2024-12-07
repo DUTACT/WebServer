@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.concurrent.TimeUnit;
 
 @Component
 @AllArgsConstructor
@@ -16,7 +17,7 @@ public class ScheduledJobTrigger {
     private final ScheduledJobDelegator scheduledJobDelegator;
 
     @Transactional
-    @Scheduled(fixedRate = 1000 * 60 * 60)
+    @Scheduled(fixedRateString = "${notification.scheduled-job.interval-secs}", timeUnit = TimeUnit.SECONDS)
     public void schedule() {
         var now = System.currentTimeMillis();
         var nowLocalDateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(now), ZoneId.systemDefault());
