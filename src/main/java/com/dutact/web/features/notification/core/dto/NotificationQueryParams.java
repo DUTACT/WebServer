@@ -1,10 +1,10 @@
-package com.dutact.web.features.notification.core.data;
+package com.dutact.web.features.notification.core.dto;
 
 import lombok.Data;
 
 @Data
 public class NotificationQueryParams {
-    private String accountId;
+    private Integer accountId;
     private Integer page = 1;
     private Integer size = 10;
 

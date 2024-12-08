@@ -4,6 +4,8 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
 
+import java.time.LocalDateTime;
+
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class NotificationSpecs {
     public static Specification<Notification> hasAccountId(Integer accountId) {
@@ -12,7 +14,11 @@ public class NotificationSpecs {
     }
 
     public static Specification<Notification> notExpired() {
+        var now = LocalDateTime.now();
         return (root, query, criteriaBuilder) ->
-                criteriaBuilder.greaterThanOrEqualTo(root.get("expiryDate"), query.getCurrentTimestamp());
+                criteriaBuilder.or(
+                        criteriaBuilder.isNull(root.get("expireAt")),
+                        criteriaBuilder.greaterThan(root.get("expireAt"), now)
+                );
     }
 }
