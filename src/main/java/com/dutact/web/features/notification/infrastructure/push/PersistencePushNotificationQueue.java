@@ -5,6 +5,7 @@ import com.dutact.web.features.notification.infrastructure.push.data.PushNotific
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 
@@ -24,6 +25,8 @@ public class PersistencePushNotificationQueue implements PushNotificationQueue {
                     var entity = new com.dutact.web.features.notification.infrastructure.push.data.PushNotification();
                     entity.setSubscriptionToken(pushNotification.getSubscriptionToken());
                     entity.setMessage(pushNotification.getMessage());
+                    entity.setExpireAt(pushNotification.getExpireAt());
+
                     return entity;
                 })
                 .toList();
@@ -35,7 +38,8 @@ public class PersistencePushNotificationQueue implements PushNotificationQueue {
     @Transactional
     public List<PushNotification> popAll(String subscriptionToken) {
         var pushNotificationEntities = pushNotificationRepository
-                .findAll(PushNotificationSpecs.hasSubscriptionToken(subscriptionToken));
+                .findAll(PushNotificationSpecs.hasSubscriptionToken(subscriptionToken)
+                        .and(PushNotificationSpecs.hasExpireAtAfter(LocalDateTime.now())));
         pushNotificationRepository.deleteAll(pushNotificationEntities);
 
         return pushNotificationEntities.stream()
@@ -44,6 +48,7 @@ public class PersistencePushNotificationQueue implements PushNotificationQueue {
                     var notification = new PushNotification();
                     notification.setSubscriptionToken(pushNotificationEntity.getSubscriptionToken());
                     notification.setMessage(pushNotificationEntity.getMessage());
+                    notification.setExpireAt(pushNotificationEntity.getExpireAt());
 
                     return notification;
                 })

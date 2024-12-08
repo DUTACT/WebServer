@@ -1,6 +1,6 @@
-package com.dutact.web.features.notification.core.data;
+package com.dutact.web.features.notification.core;
 
-import com.dutact.web.features.notification.core.NotificationDetailsConverter;
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -29,6 +29,10 @@ public class Notification {
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
+
+    @Nullable
+    @Column(name = "expire_at")
+    private LocalDateTime expireAt;
 
     @PrePersist
     public void prePersist() {
