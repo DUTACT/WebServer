@@ -1,4 +1,4 @@
-package com.dutact.web.features.notification.core;
+package com.dutact.web.features.notification.core.data;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

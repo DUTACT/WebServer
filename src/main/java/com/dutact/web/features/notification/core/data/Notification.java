@@ -1,5 +1,6 @@
-package com.dutact.web.features.notification.core;
+package com.dutact.web.features.notification.core.data;
 
+import com.dutact.web.features.notification.core.NotificationDetailsConverter;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

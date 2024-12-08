@@ -5,7 +5,7 @@ import com.dutact.web.core.repositories.PostRepository;
 import com.dutact.web.core.specs.EventFollowSpecs;
 import com.dutact.web.features.event.events.PostCreatedEvent;
 import com.dutact.web.features.notification.core.NotificationDeliveryCentral;
-import com.dutact.web.features.notification.core.NotificationType;
+import com.dutact.web.features.notification.core.data.NotificationType;
 import com.dutact.web.features.post.student.service.PostMapper;
 import jakarta.transaction.Transactional;
 import lombok.SneakyThrows;

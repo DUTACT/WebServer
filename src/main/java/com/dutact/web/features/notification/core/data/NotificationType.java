@@ -1,4 +1,4 @@
-package com.dutact.web.features.notification.core;
+package com.dutact.web.features.notification.core.data;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
