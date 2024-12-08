@@ -5,7 +5,7 @@ import com.dutact.web.core.repositories.EventFollowRepository;
 import com.dutact.web.core.repositories.EventRepository;
 import com.dutact.web.features.notification.core.NotificationData;
 import com.dutact.web.features.notification.core.NotificationDeliveryCentral;
-import com.dutact.web.features.notification.core.NotificationType;
+import com.dutact.web.features.notification.core.data.NotificationType;
 import com.dutact.web.features.notification.core.timer.DelegateScheduledJob;
 import com.dutact.web.features.notification.core.timer.ScheduledJobExecutor;
 import com.fasterxml.jackson.databind.ObjectMapper;

@@ -1,6 +1,8 @@
 package com.dutact.web.features.notification.core;
 
 import com.dutact.web.common.mapper.ObjectMapperUtils;
+import com.dutact.web.features.notification.core.data.Notification;
+import com.dutact.web.features.notification.core.data.NotificationRepository;
 import com.dutact.web.features.notification.infrastructure.push.PushNotification;
 import com.dutact.web.features.notification.infrastructure.push.PushNotificationQueue;
 import com.dutact.web.features.notification.infrastructure.push.event.NotificationPushedEvent;
