@@ -3,10 +3,13 @@ package com.dutact.web.features.post.student.service;
 import com.dutact.web.auth.context.SecurityContextUtils;
 import com.dutact.web.common.api.exceptions.NotExistsException;
 import com.dutact.web.core.entities.Student;
+import com.dutact.web.core.entities.StudentActivity;
 import com.dutact.web.core.entities.post.Post;
 import com.dutact.web.core.entities.post.PostStatus;
 import com.dutact.web.core.repositories.PostRepository;
 import com.dutact.web.core.repositories.StudentRepository;
+import com.dutact.web.features.activity.dto.ActivityType;
+import com.dutact.web.features.activity.services.StudentActivityService;
 import com.dutact.web.features.post.student.dtos.PostDto;
 import com.dutact.web.core.entities.post.PostLike;
 import com.dutact.web.core.repositories.PostLikeRepository;
@@ -28,6 +31,7 @@ public class PostServiceImpl implements PostService {
     private final PostMapper postMapper;
     private final PostLikeRepository postLikeRepository;
     private final StudentRepository studentRepository;
+    private final StudentActivityService studentActivityService;
 
     @Override
     public PostDto getPost(Integer postId) throws NotExistsException {
@@ -103,6 +107,13 @@ public class PostServiceImpl implements PostService {
             like.setStudent(student);
             like.setLikedAt(LocalDateTime.now());
             postLikeRepository.save(like);
+
+
+            StudentActivity activity = new StudentActivity();
+            activity.setType(ActivityType.POST_LIKE);
+            activity.setEvent(post.getEvent());
+            activity.setPostId(postId);
+            studentActivityService.recordActivity(studentId, activity);
         }
     }
 
@@ -115,7 +126,8 @@ public class PostServiceImpl implements PostService {
         if (!studentRepository.existsById(studentId)) {
             throw new NotExistsException("Student not found");
         }
-        
+
+        studentActivityService.removePostLikeActivity(studentId, postId);
         postLikeRepository.deleteByPostIdAndStudentId(postId, studentId);
     }
 

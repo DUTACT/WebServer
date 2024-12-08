@@ -1,13 +1,17 @@
 package com.dutact.web.core.entities.eventchange;
 
+import com.dutact.web.common.mapper.ObjectMapperUtils;
 import com.dutact.web.core.entities.eventchange.details.EventChangeDetails;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import jakarta.persistence.AttributeConverter;
+import jakarta.persistence.Converter;
 import lombok.SneakyThrows;
 
+@Converter
 public class EventChangeDetailsConverter
         implements AttributeConverter<EventChangeDetails, String> {
+    private final ObjectMapper objectMapper = ObjectMapperUtils.createObjectMapper();
+
     @SneakyThrows
     @Override
     public String convertToDatabaseColumn(EventChangeDetails details) {
@@ -15,8 +19,6 @@ public class EventChangeDetailsConverter
             return null;
         }
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new JavaTimeModule());
         return objectMapper.writeValueAsString(details);
     }
 
@@ -27,8 +29,6 @@ public class EventChangeDetailsConverter
             return null;
         }
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new JavaTimeModule());
         return objectMapper.readValue(dbData, EventChangeDetails.class);
     }
 }

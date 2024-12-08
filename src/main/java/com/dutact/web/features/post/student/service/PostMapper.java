@@ -16,5 +16,7 @@ public interface PostMapper {
     @Mapping(target = "coverPhotoUrl", source = "coverPhoto.fileUrl")
     @Mapping(target = "likedAt", ignore = true)
     @Mapping(target = "likeNumber", ignore = true)
+    @Mapping(target = "organizer", source = "event.organizer")
+    @Mapping(target = "organizer.avatarUrl", source = "event.organizer.avatar.fileUrl")
     PostDto toDto(Post post);
 }

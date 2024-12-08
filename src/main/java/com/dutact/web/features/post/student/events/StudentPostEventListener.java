@@ -4,8 +4,9 @@ import com.dutact.web.core.repositories.EventFollowRepository;
 import com.dutact.web.core.repositories.PostRepository;
 import com.dutact.web.core.specs.EventFollowSpecs;
 import com.dutact.web.features.event.events.PostCreatedEvent;
-import com.dutact.web.features.notification.constants.NotificationType;
-import com.dutact.web.features.notification.push.NotificationDeliveryCentral;
+import com.dutact.web.features.notification.core.NotificationData;
+import com.dutact.web.features.notification.core.NotificationDeliveryCentral;
+import com.dutact.web.features.notification.core.data.NotificationType;
 import com.dutact.web.features.post.student.service.PostMapper;
 import jakarta.transaction.Transactional;
 import lombok.SneakyThrows;
@@ -53,7 +54,10 @@ public class StudentPostEventListener {
 
         var postDto = postMapper.toDto(post);
 
-        notificationDeliveryCentral
-                .sendNotification(followerIds, postDto, NotificationType.POST_CREATED);
+        var notificationData = new NotificationData();
+        notificationData.setAccountIds(followerIds);
+        notificationData.setDetails(postDto);
+        notificationData.setNotificationType(NotificationType.POST_CREATED);
+        notificationDeliveryCentral.sendNotification(notificationData);
     }
 }

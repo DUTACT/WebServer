@@ -1,6 +1,7 @@
 package com.dutact.web.configuration.handler;
 
 import com.dutact.web.common.api.ErrorMessage;
+import com.dutact.web.common.api.exceptions.BadRequestException;
 import com.dutact.web.common.api.exceptions.ConflictException;
 import com.dutact.web.common.api.exceptions.ForbiddenException;
 import com.dutact.web.common.api.exceptions.NotExistsException;
@@ -44,6 +45,16 @@ public class GlobalExceptionHandler {
     })
     public ResponseEntity<Object> handleForbiddenException(ForbiddenException ex) {
         return new ResponseEntity<>(new ErrorMessage(ex.getMessage()), HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(BadRequestException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "400", description = "Bad request", content =
+            @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class)))
+    })
+    public ResponseEntity<Object> handleBadRequestException(BadRequestException ex) {
+        return new ResponseEntity<>(new ErrorMessage(ex.getMessage()), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(ConflictException.class)

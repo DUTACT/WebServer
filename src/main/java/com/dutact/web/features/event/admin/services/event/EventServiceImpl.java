@@ -20,7 +20,9 @@ import com.dutact.web.core.specs.EventSpecs;
 import com.dutact.web.features.event.admin.dtos.event.*;
 import com.dutact.web.storage.StorageService;
 import com.dutact.web.storage.UploadFileResult;
+import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -31,7 +33,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+@Log4j2
 @Service("organizerEventService")
+@AllArgsConstructor
 public class EventServiceImpl implements EventService {
     private final EventMapper eventMapper;
     private final EventChangeMapper eventChangeMapper;
@@ -40,22 +44,6 @@ public class EventServiceImpl implements EventService {
     private final OrganizerRepository organizerRepository;
     private final EventChangeRepository eventChangeRepository;
     private final StorageService storageService;
-
-    public EventServiceImpl(EventMapper eventMapper,
-                            EventChangeMapper eventChangeMapper,
-                            UploadedFileMapper uploadedFileMapper,
-                            EventRepository eventRepository,
-                            OrganizerRepository organizerRepository,
-                            EventChangeRepository eventChangeRepository,
-                            StorageService storageService) {
-        this.eventMapper = eventMapper;
-        this.eventChangeMapper = eventChangeMapper;
-        this.uploadedFileMapper = uploadedFileMapper;
-        this.eventRepository = eventRepository;
-        this.organizerRepository = organizerRepository;
-        this.eventChangeRepository = eventChangeRepository;
-        this.storageService = storageService;
-    }
 
     @Override
     public EventDto createEvent(Integer organizerId, EventCreateDto eventDto)
@@ -249,6 +237,7 @@ public class EventServiceImpl implements EventService {
         var newTime = LocalDateTime.now();
 
         var eventChange = new EventChange();
+        eventChange.setEvent(event);
         eventChange.setDetails(new RegistrationClosed(
                 newTime,
                 event.getEndRegistrationAt()

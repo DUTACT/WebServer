@@ -1,15 +1,15 @@
 package com.dutact.web.features.checkin.admin.services;
 
 import com.dutact.web.core.entities.EventCheckIn;
-import com.dutact.web.core.entities.EventCheckInCode;
+import com.dutact.web.core.entities.checkincode.EventCheckInCode;
 import com.dutact.web.core.projections.CheckInPreview;
 import com.dutact.web.features.checkin.admin.dtos.CheckInCodeInfo;
 import com.dutact.web.features.checkin.admin.dtos.CheckInHistoryDto;
 import com.dutact.web.features.checkin.admin.dtos.CheckInPreviewDto;
 import com.dutact.web.features.checkin.student.dtos.StudentCheckInDetailDto;
 import org.mapstruct.Mapper;
-import org.mapstruct.MappingConstants;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingConstants;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface EventCheckInMapper {

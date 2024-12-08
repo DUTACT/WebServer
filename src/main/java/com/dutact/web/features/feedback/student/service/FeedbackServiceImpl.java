@@ -5,10 +5,13 @@ import com.dutact.web.auth.factors.StudentAccountService;
 import com.dutact.web.common.api.exceptions.NotExistsException;
 import com.dutact.web.common.mapper.UploadedFileMapper;
 import com.dutact.web.core.entities.Student;
+import com.dutact.web.core.entities.StudentActivity;
 import com.dutact.web.core.entities.feedback.Feedback;
 import com.dutact.web.core.entities.feedback.FeedbackLike;
 import com.dutact.web.core.repositories.*;
 import com.dutact.web.core.specs.FeedbackSpecs;
+import com.dutact.web.features.activity.dto.ActivityType;
+import com.dutact.web.features.activity.services.StudentActivityService;
 import com.dutact.web.features.feedback.student.dtos.CreateFeedbackDto;
 import com.dutact.web.features.feedback.student.dtos.FeedbackDto;
 import com.dutact.web.features.feedback.student.dtos.FeedbackQueryParams;
@@ -39,6 +42,7 @@ public class FeedbackServiceImpl implements FeedbackService {
     private final PostLikeRepository postLikeRepository;
     private final StudentAccountService studentAccountService;
     private final FeedbackLikeRepository feedbackLikeRepository;
+    private final StudentActivityService studentActivityService;
 
     @Override
     public FeedbackDto createFeedback(Integer studentId, CreateFeedbackDto createFeedbackDto) throws NotExistsException {
@@ -58,7 +62,13 @@ public class FeedbackServiceImpl implements FeedbackService {
         feedback.setStudent(studentRepository.getReferenceById(studentId));
         feedback.setEvent(eventRepository.getReferenceById(createFeedbackDto.getEventId()));
         feedback.setPostedAt(LocalDateTime.now());
-        feedbackRepository.save(feedback);
+        feedback = feedbackRepository.save(feedback);
+
+        StudentActivity activity = new StudentActivity();
+        activity.setType(ActivityType.FEEDBACK_CREATE);
+        activity.setEvent(feedback.getEvent());
+        activity.setFeedbackId(feedback.getId());
+        studentActivityService.recordActivity(studentId, activity);
 
         return feedbackMapper.toDto(feedback);
     }
@@ -93,6 +103,7 @@ public class FeedbackServiceImpl implements FeedbackService {
                         f.setLikedAt(null);
                     }
                 })
+
                 .toList();
     }
 
@@ -174,6 +185,12 @@ public void likeFeedback(Integer studentId, Integer feedbackId) throws NotExists
         like.setStudent(student);
         like.setLikedAt(LocalDateTime.now());
         feedbackLikeRepository.save(like);
+
+        StudentActivity activity = new StudentActivity();
+        activity.setType(ActivityType.FEEDBACK_LIKE);
+        activity.setEvent(feedback.getEvent());
+        activity.setFeedbackId(feedbackId);
+        studentActivityService.recordActivity(studentId, activity);
     }
 }
 
@@ -186,7 +203,8 @@ public void unlikeFeedback(Integer studentId, Integer feedbackId) throws NotExis
     if (!studentRepository.existsById(studentId)) {
         throw new NotExistsException("Student not found");
     }
-    
+
+    studentActivityService.removeFeedbackLikeActivity(studentId, feedbackId);
     feedbackLikeRepository.deleteByFeedbackIdAndStudentId(feedbackId, studentId);
 }
 
