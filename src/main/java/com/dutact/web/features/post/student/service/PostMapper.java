@@ -11,12 +11,12 @@ import org.springframework.stereotype.Component;
 @AnnotateWith(
         value = Component.class,
         elements = @AnnotateWith.Element(strings = "studentPostMapper"))
-@Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
+@Mapper(componentModel = MappingConstants.ComponentModel.SPRING,
+        uses = PostOrganizerMapper.class)
 public interface PostMapper {
     @Mapping(target = "coverPhotoUrl", source = "coverPhoto.fileUrl")
     @Mapping(target = "likedAt", ignore = true)
     @Mapping(target = "likeNumber", ignore = true)
     @Mapping(target = "organizer", source = "event.organizer")
-    @Mapping(target = "organizer.avatarUrl", source = "event.organizer.avatar.fileUrl")
     PostDto toDto(Post post);
 }
