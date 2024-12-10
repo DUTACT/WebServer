@@ -28,4 +28,7 @@ public interface EventRegistrationRepository extends JpaRepository<EventRegistra
 
     @Query("SELECT COUNT(er) FROM EventRegistration er WHERE er.event.id = :eventId")
     Integer countByEventId(Integer eventId);
+
+    @Query("SELECT er.student.id FROM EventRegistration er WHERE er.event.id = :eventId")
+    List<Integer> findStudentIdsByEventId(Integer eventId);
 }
