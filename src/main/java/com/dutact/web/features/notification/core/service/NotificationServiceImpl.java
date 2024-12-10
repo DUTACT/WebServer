@@ -21,7 +21,7 @@ public class NotificationServiceImpl implements NotificationService {
         var specs = NotificationSpecs.hasAccountId(queryParams.getAccountId())
                 .and(NotificationSpecs.notExpired());
 
-        var paging = PageRequest.of(queryParams.getPage(), queryParams.getSize(),
+        var paging = PageRequest.of(queryParams.getPage() - 1, queryParams.getSize(),
                 Sort.by("createdAt").descending());
 
         var page = notificationRepository.findAll(specs, paging);
