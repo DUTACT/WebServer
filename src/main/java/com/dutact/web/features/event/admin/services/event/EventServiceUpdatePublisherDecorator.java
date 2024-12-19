@@ -4,6 +4,7 @@ import com.dutact.web.common.api.exceptions.ConflictException;
 import com.dutact.web.common.api.exceptions.NotExistsException;
 import com.dutact.web.core.entities.event.EventStatus;
 import com.dutact.web.features.event.admin.dtos.event.*;
+import com.dutact.web.features.event.events.PendingEventStartTimeUpdatedEvent;
 import com.dutact.web.features.event.events.PublishedEventStartTimeUpdatedEvent;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -18,7 +19,7 @@ import java.util.Optional;
 @Primary
 @Service("organizerEventReminderService")
 @AllArgsConstructor
-public class EventServiceReminderDecorator implements EventService {
+public class EventServiceUpdatePublisherDecorator implements EventService {
     private final EventServiceImpl delegateService;
     private final ApplicationEventPublisher eventPublisher;
 
@@ -30,6 +31,11 @@ public class EventServiceReminderDecorator implements EventService {
         if (event.getStatus() instanceof EventStatus.Approved) {
             var eventTimeChangedEvent = new PublishedEventStartTimeUpdatedEvent(event.getId(), null, event.getStartAt());
             publishStartTimeUpdatedEvent(eventTimeChangedEvent);
+        }
+
+        if (event.getStatus() instanceof EventStatus.Pending) {
+            var eventTimeChangedEvent = new PendingEventStartTimeUpdatedEvent(event.getId(), event.getStartAt());
+            publishStartTimeUpdatedPendingEvent(eventTimeChangedEvent);
         }
 
         return event;
@@ -65,10 +71,14 @@ public class EventServiceReminderDecorator implements EventService {
 
         var event = delegateService.updateEvent(eventId, eventDto);
 
-
         if (event.getStatus() instanceof EventStatus.Approved) {
             var eventTimeChangedEvent = new PublishedEventStartTimeUpdatedEvent(event.getId(), oldStartAt, event.getStartAt());
             publishStartTimeUpdatedEvent(eventTimeChangedEvent);
+        }
+
+        if (event.getStatus() instanceof EventStatus.Pending) {
+            var eventTimeChangedEvent = new PendingEventStartTimeUpdatedEvent(event.getId(), event.getStartAt());
+            publishStartTimeUpdatedPendingEvent(eventTimeChangedEvent);
         }
 
         return event;
@@ -92,6 +102,11 @@ public class EventServiceReminderDecorator implements EventService {
         if (event.getStatus() instanceof EventStatus.Approved) {
             var eventTimeChangedEvent = new PublishedEventStartTimeUpdatedEvent(event.getId(), oldStartAt, event.getStartAt());
             publishStartTimeUpdatedEvent(eventTimeChangedEvent);
+        }
+
+        if (event.getStatus() instanceof EventStatus.Pending) {
+            var eventTimeChangedEvent = new PendingEventStartTimeUpdatedEvent(event.getId(), event.getStartAt());
+            publishStartTimeUpdatedPendingEvent(eventTimeChangedEvent);
         }
 
         return event;
@@ -134,6 +149,14 @@ public class EventServiceReminderDecorator implements EventService {
             eventPublisher.publishEvent(event);
         } catch (Exception e) {
             log.error("Failed to publish event time changed event", e);
+        }
+    }
+
+    private void publishStartTimeUpdatedPendingEvent(PendingEventStartTimeUpdatedEvent event) {
+        try {
+            eventPublisher.publishEvent(event);
+        } catch (Exception e) {
+            log.error("Failed to publish event time changed for pending event", e);
         }
     }
 }
