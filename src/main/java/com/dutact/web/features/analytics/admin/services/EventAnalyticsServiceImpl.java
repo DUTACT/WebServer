@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class EventAnalyticsServiceImpl implements EventAnalyticsService {
@@ -54,21 +55,21 @@ public class EventAnalyticsServiceImpl implements EventAnalyticsService {
             throw new NotExistsException("Event not found.");
         }
 
-        List<RegistrationCountByDate> registrations = eventRegistrationRepository
-            .countRegistrationByDateBetween(eventId, startDate.atTime(0,0), endDate.atTime(0,0));
-            
-
-        List<EventRegistrationCountByDateDto> res = new java.util.ArrayList<>(registrations.stream().map(this::toDto).toList());
-        for (LocalDate date = startDate; date.isBefore(endDate); date = date.plusDays(1)) {
-            LocalDate finalDate = date;
-            if (registrations.stream().noneMatch(r -> r.getDate().toLocalDate().equals(finalDate))) {
-                res.add(new EventRegistrationCountByDateDto(date, 0));
-            }
-        }
-        res.sort(Comparator.comparing(EventRegistrationCountByDateDto::getDate));
-        return res;
+        return eventRegistrationRepository
+            .countRegistrationByDateBetween(eventId, startDate.atTime(0,0), endDate.atTime(0,0)).stream().map(this::toDto).toList();
     }
 
+    @Override
+    public List<EventRegistrationCountByDateDto> getEventRegistrations(
+            Integer eventId) throws NotExistsException {
+        if (!eventRepository.existsById(eventId)) {
+            throw new NotExistsException("Event not found.");
+        }
+
+        List<RegistrationCountByDate> registrations = eventRegistrationRepository.countRegistrationByDate(eventId);
+
+        return registrations.stream().map(this::toDto).toList();
+    }
     @Override
     public List<EventRegistrationCountByDateDto> getEventParticipations(
             Integer eventId,
@@ -81,15 +82,7 @@ public class EventAnalyticsServiceImpl implements EventAnalyticsService {
         List<RegistrationCountByDate> participations = eventRegistrationRepository
             .countRegistrationByDateBetween(eventId, startDate.atTime(0,0), endDate.atTime(0,0), ParticipationCertificateStatus.Confirmed.TYPE_NAME);
 
-        List<EventRegistrationCountByDateDto> res = new java.util.ArrayList<>(participations.stream().map(this::toDto).toList());
-        for (LocalDate date = startDate; date.isBefore(endDate); date = date.plusDays(1)) {
-            LocalDate finalDate = date;
-            if (participations.stream().noneMatch(r -> r.getDate().toLocalDate().equals(finalDate))) {
-                res.add(new EventRegistrationCountByDateDto(date, 0));
-            }
-        }
-        res.sort(Comparator.comparing(EventRegistrationCountByDateDto::getDate));
-        return res;
+        return new java.util.ArrayList<>(participations.stream().map(this::toDto).toList());
     }
 
     private EventRegistrationCountByDateDto toDto(RegistrationCountByDate registration) {
@@ -120,5 +113,40 @@ public class EventAnalyticsServiceImpl implements EventAnalyticsService {
             .orElseThrow(() -> new NotExistsException("Organizer not found."));
             
         return getOrganizerOverallStats(organizer.getId());
+    }
+
+    @Override
+    public List<EventRegistrationCountByDateDto> getRegistrationStats(
+            Integer organizerId,
+            LocalDate startDate, 
+            LocalDate endDate) {
+
+        return eventRegistrationRepository
+                .countOrganizerRegistrationsByDateBetween(
+                    organizerId,
+                    startDate.atStartOfDay(),
+                    endDate.plusDays(1).atStartOfDay()
+                )
+                .stream()
+                .map(this::toDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<EventRegistrationCountByDateDto> getParticipationStats(
+            Integer organizerId, 
+            LocalDate startDate, 
+            LocalDate endDate) {
+        
+        return eventRegistrationRepository
+                .countOrganizerParticipationsByDateBetween(
+                    organizerId,
+                    startDate.atStartOfDay(),
+                    endDate.plusDays(1).atStartOfDay(),
+                    ParticipationCertificateStatus.Confirmed.TYPE_NAME
+                )
+                .stream()
+                .map(this::toDto)
+                .collect(Collectors.toList());
     }
 }
