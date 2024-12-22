@@ -4,6 +4,7 @@ import com.dutact.web.auth.context.SecurityContextUtils;
 import com.dutact.web.auth.factors.AccountRepository;
 import com.dutact.web.auth.factors.AccountService;
 import com.dutact.web.common.api.exceptions.NotExistsException;
+import com.dutact.web.features.analytics.admin.dtos.RegistrationAndParticipationCountDto;
 import com.dutact.web.features.analytics.admin.dtos.registration.EventRegistrationCountByDateDto;
 import com.dutact.web.features.analytics.admin.dtos.organizer.OrganizerOverallStatsDto;
 import com.dutact.web.features.analytics.admin.services.EventAnalyticsService;
@@ -78,6 +79,22 @@ public class EventAnalysticController {
         Integer organizerId = accountRepository.findByUsername(username).orElseThrow(() -> new IllegalStateException("Organizer not found")).getId();
         return ResponseEntity.ok(
                 eventAnalyticsService.getParticipationStats(organizerId, startDate, endDate)
+        );
+    }
+
+    @GetMapping("/organizer/registrations-and-participations")
+    @Operation(summary = "Get participation statistics for all events")
+    public ResponseEntity<RegistrationAndParticipationCountDto> getRegistrationAndParticipationStats(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+
+        String username = SecurityContextUtils.getUsername();
+        Integer organizerId = accountRepository.findByUsername(username).orElseThrow(() -> new IllegalStateException("Organizer not found")).getId();
+        return ResponseEntity.ok(
+                new RegistrationAndParticipationCountDto(
+                        eventAnalyticsService.getRegistrationStats(organizerId, startDate, endDate),
+                        eventAnalyticsService.getParticipationStats(organizerId, startDate, endDate)
+                )
         );
     }
 }
