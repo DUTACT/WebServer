@@ -57,4 +57,32 @@ public interface EventRegistrationRepository extends JpaRepository<EventRegistra
             @Param("startDate") LocalDateTime startDate,
             @Param("endDate") LocalDateTime endDate,
             @Param("certificateStatus") String certificateStatus);
+
+    @Query(value = """
+            SELECT DATE_TRUNC('day', er.registered_at) as date, COUNT(er.*) as count 
+            FROM event_registration er 
+            JOIN event e ON er.event_id = e.id 
+            WHERE e.organizer_id = :organizerId 
+            AND er.registered_at BETWEEN :startDate AND :endDate 
+            GROUP BY DATE_TRUNC('day', er.registered_at)
+            ORDER BY date DESC""", nativeQuery = true)
+    List<RegistrationCountByDate> countOrganizerRegistrationsByDateBetween(
+            @Param("organizerId") Integer organizerId,
+            @Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate);
+
+    @Query(value = """
+            SELECT DATE_TRUNC('day', er.registered_at) as date, COUNT(er.*) as count 
+            FROM event_registration er 
+            JOIN event e ON er.event_id = e.id 
+            WHERE e.organizer_id = :organizerId 
+            AND er.registered_at BETWEEN :startDate AND :endDate 
+            AND er.certificate_status->>'type' = :status 
+            GROUP BY DATE_TRUNC('day', er.registered_at)
+            ORDER BY date DESC""", nativeQuery = true)
+    List<RegistrationCountByDate> countOrganizerParticipationsByDateBetween(
+            @Param("organizerId") Integer organizerId,
+            @Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate,
+            @Param("status") String status);
 }
