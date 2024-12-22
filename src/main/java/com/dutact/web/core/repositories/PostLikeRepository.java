@@ -22,4 +22,7 @@ public interface PostLikeRepository extends JpaRepository<PostLike, Integer> {
     
     @Query("SELECT pl.student FROM PostLike pl WHERE pl.post.id = :postId")
     List<Student> findStudentsByPostId(@Param("postId") Integer postId);
+    
+    @Query("SELECT COUNT(pl) FROM PostLike pl WHERE pl.post.event.organizer.id = :organizerId")
+    long countByOrganizerId(@Param("organizerId") Integer organizerId);
 } 

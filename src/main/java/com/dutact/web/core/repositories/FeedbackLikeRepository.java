@@ -28,4 +28,7 @@ public interface FeedbackLikeRepository extends JpaRepository<FeedbackLike, Inte
     
     @Query("SELECT fl.student FROM FeedbackLike fl WHERE fl.feedback.id = :feedbackId")
     List<Student> findStudentsByFeedbackId(@Param("feedbackId") Integer feedbackId);
+    
+    @Query("SELECT COUNT(fl) FROM FeedbackLike fl WHERE fl.feedback.event.organizer.id = :organizerId")
+    long countByOrganizerId(@Param("organizerId") Integer organizerId);
 } 
