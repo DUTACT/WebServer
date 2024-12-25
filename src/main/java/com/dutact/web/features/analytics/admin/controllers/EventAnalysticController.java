@@ -23,7 +23,7 @@ public class EventAnalysticController {
     private final EventAnalyticsService eventAnalyticsService;
     private final AccountRepository accountRepository;
 
-    @GetMapping("/event/{eventId}/registrations")
+    @GetMapping("/events/{eventId}/registrations")
     public ResponseEntity<List<EventRegistrationCountByDateDto>> getEventRegistrations(
             @PathVariable Integer eventId,
             @RequestParam(required = false) LocalDate startDate,
