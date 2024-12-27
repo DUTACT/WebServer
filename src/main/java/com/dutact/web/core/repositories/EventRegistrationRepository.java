@@ -1,5 +1,6 @@
 package com.dutact.web.core.repositories;
 
+import com.dutact.web.core.entities.Student;
 import com.dutact.web.core.entities.eventregistration.EventRegistration;
 import com.dutact.web.core.projections.RegistrationCountByDate;
 import org.springframework.data.domain.Page;
@@ -85,4 +86,7 @@ public interface EventRegistrationRepository extends JpaRepository<EventRegistra
             @Param("startDate") LocalDateTime startDate,
             @Param("endDate") LocalDateTime endDate,
             @Param("status") String status);
+
+    @Query("SELECT er.student FROM EventRegistration er WHERE er.event.id = :eventId")
+    List<Student> findStudentsByEventId(@Param("eventId") Integer eventId);
 }

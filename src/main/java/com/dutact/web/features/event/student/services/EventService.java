@@ -7,6 +7,7 @@ import com.dutact.web.features.event.student.services.exceptions.FollowForbidden
 import com.dutact.web.features.event.student.services.exceptions.RegisterForbiddenException;
 import com.dutact.web.features.event.student.services.exceptions.UnfollowForbiddenException;
 import com.dutact.web.features.event.student.services.exceptions.UnregisterForbiddenException;
+import com.dutact.web.features.likers.dto.StudentBasicInfoDto;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -36,4 +37,8 @@ public interface EventService {
     PageResponse<EventDetailsDto> getFollowedEvents(Integer studentId, Integer page, Integer pageSize);
 
     PageResponse<EventDetailsDto> getConfirmedEvents(Integer studentId, Integer page, Integer pageSize);
+
+    List<StudentBasicInfoDto> getEventFollowers(Integer eventId);
+
+    List<StudentBasicInfoDto> getEventRegistrants(Integer eventId);
 }

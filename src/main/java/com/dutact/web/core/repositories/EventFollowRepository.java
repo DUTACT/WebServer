@@ -1,6 +1,7 @@
 package com.dutact.web.core.repositories;
 
 import com.dutact.web.core.entities.EventFollow;
+import com.dutact.web.core.entities.Student;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -29,4 +30,7 @@ public interface EventFollowRepository extends JpaRepository<EventFollow, Intege
     
     @Query("SELECT COUNT(ef) FROM EventFollow ef WHERE ef.event.organizer.id = :organizerId")
     long countByOrganizerId(@Param("organizerId") Integer organizerId);
+
+    @Query("SELECT ef.student FROM EventFollow ef WHERE ef.event.id = :eventId")
+    List<Student> findStudentsByEventId(@Param("eventId") Integer eventId);
 }

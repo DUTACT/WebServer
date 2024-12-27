@@ -13,6 +13,8 @@ import com.dutact.web.features.event.student.services.exceptions.FollowForbidden
 import com.dutact.web.features.event.student.services.exceptions.RegisterForbiddenException;
 import com.dutact.web.features.event.student.services.exceptions.UnfollowForbiddenException;
 import com.dutact.web.features.event.student.services.exceptions.UnregisterForbiddenException;
+import com.dutact.web.features.likers.dto.StudentBasicInfoDto;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.constraints.Min;
 import org.springframework.http.ResponseEntity;
@@ -142,5 +144,19 @@ public class StudentEventController {
                 .orElseThrow(() ->
                         new RuntimeException("The account is not associated with any student profile"));
         return eventService.getConfirmedEvents(requestStudentId, page, pageSize);
+    }
+
+    @GetMapping("/followers/{eventId}")
+    @Operation(summary = "Get list of students who follow an event")
+    public ResponseEntity<List<StudentBasicInfoDto>> getEventFollowers(
+            @PathVariable Integer eventId) {
+        return ResponseEntity.ok(eventService.getEventFollowers(eventId));
+    }
+
+    @GetMapping("/registrants/{eventId}")
+    @Operation(summary = "Get list of students who registered for an event")
+    public ResponseEntity<List<StudentBasicInfoDto>> getEventRegistrants(
+            @PathVariable Integer eventId) {
+        return ResponseEntity.ok(eventService.getEventRegistrants(eventId));
     }
 }

@@ -28,6 +28,8 @@ import com.dutact.web.features.event.student.services.exceptions.FollowForbidden
 import com.dutact.web.features.event.student.services.exceptions.RegisterForbiddenException;
 import com.dutact.web.features.event.student.services.exceptions.UnfollowForbiddenException;
 import com.dutact.web.features.event.student.services.exceptions.UnregisterForbiddenException;
+import com.dutact.web.features.likers.dto.StudentBasicInfoDto;
+import com.dutact.web.features.likers.mapper.StudentBasicMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -38,6 +40,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -55,6 +58,7 @@ public class EventServiceImpl implements EventService {
     private final PostLikeRepository postLikeRepository;
     private final EventCheckInCodeRepository eventCheckInCodeRepository;
     private final StudentActivityService studentActivityService;
+    private final StudentBasicMapper studentBasicMapper;
 
     @Override
     public Optional<EventDto> getEvent(Integer id) {
@@ -475,6 +479,22 @@ public class EventServiceImpl implements EventService {
         });
 
         return response;
+    }
+
+    @Override
+    public List<StudentBasicInfoDto> getEventFollowers(Integer eventId) {
+        System.out.println(eventId);
+        System.out.println(eventRegistrationRepository.findStudentsByEventId(104));
+        return eventFollowRepository.findStudentsByEventId(eventId).stream()
+                .map(studentBasicMapper::toBasicInfoDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<StudentBasicInfoDto> getEventRegistrants(Integer eventId) {
+        return eventRegistrationRepository.findStudentsByEventId(eventId).stream()
+                .map(studentBasicMapper::toBasicInfoDto)
+                .collect(Collectors.toList());
     }
 
 }
