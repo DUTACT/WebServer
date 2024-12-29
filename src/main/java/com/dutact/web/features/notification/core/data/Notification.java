@@ -35,6 +35,9 @@ public class Notification {
     @Column(name = "expire_at")
     private LocalDateTime expireAt;
 
+    @Column(name = "is_read")
+    private boolean isRead = false;
+
     @PrePersist
     public void prePersist() {
         createdAt = LocalDateTime.now();

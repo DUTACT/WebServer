@@ -4,15 +4,13 @@ import com.dutact.web.auth.context.SecurityContextUtils;
 import com.dutact.web.auth.factors.AccountService;
 import com.dutact.web.common.api.PageResponse;
 import com.dutact.web.common.api.exceptions.BadRequestException;
+import com.dutact.web.common.api.exceptions.NotExistsException;
 import com.dutact.web.features.notification.core.dto.NotificationDto;
 import com.dutact.web.features.notification.core.dto.NotificationQueryParams;
 import com.dutact.web.features.notification.core.service.NotificationService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/notifications")
@@ -39,5 +37,10 @@ public class NotificationController {
         params.setAccountId(accountService.getAccountIdByUsername(SecurityContextUtils.getUsername()));
 
         return ResponseEntity.ok(notificationService.getNotifications(params));
+    }
+
+    @PostMapping("/{notificationId}/mark-as-read")
+    public ResponseEntity<NotificationDto> markAsRead(@PathVariable Integer notificationId) throws NotExistsException {
+        return ResponseEntity.ok(notificationService.markAsRead(notificationId));
     }
 }
