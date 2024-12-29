@@ -21,4 +21,7 @@ public class NotificationDto {
 
     @JsonProperty("created_at")
     private LocalDateTime createdAt;
+
+    @JsonProperty("is_read")
+    private boolean isRead;
 }

@@ -1,6 +1,7 @@
 package com.dutact.web.features.notification.core.service;
 
 import com.dutact.web.common.api.PageResponse;
+import com.dutact.web.common.api.exceptions.NotExistsException;
 import com.dutact.web.features.notification.core.data.NotificationRepository;
 import com.dutact.web.features.notification.core.data.NotificationSpecs;
 import com.dutact.web.features.notification.core.dto.NotificationDto;
@@ -27,5 +28,16 @@ public class NotificationServiceImpl implements NotificationService {
         var page = notificationRepository.findAll(specs, paging);
 
         return PageResponse.of(page, notificationMapper::toDto);
+    }
+
+    @Override
+    public NotificationDto markAsRead(Integer notificationId) throws NotExistsException {
+        var notification = notificationRepository.findById(notificationId)
+                .orElseThrow(() -> new NotExistsException("Notification not found"));
+
+        notification.setRead(true);
+        notificationRepository.save(notification);
+
+        return notificationMapper.toDto(notification);
     }
 }
