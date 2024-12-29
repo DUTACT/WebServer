@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING,
         uses = PostOrganizerMapper.class)
 public interface PostMapper {
-    @Mapping(target = "coverPhotoUrl", source = "coverPhoto.fileUrl")
+    @Mapping(target = "coverPhotoUrls", expression = "java(post.getCoverPhotos().stream().map(photo -> photo.getFileUrl()).toList())")
     @Mapping(target = "likedAt", ignore = true)
     @Mapping(target = "likeNumber", ignore = true)
     @Mapping(target = "organizer", source = "event.organizer")

@@ -30,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -52,8 +53,10 @@ public class EventServiceImpl implements EventService {
         event.setOrganizer(organizerRepository.findById(organizerId)
                 .orElseThrow(() -> new NotExistsException("Organizer not found")));
 
-        UploadFileResult uploadFileResult = writeFile(eventDto.getCoverPhoto());
-        event.setCoverPhoto(uploadedFileMapper.toUploadedFile(uploadFileResult));
+        for (MultipartFile coverPhoto : eventDto.getCoverPhotos()) {
+            UploadFileResult uploadFileResult = storageService.uploadFile(coverPhoto, FilenameUtils.getExtension(coverPhoto.getOriginalFilename()));
+            event.getCoverPhotos().add(uploadedFileMapper.toUploadedFile(uploadFileResult));
+        }
 
 
         if (SecurityContextUtils.hasRole(Role.STUDENT_AFFAIRS_OFFICE)) {
@@ -113,9 +116,10 @@ public class EventServiceImpl implements EventService {
                 .orElseThrow(() -> new NotExistsException("Event not found"));
         eventMapper.updateEvent(event, eventDto);
 
-        if (eventDto.getCoverPhoto() != null) {
-            UploadFileResult uploadFileResult = writeFile(eventDto.getCoverPhoto());
-            event.setCoverPhoto(uploadedFileMapper.toUploadedFile(uploadFileResult));
+        event.setCoverPhotos(new ArrayList<>());
+        for (MultipartFile coverPhoto : eventDto.getCoverPhotos()) {
+            UploadFileResult uploadFileResult = storageService.uploadFile(coverPhoto, FilenameUtils.getExtension(coverPhoto.getOriginalFilename()));
+            event.getCoverPhotos().add(uploadedFileMapper.toUploadedFile(uploadFileResult));
         }
 
         eventRepository.save(event);

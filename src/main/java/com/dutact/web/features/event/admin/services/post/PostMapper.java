@@ -10,19 +10,19 @@ import org.mapstruct.*;
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface PostMapper {
     @Mapping(target = "eventId", source = "event.id")
-    @Mapping(target = "coverPhotoUrl", source = "coverPhoto.fileUrl")
+    @Mapping(target = "coverPhotoUrls", expression = "java(post.getCoverPhotos().stream().map(photo -> photo.getFileUrl()).toList())")
     PostDto toPostDto(Post post);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "status", ignore = true)
-    @Mapping(target = "coverPhoto", ignore = true)
+    @Mapping(target = "coverPhotos", ignore = true)
     @Mapping(target = "postedAt", ignore = true)
     @Mapping(target = "event.id", source = "eventId")
     Post toPost(PostCreateDto eventDto);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "status", ignore = true)
-    @Mapping(target = "coverPhoto", ignore = true)
+    @Mapping(target = "coverPhotos", ignore = true)
     @Mapping(target = "postedAt", ignore = true)
     @Mapping(target = "event", ignore = true)
     void updatePost(@MappingTarget Post post, PostUpdateDto postUpdateDto);

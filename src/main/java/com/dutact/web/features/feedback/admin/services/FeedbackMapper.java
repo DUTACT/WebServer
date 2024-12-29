@@ -16,6 +16,6 @@ public interface FeedbackMapper {
     @Mapping(target = "studentName", source = "student.fullName")
     @Mapping(target = "studentId", source = "student.id")
     @Mapping(target = "studentAvatarUrl", source = "student.avatar.fileUrl")
-    @Mapping(target = "coverPhotoUrl", source = "coverPhoto.fileUrl")
+    @Mapping(target = "coverPhotoUrls", expression = "java(feedback.getCoverPhotos().stream().map(photo -> photo.getFileUrl()).toList())")
     FeedbackDto toDto(Feedback feedback);
 }

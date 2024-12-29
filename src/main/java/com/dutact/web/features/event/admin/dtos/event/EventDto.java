@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Schema(name = "AdminEventDto")
@@ -34,8 +35,8 @@ public class EventDto {
     @JsonProperty("endRegistrationAt")
     private LocalDateTime endRegistrationAt;
 
-    @JsonProperty("coverPhotoUrl")
-    private String coverPhotoUrl;
+    @JsonProperty("coverPhotoUrls")
+    private List<String> coverPhotoUrls;
 
     @JsonProperty("status")
     private EventStatus status;
