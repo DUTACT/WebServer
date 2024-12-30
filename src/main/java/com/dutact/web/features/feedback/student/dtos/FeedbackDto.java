@@ -6,7 +6,6 @@ import lombok.Data;
 import org.springframework.lang.Nullable;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Data
 @Schema(name = "StudentFeedbackDetailsDto")
@@ -27,8 +26,8 @@ public class FeedbackDto {
     @JsonProperty("likedAt")
     private LocalDateTime likedAt;
 
-    @JsonProperty("coverPhotoUrls")
-    private List<String> coverPhotoUrls;
+    @JsonProperty("coverPhotoUrl")
+    private String coverPhotoUrl;
 
     @JsonProperty("event")
     private FeedbackEventDto event;

@@ -7,7 +7,6 @@ import jakarta.annotation.Nullable;
 import lombok.Data;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Data
 @Schema(name = "StudentEventDto")
@@ -54,8 +53,8 @@ public class EventDto {
     @JsonProperty("status")
     private EventStatus status;
 
-    @JsonProperty("coverPhotoUrls")
-    private List<String> coverPhotoUrls;
+    @JsonProperty("coverPhotoUrl")
+    private String coverPhotoUrl;
 
     @JsonProperty("organizer")
     private OrganizerDto organizer;

@@ -3,7 +3,6 @@ package com.dutact.web.core.entities.event;
 import com.dutact.web.core.entities.EventOrganizer;
 import com.dutact.web.core.entities.common.UploadFileConverter;
 import com.dutact.web.core.entities.common.UploadedFile;
-import com.dutact.web.core.entities.common.UploadedFileListConverter;
 import com.dutact.web.core.entities.eventregistration.EventRegistration;
 import com.dutact.web.core.entities.post.Post;
 import jakarta.annotation.Nonnull;
@@ -50,10 +49,10 @@ public class Event {
     @Column(name = "end_registration_at")
     private LocalDateTime endRegistrationAt;
 
-    @Column(name = "cover_photos", columnDefinition = "jsonb")
+    @Column(name = "cover_photo", columnDefinition = "jsonb")
     @ColumnTransformer(write = "?::jsonb")
-    @Convert(converter = UploadedFileListConverter.class)
-    private List<UploadedFile> coverPhotos = new ArrayList<>();
+    @Convert(converter = UploadFileConverter.class)
+    private UploadedFile coverPhoto;
 
     @Column(name = "status", columnDefinition = "jsonb")
     @ColumnTransformer(write = "?::jsonb")

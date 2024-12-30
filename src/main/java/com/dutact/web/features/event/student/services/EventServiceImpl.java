@@ -483,6 +483,8 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public List<StudentBasicInfoDto> getEventFollowers(Integer eventId) {
+        System.out.println(eventId);
+        System.out.println(eventRegistrationRepository.findStudentsByEventId(104));
         return eventFollowRepository.findStudentsByEventId(eventId).stream()
                 .map(studentBasicMapper::toBasicInfoDto)
                 .collect(Collectors.toList());

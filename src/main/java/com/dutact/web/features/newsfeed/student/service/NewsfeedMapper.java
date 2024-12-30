@@ -12,21 +12,21 @@ import org.springframework.stereotype.Component;
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING,
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface NewsfeedMapper {
-    @Mapping(target = "coverPhotoUrls", expression = "java(post.getCoverPhotos().stream().map(photo -> photo.getFileUrl()).toList())")
+    @Mapping(target = "coverPhotoUrl", source = "coverPhoto.fileUrl")
     @Mapping(target = "organizer.name", source = "event.organizer.name")
     @Mapping(target = "organizer.avatarUrl", source = "event.organizer.avatar.fileUrl")
     @Mapping(target = "event", source = "event")
-    @Mapping(target = "event.coverPhotoUrls", expression = "java(event.getCoverPhotos().stream().map(photo -> photo.getFileUrl()).toList())")
+    @Mapping(target = "event.coverPhotoUrl", source = "event.coverPhoto.fileUrl")
     @Mapping(target = "likedAt", ignore = true)
     @Mapping(target = "likeNumber", ignore = true)
     NewsfeedItemDto.NewsfeedPostDto toPostDto(Post post);
 
-    @Mapping(target = "coverPhotoUrls", expression = "java(feedback.getCoverPhotos().stream().map(photo -> photo.getFileUrl()).toList())")
+    @Mapping(target = "coverPhotoUrl", source = "coverPhoto.fileUrl")
     @Mapping(target = "student", source = "student")
     @Mapping(target = "student.avatarUrl", source = "student.avatar.fileUrl")
     @Mapping(target = "student.name", source = "student.fullName")
     @Mapping(target = "event", source = "event")
-    @Mapping(target = "event.coverPhotoUrls", expression = "java(event.getCoverPhotos().stream().map(photo -> photo.getFileUrl()).toList())")
+    @Mapping(target = "event.coverPhotoUrl", source = "event.coverPhoto.fileUrl")
     @Mapping(target = "likedAt", ignore = true)
     @Mapping(target = "likeNumber", ignore = true)
     NewsfeedItemDto.NewsfeedFeedbackDto toFeedbackDto(Feedback feedback);

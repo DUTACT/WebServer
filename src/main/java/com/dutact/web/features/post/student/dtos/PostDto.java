@@ -7,7 +7,6 @@ import jakarta.annotation.Nullable;
 import lombok.Data;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Data
 @Schema(name = "StudentPostDetailsDto")
@@ -28,8 +27,8 @@ public class PostDto {
     @JsonProperty("likedAt")
     private LocalDateTime likedAt;
 
-    @JsonProperty("coverPhotoUrls")
-    private List<String> coverPhotoUrls;
+    @JsonProperty("coverPhotoUrl")
+    private String coverPhotoUrl;
 
     @JsonProperty("event")
     private PostEventDto event;

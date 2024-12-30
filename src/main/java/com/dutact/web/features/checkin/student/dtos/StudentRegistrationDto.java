@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Data
 public class StudentRegistrationDto {
@@ -14,8 +13,8 @@ public class StudentRegistrationDto {
     @JsonProperty("title")
     private String title;
 
-    @JsonProperty("coverPhotoUrls")
-    private List<String> coverPhotoUrls;
+    @JsonProperty("coverPhotoUrl")
+    private String coverPhotoUrl;
 
     @JsonProperty("startAt")
     private LocalDateTime startAt;

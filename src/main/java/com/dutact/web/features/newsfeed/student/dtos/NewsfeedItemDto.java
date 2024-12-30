@@ -10,7 +10,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 @JsonSubTypes({
@@ -56,8 +55,8 @@ public abstract class NewsfeedItemDto implements Comparable<NewsfeedItemDto> {
         @JsonProperty("postedAt")
         private LocalDateTime postedAt;
 
-        @JsonProperty("coverPhotoUrls")
-        private List<String> coverPhotoUrls;
+        @JsonProperty("coverPhotoUrl")
+        private String coverPhotoUrl;
 
         @Override
         public int compareTo(NewsfeedItemDto object) {
@@ -92,8 +91,8 @@ public abstract class NewsfeedItemDto implements Comparable<NewsfeedItemDto> {
         @JsonProperty("postedAt")
         private LocalDateTime postedAt;
 
-        @JsonProperty("coverPhotoUrls")
-        private List<String> coverPhotoUrls;
+        @JsonProperty("coverPhotoUrl")
+        private String coverPhotoUrl;
 
         @Override
         public int compareTo(NewsfeedItemDto object) {

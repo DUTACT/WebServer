@@ -13,7 +13,7 @@ import org.mapstruct.MappingConstants;
 public interface StudentEventMapper {
     @Mapping(target = "id", source = "event.id")
     @Mapping(target = "title", source = "event.name")
-    @Mapping(target = "coverPhotoUrls", expression = "java(event.getEvent().getCoverPhotos().stream().map(photo -> photo.getFileUrl()).toList())")
+    @Mapping(target = "coverPhotoUrl", source = "event.coverPhoto.fileUrl")
     @Mapping(target = "startAt", source = "event.startAt")
     @Mapping(target = "endAt", source = "event.endAt")
     StudentRegistrationDto toEventPreviewDto(EventRegistration event);

@@ -16,12 +16,12 @@ public interface FeedbackMapper {
     @Mapping(target = "event", ignore = true)
     @Mapping(target = "student", ignore = true)
     @Mapping(target = "postedAt", ignore = true)
-    @Mapping(target = "coverPhotos", ignore = true)
+    @Mapping(target = "coverPhoto", ignore = true)
     @Mapping(target = "id", ignore = true)
     Feedback toFeedback(CreateFeedbackDto createFeedbackDto);
 
-    @Mapping(target = "coverPhotoUrls", expression = "java(feedback.getCoverPhotos().stream().map(photo -> photo.getFileUrl()).toList())")
-    @Mapping(target = "event.coverPhotoUrls", expression = "java(event.getCoverPhotos().stream().map(photo -> photo.getFileUrl()).toList())")
+    @Mapping(target = "coverPhotoUrl", source = "coverPhoto.fileUrl")
+    @Mapping(target = "event.coverPhotoUrl", source = "event.coverPhoto.fileUrl")
     @Mapping(target = "student.avatarUrl", source = "student.avatar.fileUrl")
     @Mapping(target = "likedAt", ignore = true)
     @Mapping(target = "likeNumber", ignore = true)
@@ -31,7 +31,7 @@ public interface FeedbackMapper {
     @Mapping(target = "event", ignore = true)
     @Mapping(target = "student", ignore = true)
     @Mapping(target = "postedAt", ignore = true)
-    @Mapping(target = "coverPhotos", ignore = true)
+    @Mapping(target = "coverPhoto", ignore = true)
     void updateFeedback(@MappingTarget Feedback feedback,
                         UpdateFeedbackDto updateFeedbackDto);
 }
