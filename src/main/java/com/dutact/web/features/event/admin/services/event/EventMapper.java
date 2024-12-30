@@ -9,13 +9,13 @@ import org.mapstruct.*;
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING,
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface EventMapper {
-    @Mapping(target = "coverPhotoUrl", source = "coverPhoto.fileUrl")
+    @Mapping(target = "coverPhotoUrls", expression = "java(event.getCoverPhotos().stream().map(photo -> photo.getFileUrl()).toList())")
     @Mapping(target = "organizer.avatarUrl", source = "organizer.avatar.fileUrl")
     EventDto toEventDto(Event event);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "status", ignore = true)
-    @Mapping(target = "coverPhoto", ignore = true)
+    @Mapping(target = "coverPhotos", ignore = true)
     @Mapping(target = "posts", ignore = true)
     @Mapping(target = "eventRegistrations", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
@@ -24,7 +24,7 @@ public interface EventMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "status", ignore = true)
-    @Mapping(target = "coverPhoto", ignore = true)
+    @Mapping(target = "coverPhotos", ignore = true)
     @Mapping(target = "posts", ignore = true)
     @Mapping(target = "organizer", ignore = true)
     @Mapping(target = "eventRegistrations", ignore = true)

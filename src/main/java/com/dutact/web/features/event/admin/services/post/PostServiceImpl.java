@@ -18,6 +18,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -47,8 +48,10 @@ public class PostServiceImpl implements PostService {
         Post post = postMapper.toPost(postDto);
         post.setStatus(new PostStatus.Public());
 
-        UploadFileResult uploadedFile = uploadFile(postDto.getCoverPhoto());
-        post.setCoverPhoto(uploadedFileMapper.toUploadedFile(uploadedFile));
+        for (MultipartFile coverPhoto : postDto.getCoverPhotos()) {
+            UploadFileResult uploadedFile = uploadFile(coverPhoto);
+            post.getCoverPhotos().add(uploadedFileMapper.toUploadedFile(uploadedFile));
+        }
 
         postRepository.save(post);
 
@@ -80,9 +83,10 @@ public class PostServiceImpl implements PostService {
                 .orElseThrow(() -> new NotExistsException("Post not found"));
         postMapper.updatePost(post, postUpdateDto);
 
-        if (postUpdateDto.getCoverPhoto() != null) {
-            UploadFileResult uploadFileResult = writeFile(postUpdateDto.getCoverPhoto());
-            post.setCoverPhoto(uploadedFileMapper.toUploadedFile(uploadFileResult));
+        post.setCoverPhotos(new ArrayList<>());
+        for (MultipartFile coverPhoto : postUpdateDto.getCoverPhotos()) {
+            UploadFileResult uploadFileResult = storageService.uploadFile(coverPhoto, FilenameUtils.getExtension(coverPhoto.getOriginalFilename()));
+            post.getCoverPhotos().add(uploadedFileMapper.toUploadedFile(uploadFileResult));
         }
 
 

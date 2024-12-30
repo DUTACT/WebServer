@@ -6,6 +6,7 @@ import com.dutact.web.common.api.exceptions.NotExistsException;
 import com.dutact.web.common.mapper.UploadedFileMapper;
 import com.dutact.web.core.entities.Student;
 import com.dutact.web.core.entities.StudentActivity;
+import com.dutact.web.core.entities.common.UploadedFile;
 import com.dutact.web.core.entities.feedback.Feedback;
 import com.dutact.web.core.entities.feedback.FeedbackLike;
 import com.dutact.web.core.repositories.*;
@@ -23,8 +24,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -52,11 +55,13 @@ public class FeedbackServiceImpl implements FeedbackService {
 
         var feedback = feedbackMapper.toFeedback(createFeedbackDto);
 
-        if (createFeedbackDto.getCoverPhoto() != null) {
-            var uploadFileResult = storageService
-                    .uploadFile(createFeedbackDto.getCoverPhoto(),
-                            FilenameUtils.getExtension(createFeedbackDto.getCoverPhoto().getOriginalFilename()));
-            feedback.setCoverPhoto(uploadedFileMapper.toUploadedFile(uploadFileResult));
+        if (createFeedbackDto.getCoverPhotos() != null) {
+            for (MultipartFile coverPhoto : createFeedbackDto.getCoverPhotos()) {
+                var uploadFileResult = storageService
+                        .uploadFile(coverPhoto,
+                                FilenameUtils.getExtension(coverPhoto.getOriginalFilename()));
+                feedback.getCoverPhotos().add(uploadedFileMapper.toUploadedFile(uploadFileResult));
+            }
         }
 
         feedback.setStudent(studentRepository.getReferenceById(studentId));
@@ -132,10 +137,11 @@ public class FeedbackServiceImpl implements FeedbackService {
                 .orElseThrow(() -> new NotExistsException("The feedback does not exist"));
 
         feedbackMapper.updateFeedback(feedback, updateFeedbackDto);
-        if (updateFeedbackDto.isDeleteCoverPhoto()) {
-            deleteCoverPhoto(feedback);
-        }
-        updateCoverPhoto(feedback, updateFeedbackDto);
+//        if (updateFeedbackDto.isDeleteCoverPhoto()) {
+//            deleteCoverPhoto(feedback);
+//        } else {
+            updateCoverPhoto(feedback, updateFeedbackDto);
+//        }
 
         feedbackRepository.save(feedback);
 
@@ -148,27 +154,17 @@ public class FeedbackServiceImpl implements FeedbackService {
     }
 
     void deleteCoverPhoto(Feedback feedback) {
-        if (feedback.getCoverPhoto() != null) {
-            storageService.deleteFile(feedback.getCoverPhoto().getFileId());
-            feedback.setCoverPhoto(null);
+        for (UploadedFile coverPhoto : feedback.getCoverPhotos()) {
+            storageService.deleteFile(coverPhoto.getFileId());
         }
+        feedback.setCoverPhotos(new ArrayList<>());
     }
 
     void updateCoverPhoto(Feedback feedback, UpdateFeedbackDto updateFeedbackDto) {
-        if (updateFeedbackDto.getCoverPhoto() != null) {
-            var coverPhoto = feedback.getCoverPhoto();
-            if (coverPhoto != null) {
-                var uploadFileResult = storageService.updateFile(coverPhoto.getFileId(), updateFeedbackDto.getCoverPhoto());
-                feedback.setCoverPhoto(uploadedFileMapper.toUploadedFile(uploadFileResult));
-            } else {
-                var coverPhotoExtension = FilenameUtils
-                        .getExtension(updateFeedbackDto.getCoverPhoto().getOriginalFilename());
-
-                var uploadFileResult = storageService
-                        .uploadFile(updateFeedbackDto.getCoverPhoto(), coverPhotoExtension);
-
-                feedback.setCoverPhoto(uploadedFileMapper.toUploadedFile(uploadFileResult));
-            }
+        feedback.setCoverPhotos(new ArrayList<>());
+        for (MultipartFile coverPhoto : updateFeedbackDto.getCoverPhotos()) {
+            var uploadFileResult = storageService.uploadFile(coverPhoto, FilenameUtils.getExtension(coverPhoto.getOriginalFilename()));
+            feedback.getCoverPhotos().add(uploadedFileMapper.toUploadedFile(uploadFileResult));
         }
     }
 
