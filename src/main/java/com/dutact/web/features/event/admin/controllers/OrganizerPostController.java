@@ -56,7 +56,7 @@ public class OrganizerPostController {
                 .body(createdPost);
     }
 
-    @PostMapping(path = "/{id}/v1", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    @PostMapping(path = "/{id}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<PostDto> createPostV1(
             @PathVariable("id") Integer organizerId,
@@ -123,7 +123,7 @@ public class OrganizerPostController {
         return ResponseEntity.ok(postService.updatePost(postId, postUpdateDtoV2));
     }
 
-    @PatchMapping(path = "/{postId}/v1", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    @PatchMapping(path = "/{postId}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<PostDto> updatePostV1(
             @PathVariable("postId") Integer postId,
             @ModelAttribute PostUpdateDtoV1 postUpdateDtoV1) throws ForbiddenException, NotExistsException {

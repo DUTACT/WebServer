@@ -42,7 +42,7 @@ public class FeedbackController {
                 .orElseThrow(NotExistsException::new));
     }
 
-    @PostMapping(path = "/v1", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    @PostMapping(path = "", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<FeedbackDto> createFeedbackV1(
             @ModelAttribute CreateFeedbackDtoV1 createFeedbackDtoV1) throws NotExistsException {
         var studentId = studentAccountService.getStudentId(SecurityContextUtils.getUsername())
@@ -60,7 +60,7 @@ public class FeedbackController {
         return ResponseEntity.ok(feedbackService.createFeedback(studentId, createFeedbackDtoV2));
     }
 
-    @PatchMapping(path = "/{id}/v1", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    @PatchMapping(path = "/{id}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<FeedbackDto> updateFeedbackV1(
             @PathVariable Integer id,
             @ModelAttribute UpdateFeedbackDtoV1 updateFeedbackDtoV1) throws NotExistsException {

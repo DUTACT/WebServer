@@ -49,7 +49,7 @@ public class OrganizerEventController {
     }
 
     @SneakyThrows(value = {URISyntaxException.class})
-    @PostMapping(path = "/v1", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    @PostMapping(path = "", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<EventDto> createEventV1(
             @PathVariable("id") Integer organizerId,
             @ModelAttribute EventCreateDtoV1 eventDto)
@@ -118,7 +118,7 @@ public class OrganizerEventController {
         return ResponseEntity.ok(eventService.updateEvent(eventId, eventDto));
     }
 
-    @PatchMapping(path = "/{eventId}/v1", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    @PatchMapping(path = "/{eventId}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<EventDto> updateEventV1(
             @PathVariable("id") Integer organizerId,
             @PathVariable("eventId") Integer eventId,
