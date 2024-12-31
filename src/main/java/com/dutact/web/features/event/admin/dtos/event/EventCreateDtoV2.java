@@ -5,9 +5,10 @@ import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
-public class EventCreateDto {
+public class EventCreateDtoV2 {
     @NotNull
     private String name;
 
@@ -27,5 +28,5 @@ public class EventCreateDto {
     private LocalDateTime endRegistrationAt;
 
     @NotNull
-    private MultipartFile coverPhoto;
+    private List<MultipartFile> coverPhotos;
 }

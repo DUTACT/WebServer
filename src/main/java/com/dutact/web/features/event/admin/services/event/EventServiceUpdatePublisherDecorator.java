@@ -25,7 +25,24 @@ public class EventServiceUpdatePublisherDecorator implements EventService {
 
 
     @Override
-    public EventDto createEvent(Integer organizerId, EventCreateDto eventDto) throws NotExistsException, ConflictException {
+    public EventDto createEvent(Integer organizerId, EventCreateDtoV2 eventDto) throws NotExistsException, ConflictException {
+        var event = delegateService.createEvent(organizerId, eventDto);
+
+        if (event.getStatus() instanceof EventStatus.Approved) {
+            var eventTimeChangedEvent = new PublishedEventStartTimeUpdatedEvent(event.getId(), null, event.getStartAt());
+            publishStartTimeUpdatedEvent(eventTimeChangedEvent);
+        }
+
+        if (event.getStatus() instanceof EventStatus.Pending) {
+            var eventTimeChangedEvent = new PendingEventStartTimeUpdatedEvent(event.getId(), event.getStartAt());
+            publishStartTimeUpdatedPendingEvent(eventTimeChangedEvent);
+        }
+
+        return event;
+    }
+
+    @Override
+    public EventDto createEvent(Integer organizerId, EventCreateDtoV1 eventDto) throws NotExistsException, ConflictException {
         var event = delegateService.createEvent(organizerId, eventDto);
 
         if (event.getStatus() instanceof EventStatus.Approved) {
@@ -62,7 +79,30 @@ public class EventServiceUpdatePublisherDecorator implements EventService {
     }
 
     @Override
-    public EventDto updateEvent(Integer eventId, EventUpdateDto eventDto) throws NotExistsException {
+    public EventDto updateEvent(Integer eventId, EventUpdateDtoV2 eventDto) throws NotExistsException {
+        if (eventDto.getStartAt() == null) {
+            return delegateService.updateEvent(eventId, eventDto);
+        }
+
+        var oldStartAt = delegateService.getEvent(eventId).map(EventDto::getStartAt).orElse(null);
+
+        var event = delegateService.updateEvent(eventId, eventDto);
+
+        if (event.getStatus() instanceof EventStatus.Approved) {
+            var eventTimeChangedEvent = new PublishedEventStartTimeUpdatedEvent(event.getId(), oldStartAt, event.getStartAt());
+            publishStartTimeUpdatedEvent(eventTimeChangedEvent);
+        }
+
+        if (event.getStatus() instanceof EventStatus.Pending) {
+            var eventTimeChangedEvent = new PendingEventStartTimeUpdatedEvent(event.getId(), event.getStartAt());
+            publishStartTimeUpdatedPendingEvent(eventTimeChangedEvent);
+        }
+
+        return event;
+    }
+
+    @Override
+    public EventDto updateEvent(Integer eventId, EventUpdateDtoV1 eventDto) throws NotExistsException {
         if (eventDto.getStartAt() == null) {
             return delegateService.updateEvent(eventId, eventDto);
         }

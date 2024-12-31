@@ -2,13 +2,15 @@ package com.dutact.web.features.event.admin.services.post;
 
 import com.dutact.web.common.api.exceptions.NotExistsException;
 import com.dutact.web.common.mapper.UploadedFileMapper;
+import com.dutact.web.core.entities.common.UploadedFile;
+import com.dutact.web.core.entities.feedback.Feedback;
 import com.dutact.web.core.entities.post.Post;
 import com.dutact.web.core.entities.post.PostStatus;
 import com.dutact.web.core.repositories.PostRepository;
-import com.dutact.web.features.event.admin.dtos.post.PostCreateDto;
-import com.dutact.web.features.event.admin.dtos.post.PostDto;
-import com.dutact.web.features.event.admin.dtos.post.PostUpdateDto;
+import com.dutact.web.features.event.admin.dtos.post.*;
 import com.dutact.web.features.event.events.PostCreatedEvent;
+import com.dutact.web.features.feedback.student.dtos.UpdateFeedbackDtoV1;
+import com.dutact.web.features.feedback.student.dtos.UpdateFeedbackDtoV2;
 import com.dutact.web.storage.StorageService;
 import com.dutact.web.storage.UploadFileResult;
 import lombok.SneakyThrows;
@@ -18,6 +20,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -43,12 +46,14 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public PostDto createPost(PostCreateDto postDto) {
+    public PostDto createPost(PostCreateDtoV2 postDto) {
         Post post = postMapper.toPost(postDto);
         post.setStatus(new PostStatus.Public());
 
-        UploadFileResult uploadedFile = uploadFile(postDto.getCoverPhoto());
-        post.setCoverPhoto(uploadedFileMapper.toUploadedFile(uploadedFile));
+        for (MultipartFile coverPhoto : postDto.getCoverPhotos()) {
+            UploadFileResult uploadedFile = uploadFile(coverPhoto);
+            post.getCoverPhotos().add(uploadedFileMapper.toUploadedFile(uploadedFile));
+        }
 
         postRepository.save(post);
 
@@ -58,6 +63,24 @@ public class PostServiceImpl implements PostService {
             log.error("Failed to publish PostCreatedEvent", e);
         }
 
+        return postMapper.toPostDto(post);
+    }
+
+    @Override
+    public PostDto createPost(PostCreateDtoV1 postDto) {
+        Post post = postMapper.toPost(postDto);
+        post.setStatus(new PostStatus.Public());
+
+        UploadFileResult uploadedFile = uploadFile(postDto.getCoverPhoto());
+        post.getCoverPhotos().add(uploadedFileMapper.toUploadedFile(uploadedFile));
+
+        postRepository.save(post);
+
+        try {
+            eventPublisher.publishEvent(new PostCreatedEvent(post.getId()));
+        } catch (Exception e) {
+            log.error("Failed to publish PostCreatedEvent", e);
+        }
         return postMapper.toPostDto(post);
     }
 
@@ -74,21 +97,58 @@ public class PostServiceImpl implements PostService {
 
     @Override
     @SneakyThrows
-    public PostDto updatePost(Integer postId, PostUpdateDto postUpdateDto)
+    public PostDto updatePost(Integer postId, PostUpdateDtoV2 postUpdateDtoV2)
             throws NotExistsException {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new NotExistsException("Post not found"));
-        postMapper.updatePost(post, postUpdateDto);
+        postMapper.updatePost(post, postUpdateDtoV2);
 
-        if (postUpdateDto.getCoverPhoto() != null) {
-            UploadFileResult uploadFileResult = writeFile(postUpdateDto.getCoverPhoto());
-            post.setCoverPhoto(uploadedFileMapper.toUploadedFile(uploadFileResult));
-        }
-
+        updateCoverPhoto(post, postUpdateDtoV2);
 
         postRepository.save(post);
 
         return postMapper.toPostDto(post);
+    }
+
+    @Override
+    @SneakyThrows
+    public PostDto updatePost(Integer postId, PostUpdateDtoV1 postUpdateDtoV1) throws NotExistsException {
+        Post post = postRepository.findById(postId).orElseThrow();
+        postMapper.updatePost(post, postUpdateDtoV1);
+        updateCoverPhoto(post, postUpdateDtoV1);
+        postRepository.save(post);
+        return postMapper.toPostDto(post);
+    }
+
+    void updateCoverPhoto(Post post, PostUpdateDtoV2 postUpdateDtoV2) {
+        var len = post.getCoverPhotos().size();
+        var urlsNeedToDelete = new ArrayList<String>();
+        for (int i = 0; i < len; i++) {
+            if (!postUpdateDtoV2.getKeepCoverPhotoUrls().contains(post.getCoverPhotos().get(i).getFileUrl())) {
+                urlsNeedToDelete.add(post.getCoverPhotos().get(i).getFileUrl());
+            }
+        }
+        for (String url : urlsNeedToDelete) {
+            for (UploadedFile coverPhoto : post.getCoverPhotos()) {
+                storageService.deleteFile(coverPhoto.getFileId());
+                if (coverPhoto.getFileUrl().equals(url)) {
+                    post.getCoverPhotos().remove(coverPhoto);
+                    break;
+                }
+            }
+        }
+        for (MultipartFile coverPhoto : postUpdateDtoV2.getCoverPhotos()) {
+            var uploadFileResult = storageService.uploadFile(coverPhoto, FilenameUtils.getExtension(coverPhoto.getOriginalFilename()));
+            post.getCoverPhotos().add(uploadedFileMapper.toUploadedFile(uploadFileResult));
+        }
+    }
+
+    void updateCoverPhoto(Post post, PostUpdateDtoV1 postUpdateDtoV1) {
+        post.setCoverPhotos(new ArrayList<>());
+        if (postUpdateDtoV1.getCoverPhoto() != null) {
+            var uploadFileResult = storageService.uploadFile(postUpdateDtoV1.getCoverPhoto(), FilenameUtils.getExtension(postUpdateDtoV1.getCoverPhoto().getOriginalFilename()));
+            post.getCoverPhotos().add(uploadedFileMapper.toUploadedFile(uploadFileResult));
+        }
     }
 
     @Override

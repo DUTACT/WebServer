@@ -2,6 +2,7 @@ package com.dutact.web.core.entities.post;
 
 import com.dutact.web.core.entities.common.UploadFileConverter;
 import com.dutact.web.core.entities.common.UploadedFile;
+import com.dutact.web.core.entities.common.UploadedFileListConverter;
 import com.dutact.web.core.entities.event.Event;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -10,6 +11,8 @@ import lombok.Setter;
 import org.hibernate.annotations.ColumnTransformer;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "post")
@@ -28,10 +31,10 @@ public class Post {
     @Column(name = "posted_at")
     private LocalDateTime postedAt;
 
-    @Column(name = "cover_photo", columnDefinition = "jsonb")
+    @Column(name = "cover_photos", columnDefinition = "jsonb")
     @ColumnTransformer(write = "?::jsonb")
-    @Convert(converter = UploadFileConverter.class)
-    private UploadedFile coverPhoto;
+    @Convert(converter = UploadedFileListConverter.class)
+    private List<UploadedFile> coverPhotos = new ArrayList<>();
 
     @Column(name = "status", columnDefinition = "jsonb")
     @ColumnTransformer(write = "?::jsonb")

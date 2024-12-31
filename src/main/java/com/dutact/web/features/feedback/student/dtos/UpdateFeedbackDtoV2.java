@@ -5,14 +5,16 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;
 
-@Data
-public class CreateFeedbackDto {
-    @NotNull
-    private Integer eventId;
+import java.util.List;
 
-    @NotNull
+@Data
+public class UpdateFeedbackDtoV2 {
+    @Nullable
     private String content;
 
     @Nullable
-    private MultipartFile coverPhoto;
+    private List<String> keepCoverPhotoUrls;
+
+    @NotNull
+    private List<MultipartFile> coverPhotos;
 }

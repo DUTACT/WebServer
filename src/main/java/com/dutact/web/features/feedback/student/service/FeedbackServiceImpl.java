@@ -6,16 +6,14 @@ import com.dutact.web.common.api.exceptions.NotExistsException;
 import com.dutact.web.common.mapper.UploadedFileMapper;
 import com.dutact.web.core.entities.Student;
 import com.dutact.web.core.entities.StudentActivity;
+import com.dutact.web.core.entities.common.UploadedFile;
 import com.dutact.web.core.entities.feedback.Feedback;
 import com.dutact.web.core.entities.feedback.FeedbackLike;
 import com.dutact.web.core.repositories.*;
 import com.dutact.web.core.specs.FeedbackSpecs;
 import com.dutact.web.features.activity.dto.ActivityType;
 import com.dutact.web.features.activity.services.StudentActivityService;
-import com.dutact.web.features.feedback.student.dtos.CreateFeedbackDto;
-import com.dutact.web.features.feedback.student.dtos.FeedbackDto;
-import com.dutact.web.features.feedback.student.dtos.FeedbackQueryParams;
-import com.dutact.web.features.feedback.student.dtos.UpdateFeedbackDto;
+import com.dutact.web.features.feedback.student.dtos.*;
 import com.dutact.web.storage.StorageService;
 import lombok.AllArgsConstructor;
 import org.apache.commons.io.FilenameUtils;
@@ -23,8 +21,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -45,22 +45,24 @@ public class FeedbackServiceImpl implements FeedbackService {
     private final StudentActivityService studentActivityService;
 
     @Override
-    public FeedbackDto createFeedback(Integer studentId, CreateFeedbackDto createFeedbackDto) throws NotExistsException {
-        if (!eventRepository.existsById(createFeedbackDto.getEventId())) {
+    public FeedbackDto createFeedback(Integer studentId, CreateFeedbackDtoV2 createFeedbackDtoV2) throws NotExistsException {
+        if (!eventRepository.existsById(createFeedbackDtoV2.getEventId())) {
             throw new NotExistsException("The event does not exist");
         }
 
-        var feedback = feedbackMapper.toFeedback(createFeedbackDto);
+        var feedback = feedbackMapper.toFeedback(createFeedbackDtoV2);
 
-        if (createFeedbackDto.getCoverPhoto() != null) {
-            var uploadFileResult = storageService
-                    .uploadFile(createFeedbackDto.getCoverPhoto(),
-                            FilenameUtils.getExtension(createFeedbackDto.getCoverPhoto().getOriginalFilename()));
-            feedback.setCoverPhoto(uploadedFileMapper.toUploadedFile(uploadFileResult));
+        if (createFeedbackDtoV2.getCoverPhotos() != null) {
+            for (MultipartFile coverPhoto : createFeedbackDtoV2.getCoverPhotos()) {
+                var uploadFileResult = storageService
+                        .uploadFile(coverPhoto,
+                                FilenameUtils.getExtension(coverPhoto.getOriginalFilename()));
+                feedback.getCoverPhotos().add(uploadedFileMapper.toUploadedFile(uploadFileResult));
+            }
         }
 
         feedback.setStudent(studentRepository.getReferenceById(studentId));
-        feedback.setEvent(eventRepository.getReferenceById(createFeedbackDto.getEventId()));
+        feedback.setEvent(eventRepository.getReferenceById(createFeedbackDtoV2.getEventId()));
         feedback.setPostedAt(LocalDateTime.now());
         feedback = feedbackRepository.save(feedback);
 
@@ -70,6 +72,33 @@ public class FeedbackServiceImpl implements FeedbackService {
         activity.setFeedbackId(feedback.getId());
         studentActivityService.recordActivity(studentId, activity);
 
+        return feedbackMapper.toDto(feedback);
+    }
+
+    @Override
+    public FeedbackDto createFeedback(Integer studentId, CreateFeedbackDtoV1 createFeedbackDtoV1) throws NotExistsException {
+        if (!eventRepository.existsById(createFeedbackDtoV1.getEventId())) {
+            throw new NotExistsException("The event does not exist");
+        }
+
+        var feedback = feedbackMapper.toFeedback(createFeedbackDtoV1);
+
+        if (createFeedbackDtoV1.getCoverPhoto() != null) {
+                var uploadFileResult = storageService
+                        .uploadFile(createFeedbackDtoV1.getCoverPhoto(),
+                                FilenameUtils.getExtension(createFeedbackDtoV1.getCoverPhoto().getOriginalFilename()));
+            feedback.getCoverPhotos().add(uploadedFileMapper.toUploadedFile(uploadFileResult));
+        }
+
+        feedback.setStudent(studentRepository.getReferenceById(studentId));
+        feedback.setEvent(eventRepository.getReferenceById(createFeedbackDtoV1.getEventId()));
+        feedback.setPostedAt(LocalDateTime.now());
+        feedback = feedbackRepository.save(feedback);
+        StudentActivity activity = new StudentActivity();
+        activity.setType(ActivityType.FEEDBACK_CREATE);
+        activity.setEvent(feedback.getEvent());
+        activity.setFeedbackId(feedback.getId());
+        studentActivityService.recordActivity(studentId, activity);
         return feedbackMapper.toDto(feedback);
     }
 
@@ -126,16 +155,29 @@ public class FeedbackServiceImpl implements FeedbackService {
     }
 
     @Override
-    public FeedbackDto updateFeedback(Integer feedbackId, UpdateFeedbackDto updateFeedbackDto)
+    public FeedbackDto updateFeedback(Integer feedbackId, UpdateFeedbackDtoV2 updateFeedbackDtoV2)
             throws NotExistsException {
         var feedback = feedbackRepository.findById(feedbackId)
                 .orElseThrow(() -> new NotExistsException("The feedback does not exist"));
 
-        feedbackMapper.updateFeedback(feedback, updateFeedbackDto);
-        if (updateFeedbackDto.isDeleteCoverPhoto()) {
+        feedbackMapper.updateFeedback(feedback, updateFeedbackDtoV2);
+        updateCoverPhoto(feedback, updateFeedbackDtoV2);
+
+        feedbackRepository.save(feedback);
+
+        return feedbackMapper.toDto(feedback);
+    }
+    
+    public FeedbackDto updateFeedback(Integer feedbackId, UpdateFeedbackDtoV1 updateFeedbackDtoV1)
+            throws NotExistsException {
+        var feedback = feedbackRepository.findById(feedbackId)
+                .orElseThrow(() -> new NotExistsException("The feedback does not exist"));
+
+        feedbackMapper.updateFeedback(feedback, updateFeedbackDtoV1);
+        if (updateFeedbackDtoV1.isDeleteCoverPhoto()) {
             deleteCoverPhoto(feedback);
         }
-        updateCoverPhoto(feedback, updateFeedbackDto);
+        updateCoverPhoto(feedback, updateFeedbackDtoV1);
 
         feedbackRepository.save(feedback);
 
@@ -148,27 +190,40 @@ public class FeedbackServiceImpl implements FeedbackService {
     }
 
     void deleteCoverPhoto(Feedback feedback) {
-        if (feedback.getCoverPhoto() != null) {
-            storageService.deleteFile(feedback.getCoverPhoto().getFileId());
-            feedback.setCoverPhoto(null);
+        for (UploadedFile coverPhoto : feedback.getCoverPhotos()) {
+            storageService.deleteFile(coverPhoto.getFileId());
+        }
+        feedback.setCoverPhotos(new ArrayList<>());
+    }
+
+    void updateCoverPhoto(Feedback feedback, UpdateFeedbackDtoV2 updateFeedbackDtoV2) {
+        var len = feedback.getCoverPhotos().size();
+        var urlsNeedToDelete = new ArrayList<String>();
+        for (int i = 0; i < len; i++) {
+            if (!updateFeedbackDtoV2.getKeepCoverPhotoUrls().contains(feedback.getCoverPhotos().get(i).getFileUrl())) {
+                urlsNeedToDelete.add(feedback.getCoverPhotos().get(i).getFileUrl());
+            }
+        }
+        for (String url : urlsNeedToDelete) {
+            for (UploadedFile coverPhoto : feedback.getCoverPhotos()) {
+                storageService.deleteFile(coverPhoto.getFileId());
+                if (coverPhoto.getFileUrl().equals(url)) {
+                    feedback.getCoverPhotos().remove(coverPhoto);
+                    break;
+                }
+            }
+        }
+        for (MultipartFile coverPhoto : updateFeedbackDtoV2.getCoverPhotos()) {
+            var uploadFileResult = storageService.uploadFile(coverPhoto, FilenameUtils.getExtension(coverPhoto.getOriginalFilename()));
+            feedback.getCoverPhotos().add(uploadedFileMapper.toUploadedFile(uploadFileResult));
         }
     }
 
-    void updateCoverPhoto(Feedback feedback, UpdateFeedbackDto updateFeedbackDto) {
-        if (updateFeedbackDto.getCoverPhoto() != null) {
-            var coverPhoto = feedback.getCoverPhoto();
-            if (coverPhoto != null) {
-                var uploadFileResult = storageService.updateFile(coverPhoto.getFileId(), updateFeedbackDto.getCoverPhoto());
-                feedback.setCoverPhoto(uploadedFileMapper.toUploadedFile(uploadFileResult));
-            } else {
-                var coverPhotoExtension = FilenameUtils
-                        .getExtension(updateFeedbackDto.getCoverPhoto().getOriginalFilename());
-
-                var uploadFileResult = storageService
-                        .uploadFile(updateFeedbackDto.getCoverPhoto(), coverPhotoExtension);
-
-                feedback.setCoverPhoto(uploadedFileMapper.toUploadedFile(uploadFileResult));
-            }
+    void updateCoverPhoto(Feedback feedback, UpdateFeedbackDtoV1 updateFeedbackDtoV1) {
+        feedback.setCoverPhotos(new ArrayList<>());
+        if (updateFeedbackDtoV1.getCoverPhoto() != null) {
+            var uploadFileResult = storageService.uploadFile(updateFeedbackDtoV1.getCoverPhoto(), FilenameUtils.getExtension(updateFeedbackDtoV1.getCoverPhoto().getOriginalFilename()));
+            feedback.getCoverPhotos().add(uploadedFileMapper.toUploadedFile(uploadFileResult));
         }
     }
 

@@ -3,10 +3,7 @@ package com.dutact.web.features.feedback.student.controllers;
 import com.dutact.web.auth.context.SecurityContextUtils;
 import com.dutact.web.auth.factors.StudentAccountService;
 import com.dutact.web.common.api.exceptions.NotExistsException;
-import com.dutact.web.features.feedback.student.dtos.CreateFeedbackDto;
-import com.dutact.web.features.feedback.student.dtos.FeedbackDto;
-import com.dutact.web.features.feedback.student.dtos.FeedbackQueryParams;
-import com.dutact.web.features.feedback.student.dtos.UpdateFeedbackDto;
+import com.dutact.web.features.feedback.student.dtos.*;
 import com.dutact.web.features.feedback.student.service.FeedbackService;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.springframework.http.MediaType;
@@ -45,20 +42,36 @@ public class FeedbackController {
                 .orElseThrow(NotExistsException::new));
     }
 
-    @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<FeedbackDto> createFeedback(
-            @ModelAttribute CreateFeedbackDto createFeedbackDto) throws NotExistsException {
+    @PostMapping(path = "/v1", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<FeedbackDto> createFeedbackV1(
+            @ModelAttribute CreateFeedbackDtoV1 createFeedbackDtoV1) throws NotExistsException {
         var studentId = studentAccountService.getStudentId(SecurityContextUtils.getUsername())
                 .orElseThrow(() -> new RuntimeException("The request is associated with a non-existent student"));
 
-        return ResponseEntity.ok(feedbackService.createFeedback(studentId, createFeedbackDto));
+        return ResponseEntity.ok(feedbackService.createFeedback(studentId, createFeedbackDtoV1));
     }
 
-    @PatchMapping(path = "/{id}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<FeedbackDto> updateFeedback(
+    @PostMapping(path = "/v2", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<FeedbackDto> createFeedbackV2(
+            @ModelAttribute CreateFeedbackDtoV2 createFeedbackDtoV2) throws NotExistsException {
+        var studentId = studentAccountService.getStudentId(SecurityContextUtils.getUsername())
+                .orElseThrow(() -> new RuntimeException("The request is associated with a non-existent student"));
+
+        return ResponseEntity.ok(feedbackService.createFeedback(studentId, createFeedbackDtoV2));
+    }
+
+    @PatchMapping(path = "/{id}/v1", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<FeedbackDto> updateFeedbackV1(
             @PathVariable Integer id,
-            @ModelAttribute UpdateFeedbackDto updateFeedbackDto) throws NotExistsException {
-        return ResponseEntity.ok(feedbackService.updateFeedback(id, updateFeedbackDto));
+            @ModelAttribute UpdateFeedbackDtoV1 updateFeedbackDtoV1) throws NotExistsException {
+        return ResponseEntity.ok(feedbackService.updateFeedback(id, updateFeedbackDtoV1));
+    }
+
+    @PatchMapping(path = "/{id}/v2", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<FeedbackDto> updateFeedbackV2(
+            @PathVariable Integer id,
+            @ModelAttribute UpdateFeedbackDtoV2 updateFeedbackDtoV2) throws NotExistsException {
+        return ResponseEntity.ok(feedbackService.updateFeedback(id, updateFeedbackDtoV2));
     }
 
     @DeleteMapping("/{id}")
