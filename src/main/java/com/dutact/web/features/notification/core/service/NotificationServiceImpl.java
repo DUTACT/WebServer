@@ -11,6 +11,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @AllArgsConstructor
 public class NotificationServiceImpl implements NotificationService {
@@ -39,5 +41,29 @@ public class NotificationServiceImpl implements NotificationService {
         notificationRepository.save(notification);
 
         return notificationMapper.toDto(notification);
+    }
+
+    @Override
+    public void markAllAsRead(Integer accountId) {
+        var notifications = notificationRepository.findAll(NotificationSpecs.hasAccountId(accountId)
+                .and(NotificationSpecs.notExpired())
+                .and(NotificationSpecs.notRead()));
+
+        notifications.forEach(notification -> {
+            notification.setRead(true);
+        });
+
+        notificationRepository.saveAll(notifications);
+    }
+
+    @Override
+    public void markAsRead(List<Integer> notificationIds) {
+        var notifications = notificationRepository.findAllById(notificationIds);
+
+        notifications.forEach(notification -> {
+            notification.setRead(true);
+        });
+
+        notificationRepository.saveAll(notifications);
     }
 }

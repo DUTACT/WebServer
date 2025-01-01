@@ -21,4 +21,9 @@ public class NotificationSpecs {
                         criteriaBuilder.greaterThan(root.get("expireAt"), now)
                 );
     }
+
+    public static Specification<Notification> notRead() {
+        return (root, query, criteriaBuilder) ->
+                criteriaBuilder.isFalse(root.get("isRead"));
+    }
 }

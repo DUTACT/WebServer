@@ -9,8 +9,11 @@ import com.dutact.web.features.notification.core.dto.NotificationDto;
 import com.dutact.web.features.notification.core.dto.NotificationQueryParams;
 import com.dutact.web.features.notification.core.service.NotificationService;
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/notifications")
@@ -42,5 +45,24 @@ public class NotificationController {
     @PostMapping("/{notificationId}/mark-as-read")
     public ResponseEntity<NotificationDto> markAsRead(@PathVariable Integer notificationId) throws NotExistsException {
         return ResponseEntity.ok(notificationService.markAsRead(notificationId));
+    }
+
+    @PostMapping("/mark-as-read")
+    public ResponseEntity<Void> markAsRead(@RequestBody MarkAsReadRequest request) {
+        notificationService.markAsRead(request.notificationIds);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/mark-all-as-read")
+    public ResponseEntity<Void> markAllAsRead() {
+        notificationService.markAllAsRead(accountService.getAccountIdByUsername(SecurityContextUtils.getUsername()));
+
+        return ResponseEntity.ok().build();
+    }
+
+    @Data
+    public static class MarkAsReadRequest {
+        private List<Integer> notificationIds;
     }
 }
