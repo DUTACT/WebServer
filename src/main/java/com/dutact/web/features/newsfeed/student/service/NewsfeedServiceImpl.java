@@ -49,9 +49,9 @@ public class NewsfeedServiceImpl implements NewsfeedService {
         List<Feedback> feedbacks = feedbackRepository.findAllByEventIdIn(followedEventIds.stream().map(f -> f.getEvent().getId()).toList());
         List<NewsfeedItemDto> newsfeedItemDtos = new ArrayList<>();
 
-        Collection<PostLike> postLikes = postLikeRepository.findAllByStudentId(studentId,
+        Collection<PostLike> postLikes = postLikeRepository.findAll(
                 Sort.by(Sort.Direction.DESC, "likedAt"));
-        Collection<FeedbackLike> feedbackLikes = feedbackLikeRepository.findAllByStudentId(studentId,
+        Collection<FeedbackLike> feedbackLikes = feedbackLikeRepository.findAll(
                 Sort.by(Sort.Direction.DESC, "likedAt"));
         for (Post post : posts) {
             NewsfeedItemDto newsfeedItemDto = newsfeedMapper.toPostDto(post);
