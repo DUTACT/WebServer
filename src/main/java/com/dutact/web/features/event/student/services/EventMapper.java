@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
 public interface EventMapper {
     @Mapping(target = "registeredAt", ignore = true)
     @Mapping(target = "followedAt", ignore = true)
-    @Mapping(target = "coverPhotoUrl", expression = "java(event.getCoverPhotos().get(0).getFileUrl())")
+    @Mapping(target = "coverPhotoUrl", expression = "java(event.getCoverPhotos().isEmpty() ? null : event.getCoverPhotos().get(0).getFileUrl())")
     @Mapping(target = "coverPhotoUrls", expression = "java(event.getCoverPhotos().stream().map(photo -> photo.getFileUrl()).toList())")
     @Mapping(target = "organizer.avatarUrl", source = "organizer.avatar.fileUrl")
     @Mapping(target = "followerNumber", ignore = true)

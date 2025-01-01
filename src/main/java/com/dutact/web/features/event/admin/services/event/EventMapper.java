@@ -7,7 +7,7 @@ import org.mapstruct.*;
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING,
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface EventMapper {
-    @Mapping(target = "coverPhotoUrl", expression = "java(event.getCoverPhotos().get(0).getFileUrl())")
+    @Mapping(target = "coverPhotoUrl", expression = "java(event.getCoverPhotos().isEmpty() ? null : event.getCoverPhotos().get(0).getFileUrl())")
     @Mapping(target = "coverPhotoUrls", expression = "java(event.getCoverPhotos().stream().map(photo -> photo.getFileUrl()).toList())")
     @Mapping(target = "organizer.avatarUrl", source = "organizer.avatar.fileUrl")
     EventDto toEventDto(Event event);

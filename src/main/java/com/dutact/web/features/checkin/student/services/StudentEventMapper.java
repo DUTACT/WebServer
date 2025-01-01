@@ -13,7 +13,7 @@ import org.mapstruct.MappingConstants;
 public interface StudentEventMapper {
     @Mapping(target = "id", source = "event.id")
     @Mapping(target = "title", source = "event.name")
-    @Mapping(target = "coverPhotoUrl", expression = "java(event.getEvent().getCoverPhotos().get(0).getFileUrl())")
+    @Mapping(target = "coverPhotoUrl", expression = "java(event.getEvent().getCoverPhotos().isEmpty() ? null : event.getEvent().getCoverPhotos().get(0).getFileUrl())")
     @Mapping(target = "coverPhotoUrls", expression = "java(event.getEvent().getCoverPhotos().stream().map(photo -> photo.getFileUrl()).toList())")
     @Mapping(target = "startAt", source = "event.startAt")
     @Mapping(target = "endAt", source = "event.endAt")
