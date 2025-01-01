@@ -1,12 +1,17 @@
 package com.dutact.web.storage;
 
+import com.azure.core.http.HttpPipelineCallContext;
+import com.azure.core.http.HttpPipelineNextPolicy;
 import com.azure.identity.ClientSecretCredential;
 import com.azure.identity.ClientSecretCredentialBuilder;
 import com.azure.storage.blob.BlobClient;
+import com.azure.core.http.policy.HttpPipelinePolicy;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
 import com.azure.storage.blob.models.BlobHttpHeaders;
+import com.azure.storage.common.policy.RequestRetryOptions;
+import com.azure.storage.common.policy.RequestRetryPolicy;
 import jakarta.annotation.Nullable;
 import lombok.SneakyThrows;
 import org.apache.commons.io.FilenameUtils;
@@ -18,6 +23,7 @@ import org.springframework.stereotype.Service;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.Collections;
 import java.util.UUID;
 
 @Service
@@ -37,9 +43,15 @@ public class AzureBlobStorageService implements StorageService {
                 .tenantId(tenantId)
                 .build();
 
+        HttpPipelinePolicy logStringToSignPolicy = (HttpPipelineCallContext context, HttpPipelineNextPolicy next) -> {
+            context.setData("Azure-Storage-Log-String-To-Sign", true);
+            return next.process();
+        };
+
         BlobServiceClient blobServiceClient = new BlobServiceClientBuilder()
                 .endpoint(String.format("https://%s.blob.core.windows.net", accountName))
                 .credential(clientSecretCredential)
+                .addPolicy(logStringToSignPolicy)
                 .buildClient();
 
         containerClient = blobServiceClient.getBlobContainerClient(containerName);

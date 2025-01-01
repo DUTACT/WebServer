@@ -4,8 +4,10 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 @Data
-public class PostCreateDto {
+public class PostCreateDtoV1 {
     @NotNull
     private Integer eventId;
 

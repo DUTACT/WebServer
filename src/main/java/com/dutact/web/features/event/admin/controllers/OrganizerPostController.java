@@ -3,15 +3,15 @@ package com.dutact.web.features.event.admin.controllers;
 import com.dutact.web.auth.context.SecurityContextUtils;
 import com.dutact.web.auth.factors.OrganizerAccountService;
 import com.dutact.web.auth.factors.Role;
+import com.dutact.web.common.api.exceptions.ConflictException;
 import com.dutact.web.common.api.exceptions.ForbiddenException;
 import com.dutact.web.common.api.exceptions.NotExistsException;
 import com.dutact.web.core.entities.post.PostStatus;
 import com.dutact.web.features.event.admin.dtos.event.EventDto;
-import com.dutact.web.features.event.admin.dtos.post.PostCreateDto;
-import com.dutact.web.features.event.admin.dtos.post.PostDto;
-import com.dutact.web.features.event.admin.dtos.post.PostUpdateDto;
+import com.dutact.web.features.event.admin.dtos.post.*;
 import com.dutact.web.features.event.admin.services.event.EventService;
 import com.dutact.web.features.event.admin.services.post.PostService;
+import lombok.SneakyThrows;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -36,9 +36,9 @@ public class OrganizerPostController {
         this.organizerAccountService = organizerAccountService;
     }
 
-    @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    @PostMapping(path = "/{id}/v2", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<PostDto> createPost(@ModelAttribute PostCreateDto postDto)
+    public ResponseEntity<PostDto> createPostV2(@ModelAttribute PostCreateDtoV2 postDto)
             throws ForbiddenException, URISyntaxException {
         if (!canManageOwnPosts()) {
             throw new ForbiddenException("This account does not have permission to create posts");
@@ -55,6 +55,27 @@ public class OrganizerPostController {
         return ResponseEntity.created(new URI("/api/posts/" + createdPost.getId()))
                 .body(createdPost);
     }
+
+    @PostMapping(path = "/{id}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    @ResponseStatus(HttpStatus.CREATED)
+    public ResponseEntity<PostDto> createPostV1(
+            @PathVariable("id") Integer organizerId,
+            @ModelAttribute PostCreateDtoV1 postDto)
+            throws ForbiddenException, NotExistsException, ConflictException, URISyntaxException {
+        if (!canManageOwnPosts()) {
+            return ResponseEntity.status(403).build();
+        }
+
+        EventDto event = eventService.getEvent(postDto.getEventId()).orElseThrow();
+        if (event.getOrganizer().getId() != organizerId) {
+            return ResponseEntity.status(403).build();
+        }
+
+        PostDto createdPost = postService.createPost(postDto);
+        return ResponseEntity.created(new URI("/api/posts/" + createdPost.getId()))
+                .body(createdPost);
+    }
+
 
     @GetMapping
     public ResponseEntity<Collection<PostDto>> getPosts(@RequestParam("event_id") Integer eventId)
@@ -88,10 +109,10 @@ public class OrganizerPostController {
         return ResponseEntity.ok(postService.updatePostStatus(id, status));
     }
 
-    @PatchMapping(path = "/{postId}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<PostDto> updatePost(
+    @PatchMapping(path = "/{postId}/v2", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<PostDto> updatePostV2(
             @PathVariable("postId") Integer postId,
-            @ModelAttribute PostUpdateDto postUpdateDto) throws ForbiddenException, NotExistsException {
+            @ModelAttribute PostUpdateDtoV2 postUpdateDtoV2) throws ForbiddenException, NotExistsException {
         PostDto post = postService.getPost(postId).orElseThrow(NotExistsException::new);
         EventDto event = eventService.getEvent(post.getEventId()).orElseThrow();
 
@@ -99,7 +120,24 @@ public class OrganizerPostController {
             throw new ForbiddenException("This account does not have permission to update this post");
         }
 
-        return ResponseEntity.ok(postService.updatePost(postId, postUpdateDto));
+        return ResponseEntity.ok(postService.updatePost(postId, postUpdateDtoV2));
+    }
+
+    @PatchMapping(path = "/{postId}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<PostDto> updatePostV1(
+            @PathVariable("postId") Integer postId,
+            @ModelAttribute PostUpdateDtoV1 postUpdateDtoV1) throws ForbiddenException, NotExistsException {
+        if (!canManageOwnPosts()) {
+            return ResponseEntity.status(403).build();
+        }
+
+        PostDto post = postService.getPost(postId).orElseThrow(NotExistsException::new);
+        EventDto event = eventService.getEvent(post.getEventId()).orElseThrow();
+        if (!(canManageOwnPosts() && isEventOwner(event.getId()))) {
+            throw new ForbiddenException("This account does not have permission to update this post");
+        }
+
+        return ResponseEntity.ok(postService.updatePost(postId, postUpdateDtoV1));  
     }
 
     @DeleteMapping("/{id}")

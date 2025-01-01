@@ -32,10 +32,10 @@ public class OrganizerEventController {
     }
 
     @SneakyThrows(value = {URISyntaxException.class})
-    @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<EventDto> createEvent(
+    @PostMapping(path = "/v2", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<EventDto> createEventV2(
             @PathVariable("id") Integer organizerId,
-            @ModelAttribute EventCreateDto eventDto)
+            @ModelAttribute EventCreateDtoV2 eventDto)
             throws ForbiddenException, NotExistsException, ConflictException {
         if (!canManageOwnEvents()) {
             return ResponseEntity.status(403).build();
@@ -46,6 +46,24 @@ public class OrganizerEventController {
         EventDto createdEvent = eventService.createEvent(organizerId, eventDto);
         return ResponseEntity.created(new URI("/api/events/" + createdEvent.getId()))
                 .body(createdEvent);
+    }
+
+    @SneakyThrows(value = {URISyntaxException.class})
+    @PostMapping(path = "", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<EventDto> createEventV1(
+            @PathVariable("id") Integer organizerId,
+            @ModelAttribute EventCreateDtoV1 eventDto)
+            throws ForbiddenException, NotExistsException, ConflictException {
+        if (!canManageOwnEvents()) {
+            return ResponseEntity.status(403).build();
+        }
+
+        validateRequestOrganizer(organizerId);
+
+        EventDto createdEvent = eventService.createEvent(organizerId, eventDto);
+        return ResponseEntity.created(new URI("/api/events/" + createdEvent.getId()))
+                .body(createdEvent);
+
     }
 
     @GetMapping
@@ -90,11 +108,21 @@ public class OrganizerEventController {
     }
 
 
-    @PatchMapping(path = "/{eventId}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<EventDto> updateEvent(
+    @PatchMapping(path = "/{eventId}/v2", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<EventDto> updateEventV2(
             @PathVariable("id") Integer organizerId,
             @PathVariable("eventId") Integer eventId,
-            @ModelAttribute EventUpdateDto eventDto) throws ForbiddenException, NotExistsException {
+            @ModelAttribute EventUpdateDtoV2 eventDto) throws ForbiddenException, NotExistsException {
+        validateRequestOrganizer(organizerId);
+
+        return ResponseEntity.ok(eventService.updateEvent(eventId, eventDto));
+    }
+
+    @PatchMapping(path = "/{eventId}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<EventDto> updateEventV1(
+            @PathVariable("id") Integer organizerId,
+            @PathVariable("eventId") Integer eventId,
+            @ModelAttribute EventUpdateDtoV1 eventDto) throws ForbiddenException, NotExistsException {
         validateRequestOrganizer(organizerId);
 
         return ResponseEntity.ok(eventService.updateEvent(eventId, eventDto));

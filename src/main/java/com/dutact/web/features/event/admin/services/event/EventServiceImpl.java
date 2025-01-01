@@ -5,6 +5,7 @@ import com.dutact.web.auth.factors.Role;
 import com.dutact.web.common.api.exceptions.ConflictException;
 import com.dutact.web.common.api.exceptions.NotExistsException;
 import com.dutact.web.common.mapper.UploadedFileMapper;
+import com.dutact.web.core.entities.common.UploadedFile;
 import com.dutact.web.core.entities.event.CannotChangeStatusException;
 import com.dutact.web.core.entities.event.Event;
 import com.dutact.web.core.entities.event.EventStatus;
@@ -30,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -46,15 +48,38 @@ public class EventServiceImpl implements EventService {
     private final StorageService storageService;
 
     @Override
-    public EventDto createEvent(Integer organizerId, EventCreateDto eventDto)
+    public EventDto createEvent(Integer organizerId, EventCreateDtoV2 eventDto)
             throws NotExistsException, ConflictException {
         Event event = eventMapper.toEvent(eventDto);
         event.setOrganizer(organizerRepository.findById(organizerId)
                 .orElseThrow(() -> new NotExistsException("Organizer not found")));
 
-        UploadFileResult uploadFileResult = writeFile(eventDto.getCoverPhoto());
-        event.setCoverPhoto(uploadedFileMapper.toUploadedFile(uploadFileResult));
+        for (MultipartFile coverPhoto : eventDto.getCoverPhotos()) {
+            UploadFileResult uploadFileResult = storageService.uploadFile(coverPhoto, FilenameUtils.getExtension(coverPhoto.getOriginalFilename()));
+            event.getCoverPhotos().add(uploadedFileMapper.toUploadedFile(uploadFileResult));
+        }
 
+
+        if (SecurityContextUtils.hasRole(Role.STUDENT_AFFAIRS_OFFICE)) {
+            updateEventStatus(event, new EventStatus.Approved());
+        } else {
+            updateEventStatus(event, new EventStatus.Pending());
+        }
+
+        eventRepository.save(event);
+
+        return eventMapper.toEventDto(event);
+    }
+
+    @Override
+    public EventDto createEvent(Integer organizerId, EventCreateDtoV1 eventDto)
+            throws NotExistsException, ConflictException {
+        Event event = eventMapper.toEvent(eventDto);
+        event.setOrganizer(organizerRepository.findById(organizerId)
+                .orElseThrow(() -> new NotExistsException("Organizer not found")));
+
+        UploadFileResult uploadFileResult = storageService.uploadFile(eventDto.getCoverPhoto(), FilenameUtils.getExtension(eventDto.getCoverPhoto().getOriginalFilename()));
+        event.getCoverPhotos().add(uploadedFileMapper.toUploadedFile(uploadFileResult));
 
         if (SecurityContextUtils.hasRole(Role.STUDENT_AFFAIRS_OFFICE)) {
             updateEventStatus(event, new EventStatus.Approved());
@@ -107,22 +132,59 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @SneakyThrows
-    public EventDto updateEvent(Integer eventId, EventUpdateDto eventDto)
+    public EventDto updateEvent(Integer eventId, EventUpdateDtoV2 eventDto)
             throws NotExistsException {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotExistsException("Event not found"));
         eventMapper.updateEvent(event, eventDto);
 
-        if (eventDto.getCoverPhoto() != null) {
-            UploadFileResult uploadFileResult = writeFile(eventDto.getCoverPhoto());
-            event.setCoverPhoto(uploadedFileMapper.toUploadedFile(uploadFileResult));
-        }
+        updateCoverPhoto(event, eventDto);
 
         eventRepository.save(event);
 
         return eventMapper.toEventDto(event);
     }
 
+    @Override
+    @SneakyThrows
+    public EventDto updateEvent(Integer eventId, EventUpdateDtoV1 eventDto) throws NotExistsException {
+        Event event = eventRepository.findById(eventId).orElseThrow();
+        eventMapper.updateEvent(event, eventDto);
+        updateCoverPhoto(event, eventDto);
+        eventRepository.save(event);
+        return eventMapper.toEventDto(event);
+    }
+
+    void updateCoverPhoto(Event event, EventUpdateDtoV2 eventUpdateDtoV2) {
+        var len = event.getCoverPhotos().size();
+        var urlsNeedToDelete = new ArrayList<String>();
+        for (int i = 0; i < len; i++) {
+            if (!eventUpdateDtoV2.getKeepCoverPhotoUrls().contains(event.getCoverPhotos().get(i).getFileUrl())) {
+                urlsNeedToDelete.add(event.getCoverPhotos().get(i).getFileUrl());
+            }
+        }
+        for (String url : urlsNeedToDelete) {
+            for (UploadedFile coverPhoto : event.getCoverPhotos()) {
+                storageService.deleteFile(coverPhoto.getFileId());
+                if (coverPhoto.getFileUrl().equals(url)) {
+                    event.getCoverPhotos().remove(coverPhoto);
+                    break;
+                }
+            }
+        }
+        for (MultipartFile coverPhoto : eventUpdateDtoV2.getCoverPhotos()) {
+            var uploadFileResult = storageService.uploadFile(coverPhoto, FilenameUtils.getExtension(coverPhoto.getOriginalFilename()));
+            event.getCoverPhotos().add(uploadedFileMapper.toUploadedFile(uploadFileResult));
+        }
+    }
+
+    void updateCoverPhoto(Event event, EventUpdateDtoV1 eventUpdateDtoV1) {
+        event.setCoverPhotos(new ArrayList<>());
+        if (eventUpdateDtoV1.getCoverPhoto() != null) {
+            var uploadFileResult = storageService.uploadFile(eventUpdateDtoV1.getCoverPhoto(), FilenameUtils.getExtension(eventUpdateDtoV1.getCoverPhoto().getOriginalFilename()));
+            event.getCoverPhotos().add(uploadedFileMapper.toUploadedFile(uploadFileResult));
+        }
+    }
     @Override
     @Transactional
     public EventDto renewEventRegistration(

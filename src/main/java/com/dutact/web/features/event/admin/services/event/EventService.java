@@ -9,7 +9,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface EventService {
-    EventDto createEvent(Integer organizerId, EventCreateDto eventDto) throws NotExistsException, ConflictException;
+    EventDto createEvent(Integer organizerId, EventCreateDtoV2 eventDto) throws NotExistsException, ConflictException;
+
+    EventDto createEvent(Integer organizerId, EventCreateDtoV1 eventDto) throws NotExistsException, ConflictException;
 
     List<EventDto> getEvents();
 
@@ -19,7 +21,9 @@ public interface EventService {
 
     List<EventChangeDto> getEventChangeHistory(Integer eventId);
 
-    EventDto updateEvent(Integer eventId, EventUpdateDto eventDto) throws NotExistsException;
+    EventDto updateEvent(Integer eventId, EventUpdateDtoV2 eventDto) throws NotExistsException;
+
+    EventDto updateEvent(Integer eventId, EventUpdateDtoV1 eventDto) throws NotExistsException;
 
     EventDto renewEventRegistration(Integer eventId, RenewEventRegistrationDto renewEventRegistrationDto)
             throws NotExistsException;
