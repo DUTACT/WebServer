@@ -213,6 +213,9 @@ public class FeedbackServiceImpl implements FeedbackService {
                 }
             }
         }
+        if (updateFeedbackDtoV2.getCoverPhotos() == null) {
+            updateFeedbackDtoV2.setCoverPhotos(new ArrayList<>());
+        }
         for (MultipartFile coverPhoto : updateFeedbackDtoV2.getCoverPhotos()) {
             var uploadFileResult = storageService.uploadFile(coverPhoto, FilenameUtils.getExtension(coverPhoto.getOriginalFilename()));
             feedback.getCoverPhotos().add(uploadedFileMapper.toUploadedFile(uploadFileResult));

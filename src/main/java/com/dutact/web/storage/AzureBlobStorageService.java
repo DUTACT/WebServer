@@ -51,7 +51,7 @@ public class AzureBlobStorageService implements StorageService {
         BlobServiceClient blobServiceClient = new BlobServiceClientBuilder()
                 .endpoint(String.format("https://%s.blob.core.windows.net", accountName))
                 .credential(clientSecretCredential)
-                .addPolicy(logStringToSignPolicy)
+//                .addPolicy(logStringToSignPolicy)
                 .buildClient();
 
         containerClient = blobServiceClient.getBlobContainerClient(containerName);
