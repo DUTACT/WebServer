@@ -26,8 +26,8 @@ public interface FeedbackMapper {
     Feedback toFeedback(CreateFeedbackDtoV1 createFeedbackDtoV1);
 
     @Mapping(target = "coverPhotoUrls", expression = "java(feedback.getCoverPhotos().stream().map(photo -> photo.getFileUrl()).toList())")
-    @Mapping(target = "coverPhotoUrl", expression = "java(feedback.getCoverPhotos().get(0).getFileUrl())")
-    @Mapping(target = "event.coverPhotoUrl", expression = "java(event.getCoverPhotos().get(0).getFileUrl())")
+    @Mapping(target = "coverPhotoUrl", expression = "java(feedback.getCoverPhotos().isEmpty() ? null : feedback.getCoverPhotos().get(0).getFileUrl())")
+    @Mapping(target = "event.coverPhotoUrl", expression = "java(event.getCoverPhotos().isEmpty() ? null : event.getCoverPhotos().get(0).getFileUrl())")
     @Mapping(target = "event.coverPhotoUrls", expression = "java(event.getCoverPhotos().stream().map(photo -> photo.getFileUrl()).toList())")
     @Mapping(target = "student.avatarUrl", source = "student.avatar.fileUrl")
     @Mapping(target = "likedAt", ignore = true)

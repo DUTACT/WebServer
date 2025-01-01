@@ -8,7 +8,7 @@ import org.mapstruct.*;
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface PostMapper {
     @Mapping(target = "eventId", source = "event.id")
-    @Mapping(target = "coverPhotoUrl", expression = "java(post.getCoverPhotos().get(0).getFileUrl())")
+    @Mapping(target = "coverPhotoUrl", expression = "java(post.getCoverPhotos().isEmpty() ? null : post.getCoverPhotos().get(0).getFileUrl())")
     @Mapping(target = "coverPhotoUrls", expression = "java(post.getCoverPhotos().stream().map(photo -> photo.getFileUrl()).toList())")
     PostDto toPostDto(Post post);
 
