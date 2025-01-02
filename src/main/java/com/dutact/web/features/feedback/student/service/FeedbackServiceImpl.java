@@ -52,14 +52,16 @@ public class FeedbackServiceImpl implements FeedbackService {
 
         var feedback = feedbackMapper.toFeedback(createFeedbackDtoV2);
 
-        if (createFeedbackDtoV2.getCoverPhotos() != null) {
-            for (MultipartFile coverPhoto : createFeedbackDtoV2.getCoverPhotos()) {
-                var uploadFileResult = storageService
-                        .uploadFile(coverPhoto,
-                                FilenameUtils.getExtension(coverPhoto.getOriginalFilename()));
-                feedback.getCoverPhotos().add(uploadedFileMapper.toUploadedFile(uploadFileResult));
-            }
+        if (createFeedbackDtoV2.getCoverPhotos() == null) {
+            createFeedbackDtoV2.setCoverPhotos(new ArrayList<>());
         }
+        for (MultipartFile coverPhoto : createFeedbackDtoV2.getCoverPhotos()) {
+            var uploadFileResult = storageService
+                    .uploadFile(coverPhoto,
+                            FilenameUtils.getExtension(coverPhoto.getOriginalFilename()));
+            feedback.getCoverPhotos().add(uploadedFileMapper.toUploadedFile(uploadFileResult));
+        }
+
 
         feedback.setStudent(studentRepository.getReferenceById(studentId));
         feedback.setEvent(eventRepository.getReferenceById(createFeedbackDtoV2.getEventId()));

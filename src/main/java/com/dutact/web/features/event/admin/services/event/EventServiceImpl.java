@@ -54,6 +54,9 @@ public class EventServiceImpl implements EventService {
         event.setOrganizer(organizerRepository.findById(organizerId)
                 .orElseThrow(() -> new NotExistsException("Organizer not found")));
 
+        if (eventDto.getCoverPhotos() == null) {
+            eventDto.setCoverPhotos(new ArrayList<>());
+        }
         for (MultipartFile coverPhoto : eventDto.getCoverPhotos()) {
             UploadFileResult uploadFileResult = storageService.uploadFile(coverPhoto, FilenameUtils.getExtension(coverPhoto.getOriginalFilename()));
             event.getCoverPhotos().add(uploadedFileMapper.toUploadedFile(uploadFileResult));
@@ -156,6 +159,9 @@ public class EventServiceImpl implements EventService {
     }
 
     void updateCoverPhoto(Event event, EventUpdateDtoV2 eventUpdateDtoV2) {
+        if (eventUpdateDtoV2.getCoverPhotos() == null) {
+            eventUpdateDtoV2.setCoverPhotos(new ArrayList<>());
+        }
         var len = event.getCoverPhotos().size();
         var urlsNeedToDelete = new ArrayList<String>();
         for (int i = 0; i < len; i++) {
