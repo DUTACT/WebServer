@@ -50,6 +50,9 @@ public class PostServiceImpl implements PostService {
         Post post = postMapper.toPost(postDto);
         post.setStatus(new PostStatus.Public());
 
+        if (postDto.getCoverPhotos() == null) {
+            postDto.setCoverPhotos(new ArrayList<>());
+        }
         for (MultipartFile coverPhoto : postDto.getCoverPhotos()) {
             UploadFileResult uploadedFile = uploadFile(coverPhoto);
             post.getCoverPhotos().add(uploadedFileMapper.toUploadedFile(uploadedFile));
