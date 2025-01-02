@@ -137,6 +137,9 @@ public class PostServiceImpl implements PostService {
                 }
             }
         }
+        if (postUpdateDtoV2.getCoverPhotos() == null) {
+            postUpdateDtoV2.setCoverPhotos(new ArrayList<>());
+        }
         for (MultipartFile coverPhoto : postUpdateDtoV2.getCoverPhotos()) {
             var uploadFileResult = storageService.uploadFile(coverPhoto, FilenameUtils.getExtension(coverPhoto.getOriginalFilename()));
             post.getCoverPhotos().add(uploadedFileMapper.toUploadedFile(uploadFileResult));
