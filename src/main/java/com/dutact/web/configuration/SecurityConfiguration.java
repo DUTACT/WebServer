@@ -1,8 +1,8 @@
 package com.dutact.web.configuration;
 
-import com.dutact.web.auth.filter.BearerTokenAuthenticationFilter;
-import com.dutact.web.auth.token.jwt.JWTAuthenticationProvider;
-import com.dutact.web.auth.token.jwt.JWTProcessor;
+import com.dutact.web.common.auth.jwt.JWTAuthenticationProvider;
+import com.dutact.web.common.auth.jwt.JWTProcessor;
+import com.dutact.web.filter.BearerTokenAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;

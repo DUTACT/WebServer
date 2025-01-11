@@ -1,7 +1,7 @@
 package com.dutact.web.common.mapper;
 
-import com.dutact.web.core.entities.common.UploadedFile;
-import com.dutact.web.storage.UploadFileResult;
+import com.dutact.web.common.storage.UploadFileResult;
+import com.dutact.web.data.entity.common.UploadedFile;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingConstants;
 
