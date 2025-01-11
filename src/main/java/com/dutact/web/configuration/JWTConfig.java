@@ -1,8 +1,8 @@
 package com.dutact.web.configuration;
 
 import com.auth0.jwt.algorithms.Algorithm;
-import com.dutact.web.auth.token.jwt.JWTProcessor;
-import com.dutact.web.auth.token.jwt.JWTProcessorImpl;
+import com.dutact.web.common.auth.jwt.JWTProcessor;
+import com.dutact.web.common.auth.jwt.JWTProcessorImpl;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,6 +24,7 @@ public class JWTConfig {
         this.algorithm = algorithm;
         this.tokenLifespan = tokenLifespan;
     }
+
     @Bean
     public JWTProcessor jwtProcessor() {
         Base64.Decoder decoder = Base64.getDecoder();

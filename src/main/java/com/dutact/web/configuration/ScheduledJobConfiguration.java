@@ -1,10 +1,10 @@
 package com.dutact.web.configuration;
 
-import com.dutact.web.features.event.admin.background.AutoRejectEventExecutor;
-import com.dutact.web.features.event.student.notification.EventRemindExecutor;
-import com.dutact.web.features.notification.core.timer.ScheduledJobDelegator;
-import com.dutact.web.features.notification.core.timer.ScheduledJobDelegatorImpl;
-import com.dutact.web.features.notification.core.timer.ScheduledJobType;
+import com.dutact.web.background.AutoRejectEventExecutor;
+import com.dutact.web.common.notification.core.timer.ScheduledJobDelegator;
+import com.dutact.web.common.notification.core.timer.ScheduledJobDelegatorImpl;
+import com.dutact.web.common.notification.core.timer.ScheduledJobType;
+import com.dutact.web.background.EventRemindExecutor;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

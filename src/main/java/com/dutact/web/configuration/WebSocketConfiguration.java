@@ -1,6 +1,6 @@
 package com.dutact.web.configuration;
 
-import com.dutact.web.features.notification.infrastructure.websocket.SSPRNotificationWebSocketHandler;
+import com.dutact.web.common.notification.infrastructure.websocket.SSPRNotificationWebSocketHandler;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
