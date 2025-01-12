@@ -185,7 +185,6 @@ public class EventServiceImpl implements EventService {
     }
 
     void updateCoverPhoto(Event event, EventUpdateDtoV1 eventUpdateDtoV1) {
-        event.setCoverPhotos(new ArrayList<>());
         if (eventUpdateDtoV1.getCoverPhoto() != null) {
             var uploadFileResult = storageService.uploadFile(eventUpdateDtoV1.getCoverPhoto(), FilenameUtils.getExtension(eventUpdateDtoV1.getCoverPhoto().getOriginalFilename()));
             event.getCoverPhotos().add(uploadedFileMapper.toUploadedFile(uploadFileResult));

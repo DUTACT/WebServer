@@ -147,7 +147,6 @@ public class PostServiceImpl implements PostService {
     }
 
     void updateCoverPhoto(Post post, PostUpdateDtoV1 postUpdateDtoV1) {
-        post.setCoverPhotos(new ArrayList<>());
         if (postUpdateDtoV1.getCoverPhoto() != null) {
             var uploadFileResult = storageService.uploadFile(postUpdateDtoV1.getCoverPhoto(), FilenameUtils.getExtension(postUpdateDtoV1.getCoverPhoto().getOriginalFilename()));
             post.getCoverPhotos().add(uploadedFileMapper.toUploadedFile(uploadFileResult));
